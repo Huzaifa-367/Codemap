@@ -248,6 +248,8 @@ export function linkCalls({ files, edges, read }) {
         if (n >= 60) break;
         // common names (create, send, get…) count only on an object we know: an import or a typed field
         if (c.noise && !(c.obj && (binds.has(c.obj) || types.has(c.obj)))) continue;
+        // the function's own name in its signature is not a call
+        if (!c.obj && c.name === d.name && !text.slice(0, c.at).includes('\n')) continue;
         const line = d.line + text.slice(0, c.at).split('\n').length - 1;
         let to = null, loose = false;
         const self = !c.obj || c.obj === 'this' || c.obj === 'self';

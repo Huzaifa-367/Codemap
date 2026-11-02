@@ -484,7 +484,7 @@ try {
   let traced = 0;
   for (const st of starts) {
     if (graph.flows.some((f) => f.title === st.title)) continue;
-    const r = traceReport(graph, st.start, { depth: 8, ...(st.app ? { app: st.app } : {}) });
+    const r = traceReport(graph, st.start, { depth: 14, ...(st.app ? { app: st.app } : {}) });
     if (!r.trees?.length) continue;
     const { steps, edges } = traceToCards(graph, r.trees);
     if (steps.length < 4) continue;

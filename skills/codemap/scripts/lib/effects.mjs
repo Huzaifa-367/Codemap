@@ -17,7 +17,13 @@ const PATTERNS = [
   ['job', /\b([A-Z]\w*)::(?:dispatch|dispatchSync|dispatchIf|dispatchUnless|dispatchAfterResponse|withChain)\s*\(/g],
   ['job', /\b([A-Z]\w*Job)\.(?:perform_later|perform_now|perform_async|perform_in|set\([^)]*\)\.perform_later)\b/g],
   ['job', /\b([a-z_]\w*)\.(?:delay|apply_async)\s*\(/g],
-  ['job', /\.(?:add|addBulk)\(\s*['"`]([\w.:\-]+)['"`]/g, (n, src) => /\bnew\s+Queue\(|\bQueue\(|bullmq|bull\b/.test(src) ? n : null],
+  // BullMQ / Bull: queue.add('job', …) on a queue made with new Queue('payments') or @InjectQueue('payments'): named by the queue
+  ['job', /\b(?:this\.)?(\w+)\.(?:add|addBulk)\(\s*['"`]([\w.:\-]+)['"`]/g, (n, src, m) => {
+    if (!/\bnew\s+Queue\(|\bQueue\b|bullmq|['"]bull['"]/.test(src)) return null;
+    const q = new RegExp(`@InjectQueue\\(\\s*['"\`]([\\w.:\\-]+)['"\`]\\s*\\)\\s*(?:private\\s+|public\\s+|readonly\\s+)*${m[1]}\\b`).exec(src)?.[1]
+      || new RegExp(`\\b${m[1]}\\s*=\\s*new\\s+Queue\\(\\s*['"\`]([\\w.:\\-]+)['"\`]`).exec(src)?.[1];
+    return q || m[2];
+  }],
   // ---- mail and notifications ----
   ['mail', /\bMail::(?:to|cc|bcc|send|queue)\b[^;]*?->(?:send|queue|later)\(\s*new\s+\\?(?:[\w\\]*\\)?([A-Z]\w*)/g],
   ['mail', /\b([A-Z]\w*Mailer)\.(?:with\([^)]*\)\.)?(\w+)(?:\([^)]*\))?\.deliver_(?:later|now)\b/g, (n, src, m) => `${n}.${m[2]}`],
@@ -86,6 +92,8 @@ export function linkEffects(files, read) {
       const head = lines.slice(Math.max(0, d.line - 4), d.line + 1).join('\n');
       for (const m of head.matchAll(/\b(?:handle|__invoke|on\w*|handle\w*|process|consume|receive|\w*Listener|\w+)\s*\(\s*(?:final\s+)?\\?(?:[\w\\]*\\)?([A-Z]\w*)\s+\$?\w+/g)) add(byParam, m[1], [f.path, i]);
       for (const m of head.matchAll(/@(?:OnEvent|Process|EventPattern|MessagePattern)\(\s*['"`]([\w.:\-]+)['"`]/g)) add(byName, m[1], [f.path, i]);
+      // a queue processor class: @Processor('payments') class … { process(job) } (BullMQ / Bull in NestJS)
+      if (/^(process|handle)$/.test(d.name)) { const cls = [...src(f.path).slice(0, src(f.path).split('\n').slice(0, d.line).join('\n').length).matchAll(/@Processor\(\s*['"`]([\w.:\-]+)['"`]/g)].pop(); if (cls) add(byName, cls[1], [f.path, i]); }
       for (const m of head.matchAll(/@receiver\(\s*([\w.]+)/g)) add(byName, m[1].split('.').pop(), [f.path, i]);
     });
     for (const m of src(f.path).matchAll(/\.(?:on|once|subscribe)\(\s*['"`]([\w.:\-]+)['"`]\s*,\s*(?:this\.)?([A-Za-z_]\w*)/g)) { const i = fns.findIndex((d) => d.name === m[2]); if (i >= 0) add(byName, m[1], [f.path, i]); }

@@ -25,7 +25,8 @@ export function factsText(x) {
 }
 
 export function traceReport(G, start, args = {}) {
-  const maxDepth = Math.max(1, Math.min(14, Number(args.depth) || 8));
+  // deep enough for screen -> state holder -> repository -> client -> request -> handler -> service -> event -> listener -> mail
+  const maxDepth = Math.max(1, Math.min(24, Number(args.depth) || 14));
 
   // ---------- indexes ----------
   const files = new Map(G.files.map((f) => [f.p, f]));
@@ -36,6 +37,8 @@ export function traceReport(G, start, args = {}) {
   const fnAt = (k) => { const [p, i] = [k.slice(0, k.lastIndexOf('#')), +k.slice(k.lastIndexOf('#') + 1)]; return { p, i, d: fnsOf(p)[i] }; };
   /** The innermost function of a file covering a line. */
   const fnCovering = (p, line) => { let best = -1; fnsOf(p).forEach(([, a, b], i) => { if (line >= a && line <= b && (best < 0 || a >= fnsOf(p)[best][1])) best = i; }); return best; };
+  /** A line inside a function, or an annotation just above it that no other function holds (Retrofit @POST("orders")). */
+  const inFn = (p, d, line) => (line >= d[1] && line <= d[2]) || (line < d[1] && line >= d[1] - 3 && fnCovering(p, line) < 0);
   const callsFrom = new Map();
   for (const [fp, fi, tp, ti, line, loose] of G.calls || []) {
     const k = key(fp, fi);
@@ -148,7 +151,7 @@ export function traceReport(G, start, args = {}) {
     if (depth >= maxDepth || --budget <= 0) { node.more = true; return node; }
     const kids = [];
     for (const c of callsFrom.get(k) || []) kids.push({ line: c.line, make: () => fnNode(c.to, depth + 1, c.loose ? 'calls (by name)' : 'calls') });
-    for (const r of requestsIn.get(p) || []) if (r.line >= d[1] && r.line <= d[2]) kids.push({ line: r.line, make: () => endpointNode(r.ri, depth + 1) });
+    for (const r of requestsIn.get(p) || []) if (inFn(p, d, r.line)) kids.push({ line: r.line, make: () => endpointNode(r.ri, depth + 1) });
     for (const u of tableUses.get(p) || []) if (u.line >= d[1] && u.line <= d[2]) kids.push({ line: u.line, make: () => ({ type: 'table', name: u.table, how: u.how, children: [] }) });
     for (const e of effectsOf.get(k) || []) kids.push({ line: e.line, make: () => ({ type: e.kind, name: e.name, line: e.line, file: p, children: e.to.map(([q, j]) => fnNode(key(q, j), depth + 1, e.kind === 'event' ? 'listened to by' : e.kind === 'job' ? 'run by' : 'handled by')) }) });
     kids.sort((a, b) => a.line - b.line);
@@ -169,7 +172,7 @@ export function traceReport(G, start, args = {}) {
     seenFiles.add(p);
     const fns = fnsOf(p);
     // where a screen or file starts: its functions that call something, in file order (the rest are leaves)
-    const busy = fns.map((_, i) => key(p, i)).filter((k) => (callsFrom.get(k) || []).length || (requestsIn.get(p) || []).some((r) => r.line >= fnAt(k).d[1] && r.line <= fnAt(k).d[2]));
+    const busy = fns.map((_, i) => key(p, i)).filter((k) => (callsFrom.get(k) || []).length || (requestsIn.get(p) || []).some((r) => inFn(p, fnAt(k).d, r.line)));
     const node = { type: 'file', name: files.get(p)?.name || p, file: p, part: partOf(p), children: [] };
     Object.defineProperty(node, '_depth', { value: depth, enumerable: false });
     // start only where the file's work begins: functions no other function in the file calls (helpers are reached
@@ -181,7 +184,7 @@ export function traceReport(G, start, args = {}) {
     const leaves = (k) => (callsFrom.get(k) || []).some((c) => !inside(c.to))
       || [...(requestsIn.get(p) || []), ...(tableUses.get(p) || [])].some((r) => r.line >= span(k)[1] && r.line <= span(k)[2]);
     // a request in a function's own body, or in a function it calls (a generated route helper, an API client)
-    const asks = (k, hops = 2) => (requestsIn.get(fnAt(k).p) || []).some((r) => r.line >= fnAt(k).d[1] && r.line <= fnAt(k).d[2])
+    const asks = (k, hops = 2) => (requestsIn.get(fnAt(k).p) || []).some((r) => inFn(fnAt(k).p, fnAt(k).d, r.line))
       || (hops > 0 && (callsFrom.get(k) || []).some((c) => c.to !== k && asks(c.to, hops - 1)));
     const entries = busy.filter((k) => !calledHere.has(k));
     const ranked = [...entries.filter((k) => asks(k)), ...entries.filter((k) => !asks(k) && leaves(k)), ...entries.filter((k) => !asks(k) && !leaves(k))];
@@ -294,7 +297,7 @@ export function traceReport(G, start, args = {}) {
   }
 
   const L = [];
-  const line = (n, pre) => {
+  const line = (n, pre, parentChecks) => {
     const where = n.file ? `  ${n.file}${n.line ? ':' + n.line : ''}` : '';
     const what = n.type === 'endpoint' ? `→ ${n.name}${n.title ? ` (${n.title})` : ''} [request, ${n.part}]`
       : n.type === 'outside' ? `→ uses ${n.name}`
@@ -307,8 +310,8 @@ export function traceReport(G, start, args = {}) {
       : `${n.via === 'calls (by name)' ? '~ ' : n.via === 'listened to by' ? 'listener: ' : n.via === 'run by' ? 'job: ' : ''}${/ \//.test(n.name) ? `handler of ${n.name}` : `${n.name}()`}${n.repeat ? ' (shown above)' : ''}${n.more ? ' …' : ''}`;
     L.push(`${pre}${what}${['endpoint', 'outside', 'table', 'event', 'job', 'mail', 'notify'].includes(n.type) ? '' : where}`);
     // (tables, events, jobs and outside calls show as their own steps below; this line adds what data moves)
-    if (n.facts && !n.repeat) { const t = factsText({ sends: n.facts.sends, checks: n.facts.checks, returns: n.facts.returns }); if (t) L.push(`${pre}    ↳ ${t}`); }
-    n.children.forEach((c) => line(c, pre + '  '));
+    if (n.facts && !n.repeat) { const same = (a, b) => a && b && a.join('|') === b.join('|'); const t = factsText({ sends: n.facts.sends, checks: same(n.facts.checks, parentChecks) ? undefined : n.facts.checks, returns: n.facts.returns }); if (t) L.push(`${pre}    ↳ ${t}`); }
+    n.children.forEach((c) => line(c, pre + '  ', n.facts?.checks || parentChecks));
     if (n.also) L.push(`${pre}  (also starts here: ${n.also.slice(0, 12).map((x) => `${x}()`).join(', ')}${n.also.length > 12 ? ', …' : ''}; trace ${n.file}#name to follow one)`);
   };
   for (const t of trees) {

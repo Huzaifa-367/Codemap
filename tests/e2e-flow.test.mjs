@@ -86,3 +86,20 @@ test('React + Django: from the checkout page to the end, with what happens at ea
     assert.match(run('trace.mjs', r, 'api/shop/services.py#place_order'), /STARTED FROM[\s\S]*Checkout[\s\S]*ANY \/api\/orders/);
   } finally { cleanup(r); }
 });
+
+// ---------- Android (Kotlin, Compose) + NestJS ----------
+import { androidNest } from './e2e-fixtures.mjs';
+
+test('Android + NestJS: from the Compose screen to the end, with what happens at each step', () => {
+  const r = makeProject(androidNest.files, { repos: androidNest.repos, arch: androidNest.arch });
+  try {
+    run('scan.mjs', r); run('build.mjs', r, '--no-claude-md');
+    const tree = JSON.parse(run('trace.mjs', r, '/checkout', '--json')).flows[0].tree;
+    const seq = names(tree);
+    const want = ['placeOrder', 'createOrder', 'createOrder', 'POST /orders', 'create', 'place', '[table:orders]', '[event:order.placed]', 'handle', 'sendConfirmation', '[mail:an email]', '[job:payments]', 'process', '[outside:api.stripe.com]'];
+    let at = -1;
+    for (const w of want) { const i = seq.indexOf(w, at + 1); assert.ok(i > at, `${w} after position ${at} in:\n${seq.join(' > ')}`); at = i; }
+    assert.deepEqual(findStep(tree, (n) => n.name === 'create' && n.type === 'function').facts?.checks, ['cartId: uuid', 'notes: optional, string']);
+    assert.doesNotMatch(run('trace.mjs', r, '/checkout'), /~ createOrder/); // the typed field is followed exactly
+  } finally { cleanup(r); }
+});
