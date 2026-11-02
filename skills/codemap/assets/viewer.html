@@ -943,7 +943,7 @@ function buildView(container) {
 // Cards carry only what you read at a glance: icon, name, description, one count. Paths, kinds and
 // sizes live in the hover tooltip and the details panel.
 // [width, min height]
-const SIZES = { node: [300, 128], dir: [272, 110], file: [284, 110], module: [284, 110], route: [300, 128], symbol: [260, 100] };
+const SIZES = { node: [300, 128], dir: [272, 110], file: [284, 110], module: [284, 110], route: [300, 128], symbol: [320, 104] };
 const NOTE_H = 64;
 const FOOT_H = 30;   // the footer row: size on the left, recent-work pill on the right
 const TITLE2_H = 10; // a title that wraps onto a second line
@@ -956,6 +956,7 @@ function cardFoot(item) {
   else if (i.type === 'dir') size = plural(statsOf(item).files, 'file');
   else if (i.type === 'module') size = 'this file';
   else if (i.type === 'file') { const nr = (routesByFile.get(i.f.p) || []).length; size = nr ? plural(nr, 'endpoint') : ''; }
+  else if (i.type === 'symbol') size = `${h(i.f.p.split('/').pop())} · L${i.s[2]}`;
   const rec = recentOf(item), inside = recentIn.get(item.startsWith('m:') ? 'f:' + item.slice(2) : item);
   const pill = rec ? `<span class="rw">${recentLabel(rec)}</span>` : inside ? `<span class="rw soft">${inside.length} changed</span>` : '';
   return size || pill ? `<div class="foot">${size ? `<span class="meta">${size}</span>` : '<span></span>'}${pill}</div>` : '';

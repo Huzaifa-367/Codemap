@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Fill in who owns this copy of Codemap: replaces Huzaifa-367 and YOUR_NAME in the plugin manifests, the README,
+// Fill in who owns this copy of Codemap: replaces YOUR_GITHUB_USER and YOUR_NAME in the plugin manifests, the README,
 // the docs and the LICENSE, so install commands and links point at your repository.
 // usage: node tools/set-owner.mjs <github-user> "<Your Name>"
 import fs from "node:fs";
@@ -30,10 +30,10 @@ for (const f of files) {
   } catch {
     continue;
   }
-  if (!/Huzaifa-367|YOUR_NAME/.test(s)) continue;
+  if (!/YOUR_GITHUB_USER|YOUR_NAME/.test(s)) continue;
   fs.writeFileSync(
     p,
-    s.replaceAll("Huzaifa-367", user).replaceAll("YOUR_NAME", name),
+    s.replaceAll("YOUR_GITHUB_USER", user).replaceAll("YOUR_NAME", name),
   );
   n++;
 }

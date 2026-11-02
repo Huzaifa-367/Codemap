@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- **Function cards say where they live.** On boards, each function card is wider and shows its file and line (for example `service.js · L2`).
+- **Tracing a whole file is easier to read.** It starts at the functions where the file's work begins (the ones nothing else in the file calls, those that reach other files, requests or tables first), at most six, and names the rest so you can trace them one at a time (`file#name`).
+- **Save → The whole board as an image (PNG).** Every card at full size and full detail, whatever the zoom. The SVG export now keeps the map's font and theme when opened on its own.
+
 ## 1.0.1 (2026-11-02)
 
 - **Function-level flows you can see straight away.** Every map now comes with flows traced function by function (no tokens): from the main screens and the endpoints other code calls most, through each function, the request and the server's handler, down to the data. Open **Flows → Step by step: …** and the flow appears as a board of function cards with an arrow for every call and request it followed; the side panel walks through it in order.

@@ -1,35 +1,32 @@
-<div align="center">
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/images/logo-dark.png">
-  <img src="docs/images/logo-light.png" alt="Codemap logo" height="88">
-</picture>
+
+![Codemap logo](docs/images/logo-light.png)
 
 # Codemap
 
 **See how your app actually fits together.**
 
-<sub>Codemap started as a fork of [Floorplan](https://github.com/haydenschmitty/floorplan) by Hayden Smith (MIT).</sub>
+Codemap started as a fork of [Floorplan](https://github.com/haydenschmitty/floorplan) by Hayden Smith (MIT).
 
 Claude or Codex reads your codebase and draws an interactive map of it. Every part, file and web request gets a plain-English name, and every connection between them is shown.
 
-[![Claude Code plugin](https://img.shields.io/badge/Claude%20Code-plugin-D97757?style=flat-square)](https://code.claude.com/docs/en/overview)
-[![Codex plugin](https://img.shields.io/badge/Codex-plugin-111?style=flat-square)](docs/codex.md)
-[![Tests](https://img.shields.io/github/actions/workflow/status/Huzaifa-367/codemap/test.yml?branch=main&style=flat-square&label=tests)](https://github.com/Huzaifa-367/codemap/actions/workflows/test.yml)
-[![Version](https://img.shields.io/badge/version-1.0.1-111?style=flat-square)](CHANGELOG.md)
-[![License: MIT](https://img.shields.io/badge/license-MIT-111?style=flat-square)](LICENSE)
-[![Node 18+](https://img.shields.io/badge/node-%E2%89%A518-111?style=flat-square)](https://nodejs.org)
-[![Zero dependencies](https://img.shields.io/badge/dependencies-0-111?style=flat-square)](#how-it-works)
+![Claude Code plugin](https://img.shields.io/badge/Claude%20Code-plugin-D97757?style=flat-square)
+![Codex plugin](https://img.shields.io/badge/Codex-plugin-111?style=flat-square)
+![Tests](https://img.shields.io/github/actions/workflow/status/Huzaifa-367/codemap/test.yml?branch=main&style=flat-square&label=tests)
+![Version](https://img.shields.io/badge/version-1.0.1-111?style=flat-square)
+![License: MIT](https://img.shields.io/badge/license-MIT-111?style=flat-square)
+![Node 18+](https://img.shields.io/badge/node-%E2%89%A518-111?style=flat-square)
+![Zero dependencies](https://img.shields.io/badge/dependencies-0-111?style=flat-square)
 
 **[Try the live demo](https://haydenschmitty.github.io/codemap-demo/)** · [Watch the video](https://youtu.be/NTUUzC7L_NQ) · [Install](#install) · [Quick start](#quick-start) · [Compared](#codemap-archify-or-understand-anything) · [Features](#features) · [See it in action](#see-it-in-action) · [How it works](#how-it-works) · [Docs](docs/README.md) · [FAQ](#faq)
 
-</div>
 
-<p align="center">
-  <a href="https://youtu.be/NTUUzC7L_NQ"><img src="docs/images/video.jpg" alt="Watch the walkthrough on YouTube: installing Codemap, then a tour of the map of Brewline, a coffee subscription app" width="100%"></a>
-</p>
-<p align="center"><sub>▶ <a href="https://youtu.be/NTUUzC7L_NQ">Watch the walkthrough</a>: installing Codemap, then a tour of Brewline, a demo coffee-subscription app built across four repos.</sub></p>
-<p align="center"><b><a href="https://haydenschmitty.github.io/codemap-demo/">Try the live demo →</a></b> Explore the Brewline map in your browser, no install needed.</p>
+
+![Watch the walkthrough on YouTube: installing Codemap, then a tour of the map of Brewline, a coffee subscription app](docs/images/video.jpg)
+
+▶ [Watch the walkthrough](https://youtu.be/NTUUzC7L_NQ): installing Codemap, then a tour of Brewline, a demo coffee-subscription app built across four repos.
+
+**[Try the live demo →](https://haydenschmitty.github.io/codemap-demo/)** Explore the Brewline map in your browser, no install needed.
 
 ## Why Codemap?
 
@@ -74,64 +71,57 @@ They also work together: map your app with Codemap, then use Archify to draw one
 
 ## Features
 
-<table>
-<tr>
-<td width="50%" valign="top">
+|     |
+| --- |
+|     |
 
-**🗺️ A map at every zoom**<br>
+**🗺️ A map at every zoom**  
+
 Start with the whole app, then double-click into a part, a group of files, a file, and its endpoints. Each view shows what it's used by and what it uses.
 
-</td>
-<td width="50%" valign="top">
 
-**💬 Plain English everywhere**<br>
+
+**💬 Plain English everywhere**  
+
 "Takes card payments at checkout", not "Stripe API wrapper". Technical terms are explained on hover, and one switch shows the developer view.
 
-</td>
-</tr>
-<tr>
-<td valign="top">
 
-**🔌 Real connections, across repos**<br>
+
+**🔌 Real connections, across repos**  
+
 It follows imports, and matches each web request in your frontend to the server endpoint that answers it, even across separate repos.
 
-</td>
-<td valign="top">
 
-**🖥️ Start from a screen**<br>
+
+**🖥️ Start from a screen**  
+
 Pick a page you know and see everything behind it: its parts, the requests it makes, the server code, the data, and outside services.
 
-</td>
-</tr>
-<tr>
-<td valign="top">
 
-**🧭 Ask the map**<br>
+
+**🧭 Ask the map**  
+
 "How does a refund reach the customer's card?" comes back as an answer plus a mini-map of just the pieces involved, with a step-by-step walkthrough.
 
-</td>
-<td valign="top">
 
-**🩺 Health check**<br>
+
+**🩺 Health check**  
+
 Catches the classic mistakes in AI-built apps: keys in the code or sent to the browser, Supabase tables anyone can read, open Firebase rules, Stripe webhooks anyone could fake, and endpoints with no sign-in. Each comes with a ready-to-paste fix. A check, not an audit.
 
-</td>
-</tr>
-<tr>
-<td valign="top">
 
-**🟢 Recent work**<br>
+
+**🟢 Recent work**  
+
 The cards your AI just changed light up green, each with a note on how the change serves what you asked for.
 
-</td>
-<td valign="top">
 
-**⚡ Stays current, stays yours**<br>
+
+**⚡ Stays current, stays yours**  
+
 Updates re-read only what changed, and an open map reloads itself. Everything runs on your machine, and nothing is committed to git.
 
-</td>
-</tr>
-</table>
+
 
 Plus guided **flows** you can request in plain words, a one-minute **Start here** tour, **Export** to send a copy to anyone as one HTML file, a layout for **phones and tablets** with drag and pinch, search, keyboard shortcuts, and right-click actions on every card.
 
@@ -143,38 +133,11 @@ Codemap is made for mapping code you already have. It can also start from a PRD,
 
 Want to click around yourself? Open the [live demo](https://haydenschmitty.github.io/codemap-demo/): the real Brewline map beside a scripted conversation, in Claude Code or Codex.
 
-<table>
-<tr>
-<td width="50%" valign="top">
-<img src="docs/images/ask.png" alt="An answer board: the gift subscription traced from the gift page to the friend's inbox, with numbered cards and a written walkthrough">
-<p><b>Ask the map.</b> A real answer, from the Claude Code CLI in 31 seconds. It traced the gift from form to inbox across two repos, and spotted two bugs along the way.</p>
-</td>
-<td width="50%" valign="top">
-<img src="docs/images/screens.png" alt="Everything behind the Gift page: its form, the requests it makes, the server code, the database, Stripe and SendGrid">
-<p><b>Start from a screen.</b> Pick any page and see everything behind it, from the button down to the database and outside services.</p>
-</td>
-</tr>
-<tr>
-<td valign="top">
-<img src="docs/images/recent.png" alt="The Recent work board for a gift subscriptions feature: what was asked, what was done, and a note on every changed card">
-<p><b>Recent work.</b> What you asked for, what changed, and why each change was needed, on one board.</p>
-</td>
-<td valign="top">
-<img src="docs/images/health.png" alt="The Health panel listing a secret key written into the code and an endpoint anyone can use, each with Show on map and a Fix button">
-<p><b>Health check.</b> A password left in the code and an endpoint anyone can call, each with a one-click fix prompt.</p>
-</td>
-</tr>
-<tr>
-<td valign="top">
-<img src="docs/images/inside.png" alt="Inside the Business rules part of the server: its files in the middle, what uses them on the left, and outside services on the right">
-<p><b>Zoom in.</b> Inside any part: what's in it, what uses it, and what it relies on. Green tags mark what just changed.</p>
-</td>
-<td valign="top">
-<img src="docs/images/flow.png" alt="A guided flow, step 4 of 6, showing the main server emailing the gift code through SendGrid">
-<p><b>Guided flows.</b> Watch a request travel through the app step by step, or ask for a new one to be traced.</p>
-</td>
-</tr>
-</table>
+|                                                                                                                                                                                                                                                                                                                                   |                                                                                                                                                                                                                                                                                  |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ![An answer board: the gift subscription traced from the gift page to the friend's inbox, with numbered cards and a written walkthrough](docs/images/ask.png)**Ask the map.** A real answer, from the Claude Code CLI in 31 seconds. It traced the gift from form to inbox across two repos, and spotted two bugs along the way. | ![Everything behind the Gift page: its form, the requests it makes, the server code, the database, Stripe and SendGrid](docs/images/screens.png)**Start from a screen.** Pick any page and see everything behind it, from the button down to the database and outside services. |
+| ![The Recent work board for a gift subscriptions feature: what was asked, what was done, and a note on every changed card](docs/images/recent.png)**Recent work.** What you asked for, what changed, and why each change was needed, on one board.                                                                               | ![The Health panel listing a secret key written into the code and an endpoint anyone can use, each with Show on map and a Fix button](docs/images/health.png)**Health check.** A password left in the code and an endpoint anyone can call, each with a one-click fix prompt.   |
+| ![Inside the Business rules part of the server: its files in the middle, what uses them on the left, and outside services on the right](docs/images/inside.png)**Zoom in.** Inside any part: what's in it, what uses it, and what it relies on. Green tags mark what just changed.                                               | ![A guided flow, step 4 of 6, showing the main server emailing the gift code through SendGrid](docs/images/flow.png)**Guided flows.** Watch a request travel through the app step by step, or ask for a new one to be traced.                                                   |
 
 ## Install
 
@@ -214,7 +177,7 @@ Start a new chat and ask for a codemap, or type `$codemap`. The map's Ask bar ru
 2. Ask:
    > Make me a codemap of this app.
 
-   (In Codex you can also type `$codemap`.)
+    (In Codex you can also type `$codemap`.)
 3. Explore. The map opens on its own, starting with a short tour.
 
 When you've done more work, ask:
@@ -253,9 +216,12 @@ flowchart LR
 
 Scripts do the mechanical work: finding repos, parsing code in a dozen languages, matching web requests to endpoints, laying out the map. They're plain Node with no dependencies. Claude or Codex does the part only a reader can: deciding what the parts of your app *are*, and saying so plainly. Details in [How it works](docs/how-it-works.md).
 
-**Languages:** TypeScript, JavaScript, Python, Go, Rust, Java, Kotlin, Scala, Dart and Swift, plus Vue, Svelte and Astro files, with lighter support for others.<br>
-**Apps:** websites, servers and mobile apps (Flutter, native Android, native iOS, React Native and Expo), side by side in one folder. Each app's requests are matched to the server endpoints that answer them.<br>
-**Endpoints:** Express, Koa, Hono, Fastify (both forms), NestJS, Next.js, Firebase Cloud Functions, Flask, FastAPI, Django, Go's net/http, Gin, Echo and chi (with groups), Actix, Axum, Spring, Laravel, Rails, ASP.NET (attributes and minimal APIs), Dart's shelf_router and dart_frog.<br>
+**Languages:** TypeScript, JavaScript, Python, Go, Rust, Java, Kotlin, Scala, Dart and Swift, plus Vue, Svelte and Astro files, with lighter support for others.  
+
+**Apps:** websites, servers and mobile apps (Flutter, native Android, native iOS, React Native and Expo), side by side in one folder. Each app's requests are matched to the server endpoints that answer them.  
+
+**Endpoints:** Express, Koa, Hono, Fastify (both forms), NestJS, Next.js, Firebase Cloud Functions, Flask, FastAPI, Django, Go's net/http, Gin, Echo and chi (with groups), Actix, Axum, Spring, Laravel, Rails, ASP.NET (attributes and minimal APIs), Dart's shelf_router and dart_frog.  
+
 **Screens:** Next.js, React Router, Vue, SvelteKit, Remix, Nuxt, Astro, Expo, Angular, TanStack, and in mobile apps go_router, auto_route and Flutter route tables, Jetpack Compose navigation, Android activities and navigation graphs, SwiftUI and UIKit.
 
 ## What it adds to your project
@@ -289,65 +255,65 @@ More in [Privacy and security](docs/privacy-and-security.md). Wondering whether 
 
 ## FAQ
 
-<details>
-<summary><b>Is it safe to install?</b></summary>
+**Is it safe to install?**
 
 Codemap has no hooks, no MCP servers and no dependencies, downloads nothing, and never runs code from the internet. Its only outside request is the opt-in waitlist. A test checks all of that on every change, and every release lists a fingerprint of each file so you can confirm your installed copy is the real thing. Everything is in [Is it safe to install?](docs/is-it-safe.md).
-</details>
 
-<details>
-<summary><b>Does my code leave my computer?</b></summary>
+
+
+**Does my code leave my computer?**
 
 Only the way Claude Code and Codex always work: the AI reads the files it needs to describe your app, through your own account. The map itself is a local file and its server only listens on your machine. If you choose to open the map in the Claude app instead, Claude uploads the map (names, descriptions and structure, not your source code) to your private claude.ai account, and asks first. The one thing Codemap itself ever sends is your email, and only if you sign up for the [Codemap Cloud waitlist](docs/privacy-and-security.md#codemap-cloud-waitlist).
-</details>
 
-<details>
-<summary><b>How long does it take, and what does it cost?</b></summary>
+
+
+**How long does it take, and what does it cost?**
 
 A first map takes a few minutes for a small app and longer for a big one, because every file and endpoint gets described. It uses your Claude or ChatGPT plan like any other task. Big projects are split across parallel helpers. Updates re-read only what changed, so they're quick and cheap.
-</details>
 
-<details>
-<summary><b>Do I need a CLI for the Ask bar?</b></summary>
+
+
+**Do I need a CLI for the Ask bar?**
 
 No. The map works without one. The Ask bar answers through the Claude Code CLI or Codex, which can read your real code. Codex's desktop app already includes what it needs. With Claude, without the CLI you can ask from the Claude app instead, using the map alone.
-</details>
 
-<details>
-<summary><b>Will it change or commit my files?</b></summary>
+
+
+**Will it change or commit my files?**
 
 It only writes its own `codemap/` folder (and, in Claude Code if you say yes, a section in `CLAUDE.local.md`), and neither is committed. It never changes your code, your `.gitignore` or your `CLAUDE.md`.
-</details>
 
-<details>
-<summary><b>The names it picked aren't how we talk about it. Can I change them?</b></summary>
+
+
+**The names it picked aren't how we talk about it. Can I change them?**
 
 Yes. Just ask ("rename 'Main server' to 'Shop API' on the codemap"), or edit `codemap/architecture.json` and `codemap/descriptions/` yourself. Your edits are kept on every update.
-</details>
 
-<details>
-<summary><b>Does it work with Codex as well as Claude Code?</b></summary>
+
+
+**Does it work with Codex as well as Claude Code?**
 
 Yes. It's the same plugin, the same map and the same Health check. Each app runs it on your own plan: Claude Code on your Claude account, Codex on your ChatGPT sign-in. A map made in one opens fine with the other. See [Codemap in Codex](docs/codex.md).
-</details>
 
-<details>
-<summary><b>Can I use it before I've written any code?</b></summary>
+
+
+**Can I use it before I've written any code?**
 
 Yes, though mapping existing code is what it's mainly for. Share a PRD, a spec or a description of your app and ask for a codemap, and you get a blueprint: a map of what you'd need to build, marked as a plan, with a review of the decisions still open. You can change it from the map, then switch to a map of the real code once it's built. See [Plan something you haven't built yet](docs/getting-started.md#plan-something-you-havent-built-yet).
-</details>
 
-<details>
-<summary><b>Does it work on monorepos and multi-repo setups?</b></summary>
+
+
+**Does it work on monorepos and multi-repo setups?**
 
 Yes. Point it at a monorepo, a subfolder of one, or a plain folder that holds several repos side by side. It finds every repo and connects them.
-</details>
 
-<details>
-<summary><b>How is this different from Archify or Understand Anything?</b></summary>
+
+
+**How is this different from Archify or Understand Anything?**
 
 Archify draws diagrams of anything, and Understand Anything builds a developer's knowledge graph of a codebase. Codemap maps the app you built, in plain English, and tells you what's risky and what your AI just changed. See [Codemap, Archify or Understand Anything?](#codemap-archify-or-understand-anything)
-</details>
+
+
 
 ## Contributing
 

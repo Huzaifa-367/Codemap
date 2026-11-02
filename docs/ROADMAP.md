@@ -84,3 +84,5 @@ Decision: stay regex-only (no tree-sitter) unless measured accuracy on real repo
 - Publish real `bench-agent` numbers on public repos.
 - [x] (0.9.1) Built-in translations of the most visible words for 9 languages.
 - [x] (0.9.1) Right-to-left pages for Arabic, Urdu, Persian and Hebrew maps.
+- [x] (Unreleased) Function cards wider, with their file and line; traces from a whole file start at its entry
+  functions (at most 6, the rest named); the whole board saves as a PNG at full size.

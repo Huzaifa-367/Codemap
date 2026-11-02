@@ -108,22 +108,63 @@
 
   /** The current view as an SVG image, with the map's own styles inside so it looks the same when opened alone. */
   function saveSvg() {
+    const c = svgCopy(false);
+    if (c) download(`${slug(G.project?.name)}-map.svg`, new XMLSerializer().serializeToString(c.copy), 'image/svg+xml');
+  }
+
+  /** The whole board as a PNG, every card at full size whatever the zoom (sharp up to 8000 px on the long side). */
+  function savePng() {
+    const c = svgCopy(true);
+    if (!c) return;
+    const k = Math.min(2, 8000 / Math.max(c.w, c.h));
+    const url = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(new XMLSerializer().serializeToString(c.copy));
+    const img = new Image();
+    const fail = () => SC.toast?.('This browser could not turn the board into a PNG. Save it as an image (SVG) instead.');
+    img.onerror = fail;
+    img.onload = () => {
+      try {
+        const cv = document.createElement('canvas');
+        cv.width = Math.round(c.w * k); cv.height = Math.round(c.h * k);
+        const g = cv.getContext('2d');
+        g.scale(k, k); g.drawImage(img, 0, 0, c.w, c.h);
+        cv.toBlob((b) => { if (!b) return fail(); const u = URL.createObjectURL(b); const l = document.createElement('a'); l.href = u; l.download = `${slug(G.project?.name)}-board.png`; document.body.appendChild(l); l.click(); l.remove(); setTimeout(() => URL.revokeObjectURL(u), 2000); }, 'image/png');
+      } catch { fail(); }
+    };
+    img.src = url;
+  }
+
+  /** A standalone copy of the map's SVG with its styles: the view on screen, or (whole) the full board. */
+  function svgCopy(whole) {
     const svg = document.getElementById('svg');
-    if (!svg) return;
+    if (!svg) return null;
     const copy = svg.cloneNode(true);
     const css = [...document.querySelectorAll('style')].map((s) => s.textContent).join('\n');
     const box = svg.getBoundingClientRect();
+    let w = Math.round(box.width), hh = Math.round(box.height);
+    const b = whole ? svg.querySelector('#viewport')?.getBBox?.() : null;
+    if (b && b.width && b.height) {
+      const pad = 40;
+      w = Math.ceil(b.width + pad * 2); hh = Math.ceil(b.height + pad * 2);
+      const vp = copy.querySelector('#viewport');
+      vp.style.transform = `translate(${pad - b.x}px,${pad - b.y}px) scale(1)`;
+      vp.classList.remove('anim');
+      copy.classList?.remove('lod-low', 'lod-mid'); // full size, so full detail: descriptions and footers come back
+    }
     copy.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-    copy.setAttribute('width', Math.round(box.width));
-    copy.setAttribute('height', Math.round(box.height));
+    copy.setAttribute('width', w);
+    copy.setAttribute('height', hh);
+    copy.setAttribute('viewBox', `0 0 ${w} ${hh}`);
     const style = document.createElementNS('http://www.w3.org/2000/svg', 'style');
-    style.textContent = css;
+    // a picture is the first frame: no fade-ins (cards would be invisible), and the theme the page shows
+    style.textContent = css + '\n*, *::before, *::after { animation: none !important; transition: none !important; }\n#svg { font-family: var(--sans); font-size: 13.5px; color: var(--text); -webkit-font-smoothing: antialiased; }';
+    const theme = document.documentElement.getAttribute?.('data-theme');
+    if (theme) copy.setAttribute('data-theme', theme);
     copy.insertBefore(style, copy.firstChild);
     const bg = getComputedStyle(document.body).backgroundColor;
     const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
     rect.setAttribute('width', '100%'); rect.setAttribute('height', '100%'); rect.setAttribute('fill', bg);
     copy.insertBefore(rect, style.nextSibling);
-    download(`${slug(G.project?.name)}-map.svg`, new XMLSerializer().serializeToString(copy), 'image/svg+xml');
+    return { copy, w, h: hh };
   }
 
   {
@@ -134,9 +175,10 @@
         { label: 'This board as a page', primary: true, onClick: () => savePage() },
         { label: 'This board as a picture (PNG card)', onClick: () => saveCard() },
         { label: 'This view as an image (SVG)', onClick: () => saveSvg() },
+        { label: 'The whole board as an image (PNG)', onClick: () => savePng() },
       ] });
       return m;
     } });
   }
-  window.CodemapLenses = { layers, domains, savePage, saveSvg, saveCard };
+  window.CodemapLenses = { layers, domains, savePage, saveSvg, savePng, saveCard };
 })();

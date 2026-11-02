@@ -263,6 +263,28 @@ test('a board saves as a 1200×630 PNG card (drawn on a canvas, checked with a s
   assert.equal(typeof blob, 'function');
 });
 
+test('the whole board saves as a PNG at full size, whatever the zoom (checked with stand-ins)', () => {
+  const el = () => ({ style: {}, classList: { remove() {} }, attrs: {}, setAttribute(k, v) { this.attrs[k] = v; }, insertBefore() {}, querySelector() { return vpCopy; } });
+  const vpCopy = el();
+  const copy = el();
+  const svg = { cloneNode: () => copy, getBoundingClientRect: () => ({ width: 800, height: 500 }), querySelector: () => ({ getBBox: () => ({ x: -100, y: 20, width: 3000, height: 1200 }) }) };
+  const ctx = { scale() {}, drawImage() {} };
+  let saved = null;
+  const canvas = { getContext: () => ctx, toBlob: (cb) => cb({}) };
+  const link = { click() {}, remove() {} };
+  const doc = { getElementById: () => svg, querySelectorAll: () => [], createElementNS: el, createElement: (t) => (t === 'canvas' ? canvas : link), body: { appendChild() {} }, documentElement: {} };
+  class Image_ { set src(u) { this.u = u; this.onload(); } }
+  const win = { Codemap: { graph: { project: { name: 'Shop' }, flows: [], files: [] }, h: (s) => s, toast() {}, addHeaderButton() {}, modal() {} } };
+  new Function('window', 'document', 'URL', 'Blob', 'setTimeout', 'getComputedStyle', 'XMLSerializer', 'Image', fs.readFileSync(path.join(REPO_DIR, 'skills/codemap/assets/ui/55-lenses.js'), 'utf8'))(
+    win, doc, { createObjectURL: () => (saved = 'blob:x'), revokeObjectURL() {} }, class {}, () => {}, () => ({ backgroundColor: '#fff' }), class { serializeToString() { return '<svg/>'; } }, Image_);
+  win.CodemapLenses.savePng();
+  assert.deepEqual([copy.attrs.width, copy.attrs.height], [3080, 1280]); // the board plus a margin, not the 800×500 view
+  assert.equal(vpCopy.style.transform, 'translate(140px,20px) scale(1)');
+  assert.deepEqual([canvas.width, canvas.height], [6160, 2560]);
+  assert.equal(link.download, 'shop-board.png');
+  assert.equal(saved, 'blob:x');
+});
+
 test("the map's own buttons in the map's language: the English list, the translation, and the swap", () => {
   const r = makeProject({ 'app/a.js': `export const a = () => 1;\n` }, { repos: ['app'], arch: { project: { name: 'x' }, language: 'Swahili', nodes: [{ id: 'app', label: 'App', kind: 'service', summary: 's', paths: ['app/**'] }] } });
   try {
@@ -307,6 +329,34 @@ test('every function is a card in technical detail, and the build marks the ones
   assert.ok(names.includes('loadCart (internal)'), names.join(', '));
   const html = fs.readFileSync(path.join(root, 'codemap', 'index.html'), 'utf8');
   assert.match(html, /inside a file: calls between its functions/);
+});
+
+test('a trace from a busy file starts at the functions that reach out of it, and names the rest', () => {
+  const n = 9;
+  const util = Array.from({ length: n }, (_, i) => `export function u${i}() { return ${i}; }`).join('\n');
+  const busy = [
+    `import { ${Array.from({ length: n }, (_, i) => `u${i}`).join(', ')} } from './util';`,
+    ...Array.from({ length: n }, (_, i) => `export function step${i}() {\n  return u${i}();\n}`),
+    `export function local() {\n  return tidy();\n}`,
+    `function tidy() {\n  return 1;\n}`,
+  ].join('\n');
+  const r = makeProject({ 'package.json': '{"name":"x"}', 'src/util.js': util, 'src/busy.js': busy }, { arch: { project: { name: 'x', summary: 'x' }, nodes: [{ id: 's', label: 'Source', kind: 'service', summary: 's', paths: ['src/**'] }] } });
+  try {
+    run('scan.mjs', r); run('build.mjs', r, '--no-claude-md');
+    const tree = JSON.parse(run('trace.mjs', r, 'src/busy.js', '--json')).flows[0].tree;
+    const starts = tree.children.filter((c) => c.type === 'function').map((c) => c.name);
+    assert.ok(starts.length <= 6, starts.join(', '));
+    assert.ok(!starts.includes('local') && !starts.includes('tidy'), starts.join(', '));
+    assert.ok(tree.also.length >= 3, JSON.stringify(tree.also));
+    assert.match(run('trace.mjs', r, 'src/busy.js'), /also starts here: .*step\d\(\)/);
+  } finally { cleanup(r); }
+});
+
+test('function cards are wide enough to read and say which file and line they are in', () => {
+  const html = fs.readFileSync(path.join(root, 'codemap', 'index.html'), 'utf8');
+  const w = +/symbol: \[(\d+), \d+\]/.exec(html)?.[1];
+  assert.ok(w >= 300, `symbol card width ${w}`);
+  assert.match(html, /i\.type === 'symbol'\) size = `\$\{h\(i\.f\.p\.split\('\/'\)\.pop\(\)\)\} · L\$\{i\.s\[2\]\}`/);
 });
 
 test('two services with the same endpoint keep their own descriptions (keys gain "@ file" only when shared)', () => {

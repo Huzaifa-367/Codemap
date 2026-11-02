@@ -10022,7 +10022,7 @@ index 443fccd..047761b 100644
    "owner": {
 -    "name": "Hayden Smith",
 -    "url": "https://github.com/haydenschmitty"
-+    "name": "YOUR_NAME",
++    "name": "Muhammad Huzaifa",
 +    "url": "https://github.com/Huzaifa-367"
    },
    "metadata": {
@@ -10050,7 +10050,7 @@ index 64f5291..d5224d9 100644
    "author": {
 -    "name": "Hayden Smith",
 -    "url": "https://github.com/haydenschmitty"
-+    "name": "YOUR_NAME",
++    "name": "Muhammad Huzaifa",
 +    "url": "https://github.com/Huzaifa-367"
    },
 -  "homepage": "https://github.com/haydenschmitty/floorplan",
@@ -10080,7 +10080,7 @@ index 9a75253..1601f1f 100644
    "author": {
 -    "name": "Hayden Smith",
 -    "url": "https://github.com/haydenschmitty"
-+    "name": "YOUR_NAME",
++    "name": "Muhammad Huzaifa",
 +    "url": "https://github.com/Huzaifa-367"
    },
 -  "homepage": "https://github.com/haydenschmitty/floorplan",
@@ -10129,7 +10129,7 @@ index b75f5b1..fc82d5b 100644
    "author": {
 -    "name": "Hayden Smith",
 -    "url": "https://github.com/haydenschmitty"
-+    "name": "YOUR_NAME",
++    "name": "Muhammad Huzaifa",
 +    "url": "https://github.com/Huzaifa-367"
    },
 -  "homepage": "https://github.com/haydenschmitty/floorplan",
@@ -10155,7 +10155,7 @@ index c1d3b7d..bcafe6f 100644
    "author": {
 -    "name": "Hayden Smith",
 -    "url": "https://github.com/haydenschmitty"
-+    "name": "YOUR_NAME",
++    "name": "Muhammad Huzaifa",
 +    "url": "https://github.com/Huzaifa-367"
    },
 -  "homepage": "https://github.com/haydenschmitty/floorplan",
@@ -10467,7 +10467,7 @@ index 40a6884..e433f6a 100644
  
 -Copyright (c) 2026 Hayden Smith
 +Copyright (c) 2026 Hayden Smith (Floorplan, the original project)
-+Copyright (c) 2026 YOUR_NAME (Codemap)
++Copyright (c) 2026 Muhammad Huzaifa (Codemap)
  
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -15333,7 +15333,7 @@ index 0000000..22ab088
 +++ b/tools/set-owner.mjs
 @@ -0,0 +1,22 @@
 +#!/usr/bin/env node
-+// Fill in who owns this copy of Codemap: replaces Huzaifa-367 and YOUR_NAME in the plugin manifests, the README,
++// Fill in who owns this copy of Codemap: replaces Huzaifa-367 and Muhammad Huzaifa in the plugin manifests, the README,
 +// the docs and the LICENSE, so install commands and links point at your repository.
 +// usage: node tools/set-owner.mjs <github-user> "<Your Name>"
 +import fs from 'node:fs';
@@ -15349,8 +15349,8 @@ index 0000000..22ab088
 +  if (f === 'tools/set-owner.mjs') continue;
 +  const p = path.join(root, f);
 +  let s; try { s = fs.readFileSync(p, 'utf8'); } catch { continue; }
-+  if (!/Huzaifa-367|YOUR_NAME/.test(s)) continue;
-+  fs.writeFileSync(p, s.replaceAll('Huzaifa-367', user).replaceAll('YOUR_NAME', name));
++  if (!/Huzaifa-367|Muhammad Huzaifa/.test(s)) continue;
++  fs.writeFileSync(p, s.replaceAll('Huzaifa-367', user).replaceAll('Muhammad Huzaifa', name));
 +  n++;
 +}
 +console.log(`Updated ${n} files. Next: node tools/checksums.mjs, then commit and push.`);
@@ -15423,7 +15423,7 @@ index d5224d9..b3a4470 100644
 +  "version": "1.0.1",
    "description": "See how your app actually fits together: an interactive map of your codebase where every part, file and web request has a plain-English name and description, with a health check, screens, guided flows, questions answered on the map, and highlights of what was just worked on.",
    "author": {
-     "name": "YOUR_NAME",
+     "name": "Muhammad Huzaifa",
 diff --git a/.codex-plugin/plugin.json b/.codex-plugin/plugin.json
 index 1601f1f..4ca3606 100644
 --- a/.codex-plugin/plugin.json
@@ -15435,7 +15435,7 @@ index 1601f1f..4ca3606 100644
 +  "version": "1.0.1",
    "description": "See how your app actually fits together: an interactive map of your codebase where every part, file and web request has a plain-English name and description, with a health check, screens, guided flows, questions answered on the map, and highlights of what was just worked on.",
    "author": {
-     "name": "YOUR_NAME",
+     "name": "Muhammad Huzaifa",
 diff --git a/.copilot-plugin/plugin.json b/.copilot-plugin/plugin.json
 index fc82d5b..8234077 100644
 --- a/.copilot-plugin/plugin.json
@@ -15447,7 +15447,7 @@ index fc82d5b..8234077 100644
 -  "version": "1.0.0",
 +  "version": "1.0.1",
    "author": {
-     "name": "YOUR_NAME",
+     "name": "Muhammad Huzaifa",
      "url": "https://github.com/Huzaifa-367"
 diff --git a/.cursor-plugin/plugin.json b/.cursor-plugin/plugin.json
 index bcafe6f..2695a92 100644
@@ -15460,7 +15460,7 @@ index bcafe6f..2695a92 100644
 -  "version": "1.0.0",
 +  "version": "1.0.1",
    "author": {
-     "name": "YOUR_NAME",
+     "name": "Muhammad Huzaifa",
      "url": "https://github.com/Huzaifa-367"
 diff --git a/CHANGELOG.md b/CHANGELOG.md
 index 612327f..c11318f 100644

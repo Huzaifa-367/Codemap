@@ -106,7 +106,20 @@ export function traceReport(G, start, args = {}) {
     const busy = fns.map((_, i) => key(p, i)).filter((k) => (callsFrom.get(k) || []).length || (requestsIn.get(p) || []).some((r) => r.line >= fnAt(k).d[1] && r.line <= fnAt(k).d[2]));
     const node = { type: 'file', name: files.get(p)?.name || p, file: p, part: partOf(p), children: [] };
     Object.defineProperty(node, '_depth', { value: depth, enumerable: false });
-    for (const k of busy.slice(0, 16)) if (!seen.has(k)) node.children.push(fnNode(k, depth + 1));
+    // start only where the file's work begins: functions no other function in the file calls (helpers are reached
+    // through them), those that reach out of the file first (another file, a request, a table), at most 6; the rest
+    // are named so they can be traced one by one
+    const inside = (k) => fnAt(k).p === p;
+    const calledHere = new Set(busy.flatMap((k) => (callsFrom.get(k) || []).map((c) => c.to).filter((t) => t !== k && inside(t))));
+    const span = (k) => fnAt(k).d;
+    const leaves = (k) => (callsFrom.get(k) || []).some((c) => !inside(c.to))
+      || [...(requestsIn.get(p) || []), ...(tableUses.get(p) || [])].some((r) => r.line >= span(k)[1] && r.line <= span(k)[2]);
+    const entries = busy.filter((k) => !calledHere.has(k));
+    const ranked = [...entries.filter(leaves), ...entries.filter((k) => !leaves(k))];
+    const picked = new Set(ranked.slice(0, 6));
+    const also = ranked.slice(6).map((k) => fnAt(k).d[0]);
+    if (also.length) node.also = also;
+    for (const k of (entries.length ? entries : busy)) if (picked.has(k) && !seen.has(k)) node.children.push(fnNode(k, depth + 1));
     // requests made outside any function (module-level)
     for (const r of requestsIn.get(p) || []) if (fnCovering(p, r.line) < 0) node.children.push(endpointNode(r.ri, 1));
     // a screen whose work happens in its state holder (view model, bloc, controller, store…): continue there
@@ -175,6 +188,7 @@ export function traceReport(G, start, args = {}) {
       : `${n.via === 'calls (by name)' ? '~ ' : ''}${/ \//.test(n.name) ? `handler of ${n.name}` : `${n.name}()`}${n.repeat ? ' (shown above)' : ''}${n.more ? ' …' : ''}`;
     L.push(`${pre}${what}${n.type === 'endpoint' || n.type === 'outside' || n.type === 'table' ? '' : where}`);
     n.children.forEach((c) => line(c, pre + '  '));
+    if (n.also) L.push(`${pre}  (also starts here: ${n.also.slice(0, 12).map((x) => `${x}()`).join(', ')}${n.also.length > 12 ? ', …' : ''}; trace ${n.file}#name to follow one)`);
   };
   for (const t of trees) {
     const parts = [...crossing(t.tree)];

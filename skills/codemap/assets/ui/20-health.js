@@ -388,7 +388,7 @@
       btn.appendChild(badge);
     } else badge.remove();
     btn.classList.toggle("calm", !n);
-    btn.setAttribute("aria-label", btn.title); // keeps its name, with the count, when only the icon shows
+    btn.setAttribute('aria-label', btn.title); // keeps its name, with the count, when only the icon shows
   }
   function refresh() {
     updateButton();
