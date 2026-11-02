@@ -508,17 +508,18 @@ export function traceToCards(G, trees) {
     : n.file ? `f:${n.file}` : null;
   const name = (p) => files.get(p)?.name || p;
   const steps = [], edges = [], seenEdge = new Set();
-  const walk = (n, parent) => {
+  const walk = (n, parent, kindIn) => {
     let id = null, note = '';
     if (n.type === 'file') { id = cardOf(n); note = `${n.via ? `${n.via} ` : ''}${n.name}`; }
-    if (n.type === 'function') { id = cardOf(n); note = `${/ \//.test(n.name) ? `answers ${n.name}` : `${n.name}()`} · ${name(n.file)}${n.via === 'calls (by name)' ? ' (likely)' : ''}`; }
+    if (n.type === 'function') { id = cardOf(n); note = `${/ \//.test(n.name) ? `answers ${n.name}` : `${n.name}()`} · ${name(n.file)}${n.via === 'calls (by name)' ? ' (likely)' : n.via === 'listened to by' ? ' (runs on the event)' : n.via === 'run by' ? ' (runs in the background)' : ''}${n.facts ? ` — ${factsText(n.facts)}` : ''}`; }
     if (n.type === 'endpoint') { id = cardOf(n); note = `${n.name}: the request reaches the server`; }
     if (id) {
       const last = steps[steps.length - 1];
       if (last && last.ref === id) { if (!last.note.includes(note)) last.note += ` · ${note}`; } else if (!steps.some((s) => s.ref === id)) steps.push({ ref: id, note });
-      if (parent && parent !== id && !seenEdge.has(parent + '>' + id)) { seenEdge.add(parent + '>' + id); edges.push([parent, id, n.type === 'endpoint' ? 'http' : 'call']); }
+      if (parent && parent !== id && !seenEdge.has(parent + '>' + id)) { seenEdge.add(parent + '>' + id); edges.push([parent, id, n.type === 'endpoint' ? 'http' : kindIn || 'call']); }
     }
-    n.children.forEach((c) => walk(c, id || parent));
+    // an event or job is not a card: its listeners / job handlers hang off the function that fired or queued it
+    n.children.forEach((c) => walk(c, id || parent, n.type === 'event' ? 'event' : n.type === 'job' ? 'queue' : null));
   };
   trees.forEach((t) => walk(t.tree, null));
   return { steps, edges };

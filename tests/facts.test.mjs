@@ -27,3 +27,8 @@ test('returns: the response a handler sends back', () => {
   assert.deepEqual(facts(`public function show(Order $order)\n{\n    return response()->json(['id' => $order->id, 'total' => $order->total]);\n}`, 'php').fns.show.returns, ['id', 'total']);
   assert.deepEqual(facts(`public function index()\n{\n    return Inertia::render('orders/index', ['orders' => $o, 'filters' => $f]);\n}`, 'php').fns.index.returns, ['orders', 'filters']);
 });
+
+test('Laravel Rule objects read as plain rule names', () => {
+  const r = facts(`class StartRequest extends FormRequest\n{\n    public function rules(): array\n    {\n        return [\n            'type' => [Rule::required(), Rule::enum(InspectionType::class)],\n            'point' => [Rule::nullable(), Rule::string(), 'max:20'],\n        ];\n    }\n}`, 'php');
+  assert.deepEqual(r.classes.StartRequest.checks, ['type: required, enum:InspectionType', 'point: nullable, string, max:20']);
+});

@@ -95,15 +95,19 @@ mail) and, on each step, what happens there (data in, fields checked, tables rea
 what it returns). Generic layers with per-language patterns; no one-framework special cases. No tokens.
 
 Milestones (each with tests on a multi-repo, multi-stack fixture):
-- [ ] F1 Test bed: Flutter app + Laravel API (repo pair) and a React/TS web app + Node/Express or Python API; expected
+- [x] F1 Test bed: Flutter app + Laravel API (repo pair) and a React/TS web app + Node/Express or Python API; expected
       end-to-end chains written as failing tests first.
-- [ ] F2 Requests across repos: base URLs, path constants, path params, API prefixes, typed clients (Dio, Retrofit,
+- [x] F2 Requests across repos: base URLs, path constants, path params, API prefixes, typed clients (Dio, Retrofit,
       http, Ktor, URLSession/Alamofire, axios/fetch/ky, generated clients) matched to server routes.
-- [ ] F3 Async edges: events → listeners, jobs/queues → handlers, observers, mail/notifications, schedulers
+- [x] F3 Async edges: events → listeners, jobs/queues → handlers, observers, mail/notifications, schedulers
       (Laravel, Node EventEmitter/BullMQ, Django signals/Celery, Spring events, Rails jobs, Go channels where clear).
-- [ ] F4 Step facts (data flow): parameters, request body sent, validation rules, tables read/written (ORM + SQL),
+- [x] F4 Step facts (data flow): parameters, request body sent, validation rules, tables read/written (ORM + SQL),
       events fired, jobs queued, mail sent, external calls, response returned, per language.
-- [ ] F5 Both directions: from any function, up to the screens/entry points that trigger it and down to the end.
-- [ ] F6 Explained flows: plain-English "what happens here" per step from the facts, in trace output, query.mjs and
+- [x] F5 Both directions: from any function, up to the screens/entry points that trigger it and down to the end.
+- [x] F6 Explained flows: plain-English "what happens here" per step from the facts, in trace output, query.mjs and
       the map's flow panel; optional agent-written narrative in the describe step.
 - [ ] F7 Validate on real repos (MRM-Scrap, public Flutter+Laravel and React+Node pairs), visual check, benchmark, release.
+
+Status 2026-11-02: F1–F6 done (tests/e2e-flow.test.mjs: Flutter+Laravel, React+Django, Android+NestJS, all end to end
+with step facts and upstream). F6's optional agent-written narrative is not done. F7 in progress: MRM-Scrap rebuilt
+(48 tables, 23 effects, facts on 113 functions); next: public repo pairs, visual check of long flows, benchmark, release.

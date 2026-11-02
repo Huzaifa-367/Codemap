@@ -30,7 +30,7 @@ const ruleText = (v) => {
   const t = v.trim();
   // an array of rules: split on commas outside quotes and brackets; a 'required|uuid' string: split on |
   const parts = t.startsWith('[') ? (t.slice(1, -1).match(/(["'])(?:\\.|(?!\1).)*\1|[^,\s][^,]*/g) || []) : t.replace(/^['"]|['"]$/g, '').split('|');
-  return parts.map((x) => x.trim().replace(/^['"]|['"]$/g, '').replace(/^Rule::(\w+)\((.*)\)$/, '$1:$2').replace(/^new\s+/, '')).filter(Boolean).join(', ');
+  return parts.map((x) => x.trim().replace(/^['"]|['"]$/g, '').replace(/^Rule::(\w+)\((.*)\)$/, (m0, r, a) => (a.trim() ? `${r}:${a.trim()}` : r)).replace(/::class\b/g, '').replace(/^new\s+/, '')).filter(Boolean).join(', ');
 };
 
 export function findFacts(src, lang, fns = []) {
