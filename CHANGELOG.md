@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- **Next.js endpoints, more exact.** Only a file named `route.ts` (or .js/.tsx/.jsx) under `app/` is an endpoint, so files like `_route.ts` no longer show up as one, and handlers re-exported as `export { handler as GET, handler as POST }` (the usual NextAuth setup) show their real methods instead of "ANY".
+
 ## 1.0.2 (2026-11-02)
 
 - **Fairer agent benchmark.** `tools/bench-agent.mjs` gives the map hint with the question (as `CLAUDE.local.md` does) instead of in the system prompt, which made every run rewrite the prompt cache, and reports cache-write tokens. First numbers: right file 7 → 8 of 8, 44% fewer tokens, 61% fewer tool calls, 19% lower cost.

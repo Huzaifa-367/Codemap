@@ -27,6 +27,14 @@ test('Next.js app router: each exported method is an endpoint at the folder path
   );
 });
 
+test('Next.js app router: only a file named route is an endpoint, and re-exported handlers keep their methods', () => {
+  const nextAuth = `import NextAuth from "next-auth"\nconst handler = NextAuth(authOptions)\nexport { handler as GET, handler as POST }\n`;
+  assert.deepEqual(routes(nextAuth, 'typescript', 'app/api/auth/[...nextauth]/route.ts'), ['GET /api/auth/[...nextauth]', 'POST /api/auth/[...nextauth]']);
+  assert.deepEqual(routes(nextAuth, 'typescript', 'app/api/auth/[...nextauth]/_route.ts'), []);
+  assert.deepEqual(routes(`export async function GET() {}\n`, 'typescript', 'app/api/myroute.ts'), []);
+  assert.deepEqual(routes(`export async function GET() {}\n`, 'typescript', 'app/route.ts'), ['GET /']);
+});
+
 test('Flask: blueprint prefix, methods list and handler docstring', () => {
   const r = extract([
     `"""Order endpoints."""`,

@@ -75,6 +75,21 @@ does. Most with-map runs needed one call (`query.mjs context`). Lesson from the 
 cost went *up* ($2.67 → $3.10) despite 42% fewer tokens. The hint now goes with the question, the way
 `CLAUDE.local.md` reaches a real session, and the bench records cache-write tokens.
 
+### Public repo (2026-11-02, Claude Sonnet, [shadcn-ui/taxonomy](https://github.com/shadcn-ui/taxonomy) @ 298a885, 8 "which file handles METHOD /path" questions)
+
+| | without the map | with the map |
+|---|---|---|
+| right file named | 8 / 8 | 8 / 8 |
+| tokens (incl. cache) | 2,060,867 | **1,669,317** (19% fewer) |
+| tool calls | 17 | **8** (53% fewer) |
+| cost | $2.63 | **$1.41** (47% less) |
+| time | 85 s | 94 s (11% slower) |
+
+The hardest case for the map: in a Next.js app the file path mirrors the URL, so the agent can often go straight to
+the file. The map still halved tool calls and cost (half the cache writes); it was a little slower because every run
+starts with one `query.mjs` call. The run also found a detection bug (a `_route.ts` file shown as an endpoint), fixed
+after it.
+
 ## Codex note
 Codex reads `AGENTS.md`; an `AGENTS.override.md` in the same folder **replaces** it rather than adding to it, so Codemap
 never writes either (it would hide the team's instructions). In Codex the skill's own description and SKILL.md carry the
@@ -82,5 +97,5 @@ never writes either (it would hide the team's instructions). In Codex the skill'
 
 ## Next
 - `query.mjs context --for-subagent`: a ready brief (task + ranges + constraints) to paste into a subagent.
-- Measure end-to-end on public repos too (first run on Codemap itself is above).
+- Measure on larger public repos and on harder tasks (tracing a flow, what a change touches), where reading costs more.
 - Port trace/impact into the self-contained `codemap/` helpers so later sessions can call them without the skill path.
