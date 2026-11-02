@@ -103,3 +103,20 @@ test('Android + NestJS: from the Compose screen to the end, with what happens at
     assert.doesNotMatch(run('trace.mjs', r, '/checkout'), /~ createOrder/); // the typed field is followed exactly
   } finally { cleanup(r); }
 });
+
+test('each traced flow gets a story: describe writes the worksheet, the build puts the story on the flow and the trace', async () => {
+  const fs = (await import('node:fs')).default, path = (await import('node:path')).default;
+  const out = run('describe.mjs', root);
+  assert.match(out, /traced flow\(s\) to explain/);
+  const ws = fs.readFileSync(path.join(root, 'codemap', '.cache', 'worksheets', 'flows.md'), 'utf8');
+  assert.match(ws, /POST \/api\/orders[\s\S]*writes table orders/);
+  const file = path.join(root, 'codemap', 'descriptions', 'flows.json');
+  const d = JSON.parse(fs.readFileSync(file, 'utf8'));
+  const id = Object.keys(d.flows).find((k) => /checkout/.test(k));
+  d.flows[id].story = 'The customer taps Place order; the app sends the cart to the API, which checks it, saves the order and charges the card in the background.';
+  fs.writeFileSync(file, JSON.stringify(d));
+  run('build.mjs', root, '--no-claude-md');
+  const flow = readGraph(root).flows.find((f) => f.id === id);
+  assert.equal(flow.description, d.flows[id].story);
+  assert.match(run('trace.mjs', root, '/checkout'), /^IN SHORT: The customer taps Place order/);
+});

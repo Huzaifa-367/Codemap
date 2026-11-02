@@ -12,6 +12,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { parseArgs, fmtNum, mapDir } from './lib/common.mjs';
 import { fallbackFileName, fallbackRouteName, routeKey, routeKeyer } from './lib/names.mjs';
+import { traceReport } from './lib/flows.mjs';
 
 const args = parseArgs(process.argv.slice(2));
 const root = path.resolve(args._[0] || '.');
@@ -125,6 +126,26 @@ changed: ${f.review}`);
     fs.writeFileSync(descFile, JSON.stringify(skel, null, 2) + '\n');
     index.push({ key, node: n?.label || nid, files: chunk.length, routes: routeCount, loc: chunk.reduce((s, f) => s + f.loc, 0) });
   }
+}
+
+// ---------- traced flows: a short story of what happens, written from the trace ----------
+const flowsToTell = (g.flows || []).filter((f) => f.traced && f.start && (args.all || !f.story));
+if (flowsToTell.length) {
+  const out = [`# Flows to explain (${flowsToTell.length})`, '',
+    'For each flow, write a short story (3-6 sentences) in descriptions/flows.json: what the person does, what is sent, what the server checks,',
+    'what it reads and saves, what happens next in the background (events, jobs, email, outside services) and what comes back. Use the trace',
+    'below; read code only where a step is unclear. Name steps the way the map names them. Never include secret values.', `Write in ${STYLE}`, ''];
+  for (const f of flowsToTell) {
+    out.push(`## ${f.id}: ${f.title}`, '```', (traceReport(g, f.start, {}).out || '').split('\n').slice(0, 80).join('\n'), '```', '');
+  }
+  fs.writeFileSync(path.join(wsDir, 'flows.md'), out.join('\n'));
+  const file = path.join(descDir, 'flows.json');
+  let existing = {};
+  try { existing = JSON.parse(fs.readFileSync(file, 'utf8')); } catch {}
+  const skel = { flows: { ...(existing.flows || {}) } };
+  for (const f of flowsToTell) if (!skel.flows[f.id]) skel.flows[f.id] = { title: f.title, story: '' };
+  fs.writeFileSync(file, JSON.stringify(skel, null, 2) + '\n');
+  console.log(`${flowsToTell.length} traced flow(s) to explain: worksheet codemap/.cache/worksheets/flows.md, write each story in codemap/descriptions/flows.json.`);
 }
 
 if (!index.length) { console.log('✓ Every file and route already has a description. Use --all to regenerate worksheets for everything.'); process.exit(0); }

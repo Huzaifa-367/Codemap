@@ -305,7 +305,7 @@ for (const ep of arch.project?.entrypoints || []) if (!includedSet.has(ep)) warn
 
 // ---------- names + descriptions (codemap/descriptions/*.json) ----------
 const descDir = path.join(outDir, 'descriptions');
-const fileDesc = new Map(), routeDesc = new Map();
+const fileDesc = new Map(), routeDesc = new Map(), flowStory = new Map();
 const routeKeys = new Set([...routeLookup.keys()]);
 let staleFiles = 0, staleRoutes = 0;
 const staleEx = [];
@@ -319,6 +319,8 @@ if (fs.existsSync(descDir)) {
       if (fileDesc.get(p)?.d && !isStr(v.description)) continue;
       fileDesc.set(p, { name: isStr(v.name) ? v.name.trim() : null, d: isStr(v.description) ? v.description.trim() : null, review: isStr(v.review) ? v.review : null });
     }
+    // the agent's plain-language story of a traced flow (describe.mjs writes the worksheet): { flows: { id: { story } } }
+    for (const [id, v] of Object.entries(d.flows || {})) if (v && isStr(v.story)) flowStory.set(id, v.story.trim());
     for (const [k, v] of Object.entries(d.routes || {})) {
       if (!v || typeof v !== 'object') { err(`descriptions/${name}: routes["${k}"] must be { name, description }`); continue; }
       if (!routeKeys.has(k)) { staleRoutes++; continue; }
@@ -489,10 +491,13 @@ try {
     const { steps, edges } = traceToCards(graph, r.trees);
     if (steps.length < 4) continue;
     const keep = steps.slice(0, 24), on = new Set(keep.map((x) => x.ref));
-    graph.flows.push({ id: 'traced-' + st.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60), title: st.title, description: `Followed from ${st.start} through each function call and request, worked out from the code's structure.`, domain: 'Traced step by step', steps: keep, edges: edges.filter(([a, b]) => on.has(a) && on.has(b)), traced: true });
+    const id = 'traced-' + st.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60);
+    const story = flowStory.get(id);
+    graph.flows.push({ id, title: st.title, start: st.start, description: story || `Followed from ${st.start} through each function call and request, worked out from the code's structure.`, ...(story ? { story } : {}), domain: 'Traced step by step', steps: keep, edges: edges.filter(([a, b]) => on.has(a) && on.has(b)), traced: true });
     traced++;
   }
-  if (traced) report.push(`TRACED FLOWS  ${traced} flow${traced === 1 ? '' : 's'} followed function by function (under Flows)`);
+  const told = graph.flows.filter((f) => f.traced && f.story).length;
+  if (traced) report.push(`TRACED FLOWS  ${traced} flow${traced === 1 ? '' : 's'} followed function by function (under Flows)${told < traced ? `; ${traced - told} without a story yet (describe.mjs writes the worksheet)` : '; each with its story'}`);
 } catch (e) { warn(`tracing flows failed: ${e.message}`); }
 if (scan.blueprint) try { graph.health = buildPlanHealth({ graph, scan }); } catch (e) { warn(`design review failed: ${e.message}`); graph.health = { issues: [] }; }
 // issues people marked "not a problem" on the map (saved by serve.mjs) stay listed, set apart, and leave the counts

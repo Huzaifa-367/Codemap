@@ -111,6 +111,8 @@ The codebase root is the argument if one was given, otherwise the current direct
 
    Then rebuild. The build reports `DESCRIPTIONS files X/Y · routes X/Y`. Get both to 100%: re-run describe.mjs and it lists only what's still missing.
 
+   **Flow stories.** describe.mjs also writes `codemap/.cache/worksheets/flows.md`: the full trace of each step-by-step flow the build made. For each one, write a short story (3–6 sentences) in `codemap/descriptions/flows.json` (`flows.<id>.story`): what the person does, what is sent, what the server checks, what it reads and saves, what happens next in the background (events, jobs, email, outside services) and what comes back. Work from the trace; open code only where a step is unclear. The build puts the story on the flow (map and `trace`), and `TRACED FLOWS` says how many still need one. On updates only new flows are listed.
+
 7. **Mark recent work.** The map highlights what was just worked on: those cards get a green "Changed"/"New" tag, the parts containing them show "N changed", hovering shows your note, and a **Recent work** button lays them out on one board. Do this on every make and every update, because it replaces the previous highlights.
    `node ${CLAUDE_SKILL_DIR}/scripts/recent.mjs <root>`
    It lists what changed since the previous map, uncommitted changes and recent commits, each matched to the card it appears as. The *why* comes from you:

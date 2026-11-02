@@ -336,6 +336,8 @@ export function traceReport(G, start, args = {}) {
   };
   for (const t of trees) {
     const parts = [...crossing(t.tree)];
+    const told = (G.flows || []).find((f) => f.traced && f.story && f.start === start);
+    if (told) { L.push(`IN SHORT: ${told.story}`); L.push(''); }
     if (t.upstream) { L.push(`STARTED FROM (how ${t.start} is reached)`); for (const u of t.upstream) L.push(`  ${u.join(' → ')}`); L.push(''); }
     L.push(`FLOW from ${t.start}: ${count(t.tree)} steps across ${parts.length === 1 ? parts[0] : parts.join(' → ')}`);
     line(t.tree, '  ');
