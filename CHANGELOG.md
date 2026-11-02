@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.0.2 (2026-11-02)
 
 - **Fairer agent benchmark.** `tools/bench-agent.mjs` gives the map hint with the question (as `CLAUDE.local.md` does) instead of in the system prompt, which made every run rewrite the prompt cache, and reports cache-write tokens. First numbers: right file 7 → 8 of 8, 44% fewer tokens, 61% fewer tool calls, 19% lower cost.
 - **Fewer made-up screens.** A TanStack route that only appears in a comment (for example a doc example) is no longer shown as a screen.

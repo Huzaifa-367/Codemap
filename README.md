@@ -13,7 +13,7 @@ Claude or Codex reads your codebase and draws an interactive map of it. Every pa
 ![Claude Code plugin](https://img.shields.io/badge/Claude%20Code-plugin-D97757?style=flat-square)
 ![Codex plugin](https://img.shields.io/badge/Codex-plugin-111?style=flat-square)
 ![Tests](https://img.shields.io/github/actions/workflow/status/Huzaifa-367/codemap/test.yml?branch=main&style=flat-square&label=tests)
-![Version](https://img.shields.io/badge/version-1.0.1-111?style=flat-square)
+![Version](https://img.shields.io/badge/version-1.0.2-111?style=flat-square)
 ![License: MIT](https://img.shields.io/badge/license-MIT-111?style=flat-square)
 ![Node 18+](https://img.shields.io/badge/node-%E2%89%A518-111?style=flat-square)
 ![Zero dependencies](https://img.shields.io/badge/dependencies-0-111?style=flat-square)

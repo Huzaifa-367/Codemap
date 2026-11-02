@@ -1,7 +1,7 @@
 {
   "name": "codemap",
   "description": "See how your app actually fits together: an interactive map of your codebase where every part, file and web request has a plain-English name and description, with a health check, screens, guided flows, questions answered on the map, and highlights of what was just worked on.",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "author": {
     "name": "Muhammad Huzaifa",
     "url": "https://github.com/Huzaifa-367"
