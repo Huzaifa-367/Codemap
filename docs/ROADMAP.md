@@ -86,3 +86,24 @@ Decision: stay regex-only (no tree-sitter) unless measured accuracy on real repo
 - [x] (0.9.1) Right-to-left pages for Arabic, Urdu, Persian and Hebrew maps.
 - [x] (Unreleased) Function cards wider, with their file and line; traces from a whole file start at its entry
   functions (at most 6, the rest named); the whole board saves as a PNG at full size.
+
+## Flows 2: every working, end to end, every stack (started 2026-11-02)
+
+Goal: from any screen, endpoint or function ("create order"), show the whole path across codebases (mobile screen →
+state holder → repository → request → server route → controller → validation → service → database, events, jobs,
+mail) and, on each step, what happens there (data in, fields checked, tables read/written, what it fires or queues,
+what it returns). Generic layers with per-language patterns; no one-framework special cases. No tokens.
+
+Milestones (each with tests on a multi-repo, multi-stack fixture):
+- [ ] F1 Test bed: Flutter app + Laravel API (repo pair) and a React/TS web app + Node/Express or Python API; expected
+      end-to-end chains written as failing tests first.
+- [ ] F2 Requests across repos: base URLs, path constants, path params, API prefixes, typed clients (Dio, Retrofit,
+      http, Ktor, URLSession/Alamofire, axios/fetch/ky, generated clients) matched to server routes.
+- [ ] F3 Async edges: events → listeners, jobs/queues → handlers, observers, mail/notifications, schedulers
+      (Laravel, Node EventEmitter/BullMQ, Django signals/Celery, Spring events, Rails jobs, Go channels where clear).
+- [ ] F4 Step facts (data flow): parameters, request body sent, validation rules, tables read/written (ORM + SQL),
+      events fired, jobs queued, mail sent, external calls, response returned, per language.
+- [ ] F5 Both directions: from any function, up to the screens/entry points that trigger it and down to the end.
+- [ ] F6 Explained flows: plain-English "what happens here" per step from the facts, in trace output, query.mjs and
+      the map's flow panel; optional agent-written narrative in the describe step.
+- [ ] F7 Validate on real repos (MRM-Scrap, public Flutter+Laravel and React+Node pairs), visual check, benchmark, release.
