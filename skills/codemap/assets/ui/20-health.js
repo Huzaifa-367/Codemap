@@ -31,7 +31,7 @@
     if (!d || (d.severity && d.severity !== issue.severity)) return null;
     const left = new Map();
     for (const loc of d.locations || []) {
-      const f = String(loc).replace(/:[^:]*$/, "");
+      const f = String(loc).replace(/:[^:]*$/, '');
       left.set(f, (left.get(f) || 0) + 1);
     }
     for (const l of issue.locations || []) {
@@ -212,7 +212,7 @@
       ``,
       `**Why it's not a problem:**`,
       reason.slice(0, 1500) || "_(no note)_",
-    ].join("\n");
+    ].join('\n');
   function notAProblem(issue) {
     const m = SC.modal({
       title: "Not a problem?",
