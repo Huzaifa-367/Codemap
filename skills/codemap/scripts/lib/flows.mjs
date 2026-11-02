@@ -203,6 +203,44 @@ export function traceReport(G, start, args = {}) {
   }
   const trees = roots.map((r) => ({ start: r.label, kind: r.kind, tree: r.kind === 'endpoint' ? endpointNode(r.route, 0) : r.file ? fileNode(r.file) : fnNode(r.keys[0], 0) }));
 
+  // ---------- where it starts: from a function or endpoint, back up to the screens / entry points that reach it ----------
+  // through callers, the requests that reach a handler's endpoint, and the events / jobs that run a listener or job
+  const callersOf = new Map();
+  for (const [kf, list] of callsFrom) for (const c of list) { if (!callersOf.has(c.to)) callersOf.set(c.to, []); callersOf.get(c.to).push(kf); }
+  const routesOf = new Map();
+  (G.routes || []).forEach((r, ri) => { const h = handlerKey(r); if (h) { if (!routesOf.has(h)) routesOf.set(h, []); routesOf.get(h).push(ri); } });
+  const requestersOf = new Map(); // route -> caller keys
+  for (const [p, list] of requestsIn) for (const r of list) { const i = fnCovering(p, r.line); if (!requestersOf.has(r.ri)) requestersOf.set(r.ri, []); requestersOf.get(r.ri).push(i >= 0 ? key(p, i) : 'f:' + p); }
+  const triggersOf = new Map(); // listener / job key -> [{ from, label }]
+  for (const [p, fi, kind, name, , to] of G.effects || []) for (const [q, j] of to || []) { const k = key(q, j); if (!triggersOf.has(k)) triggersOf.set(k, []); triggersOf.get(k).push({ from: key(p, fi), label: `${kind === 'event' ? 'event' : 'job'} ${name}` }); }
+  const screenOf = new Map((G.screens || []).map((s) => [s.file, s]));
+  const fnLabel = (k) => `${fnAt(k).d[0]}()`;
+  function upstream(startKey, limit = 6) {
+    const paths = [];
+    const walk = (k, chain, seen, depth) => {
+      if (paths.length >= limit) return;
+      const p = k.startsWith('f:') ? k.slice(2) : fnAt(k).p;
+      const scr = screenOf.get(p);
+      if (scr) { paths.push([`${scr.name} (${scr.url})`, ...chain]); return; }
+      const ups = [];
+      if (!k.startsWith('f:')) {
+        for (const c of callersOf.get(k) || []) ups.push({ k: c, step: fnLabel(c) });
+        for (const ri of routesOf.get(k) || []) for (const c of requestersOf.get(ri) || []) ups.push({ k: c, step: c.startsWith('f:') ? files.get(c.slice(2))?.name || c.slice(2) : fnLabel(c), via: `${G.routes[ri].m} ${G.routes[ri].p}` });
+        for (const t of triggersOf.get(k) || []) ups.push({ k: t.from, step: fnLabel(t.from), via: t.label });
+      }
+      const fresh = ups.filter((u) => !seen.has(u.k));
+      if (!fresh.length || depth > 14) { if (chain.length) paths.push([`${k.startsWith('f:') ? files.get(p)?.name || p : `${fnLabel(k)} in ${p}`} (where it starts)`, ...chain.slice(1)]); return; }
+      for (const u of fresh.slice(0, 4)) walk(u.k, [u.step, ...(u.via ? [u.via] : []), ...chain], new Set([...seen, u.k]), depth + 1);
+    };
+    walk(startKey, [fnLabel(startKey)], new Set([startKey]), 0);
+    return paths;
+  }
+  for (const t of trees) {
+    const r = roots.find((x) => x.label === t.start);
+    const k = r?.keys?.[0] || (r?.kind === 'endpoint' ? handlerKey(G.routes[r.route]) : null);
+    if (k) { const up = upstream(k); if (up.length) t.upstream = up; }
+  }
+
   // ---------- report ----------
   const count = (n) => 1 + n.children.reduce((s, c) => s + count(c), 0);
   const crossing = (n, part = n.part, acc = new Set()) => { if (n.part) acc.add(n.part); n.children.forEach((c) => crossing(c, part, acc)); return acc; };
@@ -265,6 +303,7 @@ export function traceReport(G, start, args = {}) {
   };
   for (const t of trees) {
     const parts = [...crossing(t.tree)];
+    if (t.upstream) { L.push(`STARTED FROM (how ${t.start} is reached)`); for (const u of t.upstream) L.push(`  ${u.join(' → ')}`); L.push(''); }
     L.push(`FLOW from ${t.start}: ${count(t.tree)} steps across ${parts.length === 1 ? parts[0] : parts.join(' → ')}`);
     line(t.tree, '  ');
     L.push('');

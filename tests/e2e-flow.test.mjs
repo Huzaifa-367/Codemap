@@ -60,7 +60,7 @@ test('Flutter + Laravel: each step says what happens there', () => {
   assert.match(run('trace.mjs', root, '/checkout'), /sends cart_id, notes/);
 });
 
-test('Flutter + Laravel: from a function in the middle, up to the screen that starts it and down to the end', { todo: 'Flows 2' }, () => {
+test('Flutter + Laravel: from a function in the middle, up to the screen that starts it and down to the end', () => {
   const out = run('trace.mjs', root, 'server/app/Services/OrderService.php#place');
   assert.match(out, /STARTED FROM[\s\S]*Checkout screen[\s\S]*POST \/api\/orders/);
   assert.match(out, /writes table orders/);
