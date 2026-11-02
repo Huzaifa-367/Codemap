@@ -38,7 +38,7 @@ test('Flutter + Laravel: tables come from Laravel migrations, and the code that 
   assert.ok(uses('carts').includes('server/app/Services/OrderService.php read'), uses('carts').join('\n'));
 });
 
-test('Flutter + Laravel: from the checkout screen to the end, in order, across both repos', { todo: 'Flows 2' }, () => {
+test('Flutter + Laravel: from the checkout screen to the end, in order, across both repos', () => {
   const tree = JSON.parse(run('trace.mjs', root, '/checkout', '--json')).flows[0].tree;
   const seq = names(tree);
   const want = ['placeOrder', 'createOrder', 'POST /api/orders', 'store', 'place', '[table:carts]', '[table:orders]', '[event:OrderPlaced]', 'handle', '[mail:OrderConfirmed]', '[job:ChargePayment]', 'charge', '[outside:api.stripe.com]'];

@@ -237,6 +237,13 @@ export function linkCalls({ files, edges, read }) {
       // the body only: nested definitions inside it count as their own
       const text = lines.slice(d.line - 1, d.end).join('\n');
       let n = 0;
+      // (first, so the name-only guess below doesn't claim these calls) a class looked up by type, then called: context.read<CheckoutCubit>().placeOrder(), getIt<Api>().load(),
+      // Provider.of<Cart>(context).add(), get<Repo>().save(), app(OrderService::class)->place()
+      for (const m of text.matchAll(/<\s*([A-Z]\w*)\s*(?:<[^<>]*>)?\s*>\s*\(\s*[^()]*\)\s*\.\s*([a-z_]\w*)\s*\(|\b(?:app|resolve|inject|get|make)\(\s*([A-Z]\w*)(?:\.class|::class|\.self)?\s*\)\s*\.\s*([a-z_]\w*)\s*\(/g)) {
+        const hits = onType(f, m[1] || m[3], m[2] || m[4]);
+        const line = d.line + text.slice(0, m.index).split('\n').length - 1;
+        for (const h of hits) { const k = `${di}|${h[0]}|${h[1]}`; if (seen.has(k)) continue; seen.add(k); calls.push([f.path, di, h[0], h[1], line, ...(hits.length > 1 ? [1] : [])]); }
+      }
       for (const c of callsIn(text)) {
         if (n >= 60) break;
         const line = d.line + text.slice(0, c.at).split('\n').length - 1;
@@ -288,13 +295,6 @@ export function linkCalls({ files, edges, read }) {
           seen.add(kk);
           calls.push([f.path, di, impl, ii, line, 1]);
         }
-      }
-      // a class looked up by type, then called: context.read<CheckoutCubit>().placeOrder(), getIt<Api>().load(),
-      // Provider.of<Cart>(context).add(), get<Repo>().save(), app(OrderService::class)->place()
-      for (const m of text.matchAll(/<\s*([A-Z]\w*)\s*(?:<[^<>]*>)?\s*>\s*\(\s*[^()]*\)\s*\.\s*([a-z_]\w*)\s*\(|\b(?:app|resolve|inject|get|make)\(\s*([A-Z]\w*)(?:\.class|::class|\.self)?\s*\)\s*\.\s*([a-z_]\w*)\s*\(/g)) {
-        const hits = onType(f, m[1] || m[3], m[2] || m[4]);
-        const line = d.line + text.slice(0, m.index).split('\n').length - 1;
-        for (const h of hits) { const k = `${di}|${h[0]}|${h[1]}`; if (seen.has(k)) continue; seen.add(k); calls.push([f.path, di, h[0], h[1], line, ...(hits.length > 1 ? [1] : [])]); }
       }
       // a function of this file handed over as a callback (Command1(_load), onPressed: _submit, .map(toRow))
       for (const m of text.matchAll(/(?<![\w$.])([A-Za-z_$][\w$]*)(?=\s*[,)\]}])/g)) {

@@ -32,6 +32,9 @@ export function traceReport(G, start, args = {}) {
     const p = l.a.slice(2);
     for (const [ri, line] of l.calls || []) if (ri != null && G.routes[ri]) { if (!requestsIn.has(p)) requestsIn.set(p, []); requestsIn.get(p).push({ line, ri }); }
   }
+  // what each function sets off: events, jobs, mail, notifications, outside services (graph.effects)
+  const effectsOf = new Map();
+  for (const [p, fi, kind, name, line, to] of G.effects || []) { const k = key(p, fi); if (!effectsOf.has(k)) effectsOf.set(k, []); effectsOf.get(k).push({ kind, name, line, to: to || [] }); }
   // tables a file reads or writes, by line (graph.tables usedBy), for flows that end at the data
   const tableUses = new Map();
   for (const t of G.tables || []) for (const [p, how, line] of t.usedBy || []) { if (!tableUses.has(p)) tableUses.set(p, []); tableUses.get(p).push({ table: t.name, how, line }); }
@@ -98,6 +101,7 @@ export function traceReport(G, start, args = {}) {
     for (const c of callsFrom.get(k) || []) kids.push({ line: c.line, make: () => fnNode(c.to, depth + 1, c.loose ? 'calls (by name)' : 'calls') });
     for (const r of requestsIn.get(p) || []) if (r.line >= d[1] && r.line <= d[2]) kids.push({ line: r.line, make: () => endpointNode(r.ri, depth + 1) });
     for (const u of tableUses.get(p) || []) if (u.line >= d[1] && u.line <= d[2]) kids.push({ line: u.line, make: () => ({ type: 'table', name: u.table, how: u.how, children: [] }) });
+    for (const e of effectsOf.get(k) || []) kids.push({ line: e.line, make: () => ({ type: e.kind, name: e.name, line: e.line, file: p, children: e.to.map(([q, j]) => fnNode(key(q, j), depth + 1, e.kind === 'event' ? 'listened to by' : e.kind === 'job' ? 'run by' : 'handled by')) }) });
     kids.sort((a, b) => a.line - b.line);
     for (const kd of kids.slice(0, 16)) node.children.push(kd.make());
     if (!node.children.length) for (const o of outsideOf(p)) node.children.push({ type: 'outside', name: o, children: [] });
@@ -208,10 +212,14 @@ export function traceReport(G, start, args = {}) {
     const where = n.file ? `  ${n.file}${n.line ? ':' + n.line : ''}` : '';
     const what = n.type === 'endpoint' ? `→ ${n.name}${n.title ? ` (${n.title})` : ''} [request, ${n.part}]`
       : n.type === 'outside' ? `→ uses ${n.name}`
+      : n.type === 'event' ? `→ fires event ${n.name}${n.children.length ? '' : ' (no listener found)'}`
+      : n.type === 'job' ? `→ queues job ${n.name} (runs in the background)`
+      : n.type === 'mail' ? `→ sends email ${n.name}`
+      : n.type === 'notify' ? `→ sends notification ${n.name}`
     : n.type === 'table' ? `→ ${n.how === 'write' ? 'writes' : 'reads'} table ${n.name}`
       : n.type === 'file' ? `${n.via ? `${n.via} ` : ''}${n.name} [${n.part}]`
-      : `${n.via === 'calls (by name)' ? '~ ' : ''}${/ \//.test(n.name) ? `handler of ${n.name}` : `${n.name}()`}${n.repeat ? ' (shown above)' : ''}${n.more ? ' …' : ''}`;
-    L.push(`${pre}${what}${n.type === 'endpoint' || n.type === 'outside' || n.type === 'table' ? '' : where}`);
+      : `${n.via === 'calls (by name)' ? '~ ' : n.via === 'listened to by' ? 'listener: ' : n.via === 'run by' ? 'job: ' : ''}${/ \//.test(n.name) ? `handler of ${n.name}` : `${n.name}()`}${n.repeat ? ' (shown above)' : ''}${n.more ? ' …' : ''}`;
+    L.push(`${pre}${what}${['endpoint', 'outside', 'table', 'event', 'job', 'mail', 'notify'].includes(n.type) ? '' : where}`);
     n.children.forEach((c) => line(c, pre + '  '));
     if (n.also) L.push(`${pre}  (also starts here: ${n.also.slice(0, 12).map((x) => `${x}()`).join(', ')}${n.also.length > 12 ? ', …' : ''}; trace ${n.file}#name to follow one)`);
   };

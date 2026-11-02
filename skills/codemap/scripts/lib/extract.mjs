@@ -682,6 +682,7 @@ function extractSimple(src, lang, filePath = '') {
   const symbols = [];
   if (lang === 'ruby') for (const m of all(/^\s*(class|module)\s+([A-Z][\w:]*)/gm, code)) symbols.push({ name: m[2], kind: m[1], line: at(m.index) });
   if (lang === 'csharp') for (const m of all(/^\s*public\s+(?:static\s+|abstract\s+|sealed\s+|partial\s+)*(class|interface|enum|record|struct)\s+(\w+)/gm, code)) symbols.push({ name: m[2], kind: m[1], line: at(m.index) });
+  if (lang === 'php') for (const m of all(/^\s*(?:(?:final|abstract|readonly)\s+)*(class|interface|trait|enum)\s+([A-Z]\w*)/gm, code)) symbols.push({ name: m[2], kind: m[1], line: at(m.index) });
   const { calls, hosts } = ['ruby', 'php', 'csharp'].includes(lang) ? extractCalls(code, at) : { calls: [], hosts: [] };
   const routes = lang === 'php' ? laravelRoutes(code, at, filePath) : lang === 'ruby' ? railsRoutes(code, filePath) : lang === 'csharp' ? aspnetRoutes(code, at) : [];
   return { imports, symbols, routes, mounts: [], calls, hosts };

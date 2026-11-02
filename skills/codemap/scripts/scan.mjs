@@ -16,6 +16,7 @@ import { createResolver } from './lib/resolve.mjs';
 import { resolveRoutes, matchCalls } from './lib/routes.mjs';
 import { detectApps, appLabel } from './lib/apps.mjs';
 import { findDefs, linkCalls, callableLang, withRouteBodies, findTypes } from './lib/calls.mjs';
+import { findEffects, linkEffects } from './lib/effects.mjs';
 import { findTables, findTableUses } from './lib/data.mjs';
 
 const args = parseArgs(process.argv.slice(2));
@@ -78,7 +79,7 @@ for (const { path: p, repo } of fileList) {
     if (category === 'code' && src.length) {
       try { Object.assign(f, extract(src, lang, p)); } catch (e) { f.extractError = String(e.message || e); }
       // every function and method, exported or not, for the function-level map and traced flows
-      if (callableLang(lang)) try { const d = withRouteBodies(src, lang, f.routes, findDefs(src, lang)); if (d.length) f.fns = d; const t = findTypes(src, lang); if (t.length) f.types = t; } catch {}
+      if (callableLang(lang)) try { const d = withRouteBodies(src, lang, f.routes, findDefs(src, lang)); if (d.length) f.fns = d; const t = findTypes(src, lang); if (t.length) f.types = t; if (d.length) { const fx = findEffects(src, lang, d); if (fx.length) f.effects = fx; } } catch {}
       // h: exact content. sig: the parts a description depends on (exports, routes, docstring),
       // so edits inside function bodies don't mark a file's description as stale.
       f.h = hash(src);
@@ -235,6 +236,9 @@ try {
   const fileLinks = [...edgeMap.values()].map(({ from, to }) => ({ from, to }));
   fnCalls = linkCalls({ files: files.filter((f) => f.fns), edges: fileLinks, read: (p) => { try { return fs.readFileSync(path.join(root, p), 'utf8'); } catch { return ''; } } });
 } catch (e) { fnCalls = []; }
+// what functions set off (events, jobs, mail, outside services) and the code that runs because of it
+let fnEffects = [];
+try { fnEffects = linkEffects(files.filter((f) => f.fns), (p) => { try { return fs.readFileSync(path.join(root, p), 'utf8'); } catch { return ''; } }); } catch (e) { fnEffects = []; }
 
 // Firebase callable helpers used from other files: `import { callFunction } from '../lib/firebase'`,
 // then callFunction('approveItem', data) calls the approveItem function
@@ -277,6 +281,7 @@ const scan = {
     ...(f.tableUses ? { tableUses: f.tableUses } : {}),
   })),
   calls: fnCalls,
+  effects: fnEffects,
   edges: [...edgeMap.values()].map(({ from, to, names, count, dynamic }) => ({ from, to, ...(names.length ? { names } : {}), ...(count > 1 ? { count } : {}), ...(dynamic ? { dynamic } : {}) })),
   externals: [...externals.values()].map((e) => ({ id: `${e.eco}:${e.name}`, eco: e.eco, name: e.name, imports: e.count, files: e.files.size })),
   extEdges: dedupeExt(extEdges),
