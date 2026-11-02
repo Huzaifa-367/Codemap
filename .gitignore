@@ -10,3 +10,8 @@ CLAUDE.local.md
 Thumbs.db
 *.log
 node_modules/
+
+# Backups (full history bundles, patches, zips): kept on this computer and attached to GitHub releases, not committed
+/codemap*.bundle
+/codemap*.patch
+/codemap-latest.zip

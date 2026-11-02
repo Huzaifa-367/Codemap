@@ -235,7 +235,9 @@ export function linkCalls({ files, edges, read }) {
     const seen = new Set();
     f.fns.forEach((d, di) => {
       // the body only: nested definitions inside it count as their own
-      const text = lines.slice(d.line - 1, d.end).join('\n');
+      // (lines of functions nested inside it are blanked: their calls are theirs, not this function's)
+      const nested = f.fns.filter((x) => x !== d && x.line > d.line && (x.end || x.line) <= d.end);
+      const text = lines.slice(d.line - 1, d.end).map((l, k) => (nested.some((x) => d.line + k >= x.line && d.line + k <= (x.end || x.line)) ? '' : l)).join('\n');
       let n = 0;
       // (first, so the name-only guess below doesn't claim these calls) a class looked up by type, then called: context.read<CheckoutCubit>().placeOrder(), getIt<Api>().load(),
       // Provider.of<Cart>(context).add(), get<Repo>().save(), app(OrderService::class)->place()

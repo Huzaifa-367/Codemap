@@ -30,8 +30,10 @@ See docs/AGENT-EFFICIENCY.md: research, principles (just-in-time context, CLI ov
 context / fn / map.
 
 ## Backups
-Every milestone: commit, then `git bundle create codemap-fork.bundle --all` (plus a zip and a patch vs main)
-delivered to the user. Nothing lives only in the working copy.
+Every milestone: commit and push, then `git bundle create codemap.bundle --all` (plus `codemap-latest.zip` and a patch)
+in the repo folder. These files are gitignored (committing bundles made the repo grow with every backup); attach them
+to the GitHub release instead. `codemap-history.bundle` (old fork history to 1.0.1) is on the v1.0.2 release.
+Nothing lives only in the working copy.
 
 ## Progress
 See docs/ROADMAP.md (milestones, done criteria, status). Update it at every milestone.

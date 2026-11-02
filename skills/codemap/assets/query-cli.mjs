@@ -23,7 +23,7 @@ const flag = (name) => { const i = argv.indexOf('--' + name); if (i < 0) return 
 const kind = flag('kind'), limit = flag('limit'), budget = flag('budget');
 const bool = (name) => { const i = argv.indexOf('--' + name); if (i < 0) return false; argv.splice(i, 1); return true; };
 const asJson = bool('json'), mermaid = bool('mermaid'), markdown = bool('markdown');
-const brief = bool('brief');
+const brief = bool('brief'), showAll = bool('all');
 const depth = flag('depth'), base = flag('base'), only = flag('files'), save = flag('save');
 const root = path.join(here, '..');
 const [cmd, ...rest] = argv;
@@ -66,7 +66,7 @@ try {
     process.exit(0);
   }
   if (cmd === 'trace') {
-    const r = traceReport(G, rest.join(' '), { depth, json: asJson, mermaid, save });
+    const r = traceReport(G, rest.join(' '), { depth, json: asJson, mermaid, save, all: showAll });
     if (r.error) { console.log(r.error); process.exit(1); }
     if (r.save) {
       const file = path.join(here, 'custom-flows.json');

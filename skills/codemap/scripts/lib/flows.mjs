@@ -216,6 +216,24 @@ export function traceReport(G, start, args = {}) {
   }
   const trees = roots.map((r) => ({ start: r.label, kind: r.kind, tree: r.kind === 'endpoint' ? endpointNode(r.route, 0) : r.file ? fileNode(r.file) : fnNode(r.keys[0], 0) }));
 
+  // ---------- readable by default: fold helper calls that lead nowhere that matters ----------
+  // A step matters if it is a request, a table, an event, a job, mail, a notification or an outside service, if data
+  // moves there (sent, checked, read, written, returned), or if something below it matters. Other calls under a step
+  // are folded into one line on it ("+ 3 helpers: a(), b()…"); --all keeps every one.
+  const MATTERS = new Set(['endpoint', 'table', 'event', 'job', 'mail', 'notify', 'outside', 'file']);
+  const matters = (n) => {
+    // calls already shown above are listed once on their caller ("again: a(), b()") instead of a line each
+    if (!args.all && n.children.some((c) => c.repeat)) { n.again = [...new Set(n.children.filter((c) => c.repeat).map((c) => c.name))]; n.children = n.children.filter((c) => !c.repeat); }
+    const kids = n.children.map((c) => [c, matters(c)]);
+    if (n.type === 'function' && !args.all) {
+      const folded = kids.filter(([c, m]) => !m && c.type === 'function').map(([c]) => c.name);
+      if (folded.length && kids.some(([, m]) => m)) { n.children = kids.filter(([c, m]) => m || c.type !== 'function').map(([c]) => c); n.helpers = [...new Set(folded)]; }
+      else if (folded.length && !kids.some(([, m]) => m) && n.children.every((c) => c.type === 'function')) { n.helpers = [...new Set(folded)]; n.children = []; }
+    }
+    return MATTERS.has(n.type) || !!(n.facts && Object.keys(n.facts).length) || kids.some(([, m]) => m);
+  };
+  for (const t of trees) matters(t.tree);
+
   // ---------- where it starts: from a function or endpoint, back up to the screens / entry points that reach it ----------
   // through callers, the requests that reach a handler's endpoint, and the events / jobs that run a listener or job
   const callersOf = new Map();
@@ -312,6 +330,8 @@ export function traceReport(G, start, args = {}) {
     // (tables, events, jobs and outside calls show as their own steps below; this line adds what data moves)
     if (n.facts && !n.repeat) { const same = (a, b) => a && b && a.join('|') === b.join('|'); const t = factsText({ sends: n.facts.sends, checks: same(n.facts.checks, parentChecks) ? undefined : n.facts.checks, returns: n.facts.returns }); if (t) L.push(`${pre}    ↳ ${t}`); }
     n.children.forEach((c) => line(c, pre + '  ', n.facts?.checks || parentChecks));
+    if (n.again?.length) L.push(`${pre}    (again: ${n.again.slice(0, 6).map((x) => `${x}()`).join(', ')}${n.again.length > 6 ? ', …' : ''}, shown above)`);
+    if (n.helpers?.length) L.push(`${pre}    (+ ${n.helpers.length === 1 ? '1 helper' : `${n.helpers.length} helpers`}: ${n.helpers.slice(0, 6).map((x) => `${x}()`).join(', ')}${n.helpers.length > 6 ? ', …' : ''})`);
     if (n.also) L.push(`${pre}  (also starts here: ${n.also.slice(0, 12).map((x) => `${x}()`).join(', ')}${n.also.length > 12 ? ', …' : ''}; trace ${n.file}#name to follow one)`);
   };
   for (const t of trees) {

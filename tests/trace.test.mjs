@@ -466,3 +466,12 @@ test('flows traced function by function come with every map: function cards, the
   const html = fs.readFileSync(path.join(root, 'codemap', 'index.html'), 'utf8');
   assert.match(html, /if \(f\.traced\) \{ showBoard\(/);
 });
+
+test('traces stay readable: helper calls and repeats fold onto their caller, --all shows every one', () => {
+  const short = run('trace.mjs', root, '/cart');
+  const full = run('trace.mjs', root, '/cart', '--all');
+  assert.doesNotMatch(short, /\(shown above\)\s+api\/db\.js/);
+  assert.match(short, /\(again: query\(\), shown above\)/);
+  assert.match(full, /query\(\) \(shown above\)\s+api\/db\.js/);
+  assert.match(short, /onPay\(\)[\s\S]*checkout\(\)/); // a nested handler keeps its own calls
+});
