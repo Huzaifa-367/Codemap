@@ -1,11 +1,11 @@
-# Codemap 1.0.2: SHA-256 of every file the plugin runs from.
+# Codemap 1.0.3: SHA-256 of every file the plugin runs from.
 # Check an installed copy: clone this release, then run node tools/checksums.mjs --check <installed folder>.
 78869bfd5139f503e6bf067b113776b2631de9473cc9382093194c0f83acb1a2  .agents/plugins/marketplace.json
 fdce61be9c420fd16b8cbbff629baa37e8d1096094b3e90bc5ecc0fe1ffc3a78  .claude-plugin/icon.png
 5545c782013fc11d2fd31c0efc027b36972b59e3428a7b0ec9d74735440be1c5  .claude-plugin/marketplace.json
-e5665514d19a3e65e58086fc6bc26c033ba1616d07b81ac17c816d66a2149e9a  .claude-plugin/plugin.json
+5ffdc592c216be037ee836857619a48bf6604ef6c23f3b81b0e9cc86315b670c  .claude-plugin/plugin.json
 7bdb74d57875b25ca9dcd367f79f92b9089f5f4b873bffec898cc6c3f0a84a68  .codex-plugin/icon.png
-6455e67a0045cab1f20b2df39de37653ee5700429b803c31337e5ec1e7a23d6d  .codex-plugin/plugin.json
+87e6fe5bfef145cd2568034ebbc6ba924cb0104996ae7d6e98c932727d67f71f  .codex-plugin/plugin.json
 4266f75f9b8726304cee633385b00a563ef48a18a1fdc6064031c71856fde9f0  package.json
 11ffbf34eaa8e53916f52b91ccc9336e1fec4c68a8939375ac94bf9b4869b4a4  skills/codemap/SKILL.md
 60e8535748ee665ef2d352c7efcc9839f5be0f3a9e9ff156a6f6a40ad0fdcb0e  skills/codemap/agents/openai.yaml

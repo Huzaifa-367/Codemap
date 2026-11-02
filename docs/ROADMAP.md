@@ -106,8 +106,13 @@ Milestones (each with tests on a multi-repo, multi-stack fixture):
 - [x] F5 Both directions: from any function, up to the screens/entry points that trigger it and down to the end.
 - [x] F6 Explained flows: plain-English "what happens here" per step from the facts, in trace output, query.mjs and
       the map's flow panel; optional agent-written narrative in the describe step.
-- [ ] F7 Validate on real repos (MRM-Scrap, public Flutter+Laravel and React+Node pairs), visual check, benchmark, release.
+- [x] F7 Validate on real repos (MRM-Scrap, public Flutter+Laravel and React+Node pairs), visual check, benchmark, release.
 
 Status 2026-11-02: F1–F6 done (tests/e2e-flow.test.mjs: Flutter+Laravel, React+Django, Android+NestJS, all end to end
 with step facts and upstream). F6's optional agent-written narrative is not done. F7 in progress: MRM-Scrap rebuilt
 (48 tables, 23 effects, facts on 113 functions); next: public repo pairs, visual check of long flows, benchmark, release.
+
+Status 1.0.3 (2026-11-02): Flows 2 complete. Validated on laravel/react-starter-kit, Django-Styleguide-Example,
+flutter/samples compass_app and the private MRM-Scrap repo; benchmark on MRM-Scrap in docs/AGENT-EFFICIENCY.md.
+Flow stories (agent-written) and helper folding shipped. Next ideas: show upstream (STARTED FROM) on map boards,
+request bodies from typed Retrofit/@Body classes, ORM writes through relation chains ($user->orders()->create()).

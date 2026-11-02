@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.0.3 (2026-11-02)
 
 - **Checked on public repos** (laravel/react-starter-kit, HackSoftware/Django-Styleguide-Example, flutter/samples compass_app), which led to: Django `include()` prefixes, including nested inline includes, and an include no longer counted as an endpoint; handler classes limited to their own methods; nested same-name serializers told apart; a Dart server's `bin/` folder scanned outside git; abstract method declarations no longer seem to call the next method; Wayfinder actions spread into forms (`{...Controller.update.form()}`); Celery tasks imported under another name; cloud SDKs (AWS, Stripe, Twilio) as outside services; links in comments and docstrings ignored.
 - **Fewer false alarms:** a relative file path under a password-like name, and docker-compose connection addresses to other containers (`amqp://guest:guest@rabbitmq`), are no longer reported as secrets.

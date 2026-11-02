@@ -16,7 +16,7 @@ Claude or Codex reads your codebase and draws an interactive map of it. Every pa
 [![Claude Code plugin](https://img.shields.io/badge/Claude%20Code-plugin-D97757?style=flat-square)](https://code.claude.com/docs/en/overview)
 [![Codex plugin](https://img.shields.io/badge/Codex-plugin-111?style=flat-square)](docs/codex.md)
 [![Tests](https://img.shields.io/github/actions/workflow/status/Huzaifa-367/codemap/test.yml?branch=main&style=flat-square&label=tests)](https://github.com/Huzaifa-367/codemap/actions/workflows/test.yml)
-[![Version](https://img.shields.io/badge/version-1.0.2-111?style=flat-square)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.0.3-111?style=flat-square)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-111?style=flat-square)](LICENSE)
 [![Node 18+](https://img.shields.io/badge/node-%E2%89%A518-111?style=flat-square)](https://nodejs.org)
 [![Zero dependencies](https://img.shields.io/badge/dependencies-0-111?style=flat-square)](#how-it-works)
@@ -40,6 +40,24 @@ Codemap gives you the diagram nobody drew. Ask Claude Code or Codex for a codema
 - **For builders:** understand the app you made, in your own words, without reading the code.
 - **For teams:** onboard someone in minutes, from the big picture down to the exact file.
 - **For working with AI:** after every change Claude or Codex makes, see exactly which parts it touched and why.
+
+## New in 1.0.3: every working of a feature, end to end
+
+Pick a screen, an endpoint or any function, and Codemap traces it, for free, across your codebases: mobile or web screen → state holder → repository → the request to your server → route → controller → validation → service → database → events and their listeners → queued jobs → email, notifications and outside services. Each step says what data moves there:
+
+```
+createOrder()  mobile/lib/data/order_repository.dart
+    ↳ sends cart_id, notes
+  → POST /api/orders [Shop API]
+    store()  server/app/Http/Controllers/Api/OrderController.php
+        ↳ checks cart_id (required, uuid, exists:carts,id), notes (nullable, string, max:500) · returns id, status, total
+      place()  server/app/Services/OrderService.php
+        → reads table carts · writes table orders
+        → fires event OrderPlaced → listener: handle() → sends email OrderConfirmed
+        → queues job ChargePayment → job: handle() → charge() → uses Stripe → writes table orders
+```
+
+Start from a function in the middle and it also shows where it starts (the screens that reach it). The same works for Flutter, React, Android and iOS apps talking to Laravel, Django, NestJS, Express, Rails, Spring and more; each traced flow on the map carries this detail on its cards, and can carry a short story the agent writes while building the map.
 
 ## New in 0.7 – 0.9: every level, every app, built for agents
 
