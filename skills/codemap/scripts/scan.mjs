@@ -108,6 +108,17 @@ for (const { path: p, repo } of fileList) {
     byRepo.set(f.repo ?? '', m);
     for (const [k, v] of Object.entries(f.consts)) m.set(k, m.has(k) && m.get(k) !== v ? null : v);
   }
+  // requests whose path is a constant: dio.post(ApiPaths.orders) -> POST /orders (unknown constants are dropped)
+  for (const f of files) if (f.calls?.some((c) => c.path?.startsWith('{{'))) {
+    const m = byRepo.get(f.repo ?? '') || new Map();
+    const look = (ref) => { for (const k of [ref, ref.split('.').slice(-2).join('.')]) { const v = m.get(k); if (v != null) return v; } return null; };
+    f.calls = f.calls.flatMap((c) => {
+      const ref = /^\{\{([\w.]+)\}\}$/.exec(c.path || '')?.[1];
+      if (!ref) return [c];
+      const v = look(ref);
+      return v ? [{ ...c, path: v, via: ref }] : [];
+    });
+  }
   for (const f of files) if (f.screens?.some((h) => h.url?.includes('{{'))) {
     const m = byRepo.get(f.repo ?? '') || new Map();
     const look = (ref) => { for (const k of [ref, ref.split('.').slice(-2).join('.'), ref.split('.').pop()]) { const v = m.get(k); if (v != null) return v; } return null; };

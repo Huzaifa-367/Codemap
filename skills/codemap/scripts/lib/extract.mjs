@@ -135,6 +135,7 @@ function variableUse(lines, i, name) {
   return null;
 }
 
+const CONST_DEF = /^\s*(?:(?:static|final|const|let|val|var|readonly|public|private|protected|internal|export|override)\s+)*(?:String\s+|string\s+)?[A-Za-z_]\w*\s*(?::\s*\w+\s*)?[=:]\s*["'`]\/[^"'`]*["'`]\s*[;,]?\s*(?:\/\/.*)?$/;
 function extractCalls(src, at, { skip } = {}) {
   const calls = [];
   const hosts = [];
@@ -150,6 +151,8 @@ function extractCalls(src, at, { skip } = {}) {
     const assigned = ASSIGN.exec(line)?.[1];
     const use = assigned ? variableUse(lines, i, assigned) : null;
     if (!HTTP_CONTEXT.test(line) && !use) continue;
+    // a path constant on its own (ORDERS = "/api/orders", orders: '/orders'): the request is where it's used
+    if (!use && CONST_DEF.test(line)) continue;
     let method = (METHOD_CALL.exec(line)?.[1] || METHOD_OPT.exec(line)?.[1] || use?.method || '').toUpperCase() || null;
     if (!method) { const nx = METHOD_NEXT.exec(lines.slice(i + 1, i + 5).join('\n')); if (nx) method = (nx[1] || nx[2]).toUpperCase(); }
     for (const m of line.matchAll(STR_LITERAL)) {
@@ -700,7 +703,42 @@ function extractByLang(src, lang, filePath) {
 export function extract(src, lang, filePath) {
   const r = extractByLang(src, lang, filePath);
   addDocs(src, lang, r);
+  if (CLIENT_LANGS.has(lang)) {
+    // requests whose path is a constant kept elsewhere (dio.post(ApiPaths.orders), axios.get(ENDPOINTS.orders)):
+    // a {{placeholder}} the scan fills from the repo's constants
+    const seen = new Set((r.calls || []).map((c) => c.line));
+    const code = stripCStyle(src);
+    const at = lineIndex(code);
+    for (const m of code.matchAll(/\.(get|post|put|patch|delete)\s*(?:<[^<>()]*>)?\s*\(\s*((?:[A-Z]\w*|[a-z]\w*(?=\.[A-Z_]))(?:\.[A-Za-z_]\w*)+|[A-Z][A-Z0-9_]{2,})\s*(?:[,)]|\+\s*['"`/])/g)) {
+      const line = at(m.index);
+      if (seen.has(line)) continue;
+      (r.calls ||= []).push({ path: `{{${m[2]}}}`, method: m[1].toUpperCase(), line });
+    }
+    const consts = pathConsts(code);
+    if (consts) r.consts = { ...consts, ...(r.consts || {}) };
+  }
   return r;
+}
+
+const CLIENT_LANGS = new Set(['typescript', 'javascript', 'vue', 'svelte', 'astro', 'dart', 'kotlin', 'java', 'swift', 'python', 'go', 'csharp', 'php', 'ruby', 'rust', 'scala']);
+/**
+ * Path constants in any language: `static const orders = '/orders'` (Dart), `const val ORDERS = "/orders"` (Kotlin),
+ * `static let orders = "/orders"` (Swift), `static final String ORDERS = "/orders"` (Java), `ORDERS = "/orders"`
+ * (Python), `const Orders = "/orders"` (Go), `export const ORDERS = '/orders'` and object members
+ * `const ApiPaths = { orders: '/orders' }` (JS/TS). Keyed by name and by Class.name / Object.name.
+ */
+function pathConsts(code) {
+  const out = {};
+  const ownerAt = (i) => [...code.slice(0, i).matchAll(/\b(?:class|object|interface|struct|enum)\s+(\w+)|\b(?:const|let|var)\s+(\w+)\s*(?::[^=]+)?=\s*\{/g)].pop()?.slice(1).find(Boolean) || null;
+  const put = (name, value, i) => {
+    if (!/^\/[\w\-/:{}$<>.]*$/.test(value) || value.length > 200) return;
+    if (!(name in out)) out[name] = value;
+    const owner = ownerAt(i);
+    if (owner) out[`${owner}.${name}`] = value;
+  };
+  for (const m of code.matchAll(/\b(?:static\s+|final\s+|const\s+|let\s+|val\s+|var\s+|readonly\s+|public\s+|private\s+|internal\s+|export\s+)*(?:String\s+|string\s+)?([A-Za-z_]\w*)\s*(?::\s*\w+\s*)?=\s*(["'`])(\/[^"'`\n]*)\2/g)) put(m[1], m[3], m.index);
+  for (const m of code.matchAll(/(?:^|[{,\s])([A-Za-z_]\w*)\s*:\s*(["'`])(\/[^"'`\n]*)\2/g)) put(m[1], m[3], m.index);
+  return Object.keys(out).length ? out : undefined;
 }
 
 // ---------- docs: file headers, docstrings, JSDoc, route handlers ----------

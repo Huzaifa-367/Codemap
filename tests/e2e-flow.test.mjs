@@ -24,7 +24,7 @@ test('Flutter + Laravel: a call through a typed field reaches the class it names
   assert.ok(calls.includes('handle -> charge'), calls.join('\n'));
 });
 
-test('Flutter + Laravel: the app\'s request is matched to the API route in the other repo', { todo: 'Flows 2' }, () => {
+test('Flutter + Laravel: the app\'s request is matched to the API route in the other repo', () => {
   const http = g.links.filter((l) => l.k === 'http').map((l) => `${l.a} -> ${l.b} ${l.labels}`);
   assert.ok(http.includes('f:mobile/lib/data/order_repository.dart -> f:server/routes/api.php POST /api/orders'), http.join('\n'));
 });
