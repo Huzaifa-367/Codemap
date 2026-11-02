@@ -285,7 +285,7 @@ const scan = {
   effects: fnEffects,
   // what happens inside functions: fields sent, checked, returned ([file, fn, facts]) and the classes that hold rules or responses
   facts: files.flatMap((f) => (f.facts?.fns || []).map(({ fn, ...x }) => [f.path, fn, x])),
-  classFacts: Object.assign({}, ...files.map((f) => f.facts?.classes || {})),
+  classFacts: files.reduce((acc, f) => { for (const [name, v] of Object.entries(f.facts?.classes || {})) for (const e of [].concat(v)) (acc[name] ||= []).push({ file: f.path, ...e }); return acc; }, {}),
   edges: [...edgeMap.values()].map(({ from, to, names, count, dynamic }) => ({ from, to, ...(names.length ? { names } : {}), ...(count > 1 ? { count } : {}), ...(dynamic ? { dynamic } : {}) })),
   externals: [...externals.values()].map((e) => ({ id: `${e.eco}:${e.name}`, eco: e.eco, name: e.name, imports: e.count, files: e.files.size })),
   extEdges: dedupeExt(extEdges),

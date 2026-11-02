@@ -42,3 +42,8 @@ test('Rails jobs and mailers, Celery tasks', () => {
   });
   assert.ok(celery.includes('place job charge -> shop/tasks.py#charge'), celery.join('\n'));
 });
+
+test('outside services through SDKs, and links in comments or docstrings are not calls', () => {
+  assert.deepEqual(run({ 'files/s3.py': ['python', `import boto3\ndef presign(key):\n    """See https://docs.aws.amazon.com/x for details."""\n    # also https://example-docs.io/y\n    client = boto3.client('s3')\n    return client.generate_presigned_post(key)\n`] }), ['presign outside AWS S3']);
+  assert.deepEqual(run({ 'src/pay.ts': ['typescript', `export async function pay(amount) {\n  return stripe.paymentIntents.create({ amount });\n}\n`] }), ['pay outside Stripe']);
+});

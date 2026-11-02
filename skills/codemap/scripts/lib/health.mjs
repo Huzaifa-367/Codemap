@@ -113,6 +113,7 @@ function valueLooksReal(v, name) {
   if (/^env\([A-Za-z_][\w]*\)$/.test(v)) return false;           // Supabase config.toml reading one: "env(S3_SECRET_KEY)"
   if (/^[a-z_][a-z_-]*(\.[a-z_][a-z_-]*)+$/i.test(v)) return false; // dotted identifier / key path / permission or route name (users.reset-password)
   if (/^(\.{0,2}\/|~\/|https?:\/\/|[a-z]:\\)/i.test(v)) return false; // paths and URLs
+  if (/^[\w.@-]+(\/[\w.@-]+)+\.[a-z0-9]{1,6}$/i.test(v)) return false; // a relative file path (resources/js/pages/auth/confirm-password.tsx)
   if (/\.(json|pem|key|txt|ya?ml|env|crt|p12)$/i.test(v)) return false; // a file name, not the key
   if (/^x-[\w-]+$/i.test(v) || /^(application|text)\//.test(v)) return false;
   if (/^(.)\1+$/.test(v)) return false;
@@ -166,7 +167,9 @@ function findSecrets(src, f, out) {
     }
     for (const m of src.matchAll(DB_URL)) {
       const [, user, pw, host] = m;
-      if (LOCAL_HOST.test(host) || PLACEHOLDER.test(pw) || /^[:$%{<]/.test(pw) || pw.length < 4 || /^(password|pass|postgres|root|secret|admin|user)$/i.test(pw)) continue;
+      if (LOCAL_HOST.test(host) || PLACEHOLDER.test(pw) || /^[:$%{<]/.test(pw) || pw.length < 4 || /^(password|pass|postgres|root|secret|admin|user|guest|mysql|redis|rabbitmq)$/i.test(pw)) continue;
+      // CI and docker-compose talk to throwaway containers by service name (amqp://u:p@rabbitmq, postgres://u:p@db)
+      if (/(^|\/)\.github\/|(^|\/)(docker-)?compose[\w.-]*\.ya?ml$/i.test(f.path) && !/\./.test(host.split(':')[0])) continue;
       add(at(m.index), { what: 'a database password inside a connection address', svc: 'your database', sev: 'high', hint: mask(pw, true) });
     }
   }

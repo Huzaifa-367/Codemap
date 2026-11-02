@@ -23,3 +23,9 @@ test('plain value types are not classes to follow', () => {
   assert.deepEqual(t(`final String name; int count; List<Order> orders;`, 'dart'), {});
   assert.deepEqual(t(`name: string; when: Date; items: Array<Item>`, 'typescript'), {});
 });
+
+test('an abstract method declaration is one line, so it never seems to call the next method', async () => {
+  const { findDefs } = await lib('calls.mjs');
+  const d = findDefs(`abstract class BookingRepository {\n  Future<Result<Booking>> getBooking(int id);\n  Future<Result<void>> createBooking(Booking booking);\n}\n`, 'dart');
+  assert.deepEqual(d.map((x) => [x.name, x.line, x.end]), [['getBooking', 2, 2], ['createBooking', 3, 3]]);
+});

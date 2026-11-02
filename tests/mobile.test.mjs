@@ -336,3 +336,13 @@ test('a TanStack route named only in a comment is not a screen; a real one still
   const real = findScreens(`export const Route = createFileRoute('/products/$id')({ component: P });\n`, { ...f, path: 'src/routes/products.$id.tsx' });
   assert.deepEqual(real.map((s) => s.url), ['/products/:id']);
 });
+
+test('a Dart server\'s bin/ folder is source, not build output (outside git too)', () => {
+  const r = makeProject({ 'server/pubspec.yaml': 'name: shop_server\n', 'server/bin/main.dart': `void main() {}\n`, 'web/bin/app.dll': 'x', 'web/Web.csproj': '<Project/>' }, { arch: { project: { name: 'x', summary: 'x' }, nodes: [{ id: 's', label: 'S', kind: 'service', summary: 's', paths: ['server/**', 'web/**'] }] } });
+  try {
+    run('scan.mjs', r);
+    const paths = readJson(path.join(r, 'codemap', '.cache', 'scan.json')).files.map((f) => f.path);
+    assert.ok(paths.includes('server/bin/main.dart'), paths.join(', '));
+    assert.ok(!paths.includes('web/bin/app.dll'));
+  } finally { cleanup(r); }
+});

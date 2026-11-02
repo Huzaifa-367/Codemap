@@ -107,6 +107,8 @@ function endOf(lines, i, fam) {
     return Math.min(lines.length, i + 40);
   }
   // brace languages: from the first { on or after the line to its match; an expression body (=>) ends at the statement
+  // a declaration without a body (abstract / interface method: Future<Booking> getBooking(int id);) is one line
+  if (/\)\s*(?::\s*[^{;=]+)?;\s*$/.test(lines[i]) && !lines[i].includes('{')) return i + 1;
   // (braces inside the parameter list before the body opens, Dart's {String? notes} or TS's ({ a, b }), don't count)
   let depth = 0, opened = false, parens = 0;
   for (let j = i; j < lines.length && j < i + 2000; j++) {

@@ -30,6 +30,12 @@ const PATTERNS = [
   ['mail', /\b(?:send_mail|EmailMessage|mail\.send|transporter\.sendMail|sendgrid\.send|resend\.emails\.send|mailer\.send|sendEmail)\s*\(/g, () => 'an email'],
   ['notify', /->notify\(\s*new\s+\\?(?:[\w\\]*\\)?([A-Z]\w*)|Notification::send\([^;]*?new\s+\\?(?:[\w\\]*\\)?([A-Z]\w*)/g],
   ['notify', /\b(?:messaging\(\)\.send|admin\.messaging\(\)\.send|FirebaseMessaging\.instance|sendPushNotification|sendNotification)\s*\(/g, () => 'push notification'],
+  // ---- outside services called through their SDKs (no URL in the code) ----
+  ['outside', /\bboto3\.(?:client|resource)\(\s*['"](\w+)['"]/g, (n) => `AWS ${n.toUpperCase() === 'S3' ? 'S3' : n}`],
+  ['outside', /\bnew\s+(S3|SES|SQS|SNS|DynamoDB|Lambda|SecretsManager)Client\s*\(/g, (n) => `AWS ${n}`],
+  ['outside', /\b[Ss]tripe(?:Client)?\b[\w.]*\.(?:charges|paymentIntents|customers|subscriptions|checkout|refunds|invoices|PaymentIntent|Charge|Customer|Subscription|Refund)\b/g, () => 'Stripe'],
+  ['outside', /\btwilio\b[\w.()]*\.messages\.create\b|\bTwilio\\Rest\\Client\b/g, () => 'Twilio'],
+  ['outside', /\bStorage::disk\(\s*['"]s3['"]\)|\bStorage::cloud\(/g, () => 'cloud storage'],
 ];
 
 export function findEffects(src, lang, fns = []) {
@@ -41,7 +47,9 @@ export function findEffects(src, lang, fns = []) {
   const lineAt = (i) => { let lo = 0, hi = startOf.length - 1; while (lo < hi) { const mid = (lo + hi + 1) >> 1; if (startOf[mid] <= i) lo = mid; else hi = mid - 1; } return lo + 1; };
   const fnAt = (line) => { let best = -1; fns.forEach((d, i) => { if (line >= d.line && line <= (d.end || d.line) && (best < 0 || d.line >= fns[best].line)) best = i; }); return best; };
   const out = [], seen = new Set();
-  const code = src.replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, ' ')).replace(/(^|[^:"'`\\])\/\/[^\n]*/g, (m, p) => p + ' '.repeat(m.length - p.length));
+  let code = src.replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, ' ')).replace(/(^|[^:"'`\\])\/\/[^\n]*/g, (m, p) => p + ' '.repeat(m.length - p.length));
+  // Python / Ruby: # comments and docstrings ("""…""") are not code either
+  if (/^(python|ruby)$/.test(lang)) code = code.replace(/("""|''')[\s\S]*?\1/g, (m) => m.replace(/[^\n]/g, ' ')).replace(/(^|\s)#[^\n]*/g, (m, p) => p + ' '.repeat(m.length - p.length));
   for (const [kind, re, pick] of PATTERNS) {
     for (const m of code.matchAll(re)) {
       const raw = m[1] || m[2] || null;
@@ -113,7 +121,15 @@ export function linkEffects(files, read) {
     if (kind === 'event' && e.kind === 'job') to = byParam.get(e.name) || [];
     if (kind === 'job') {
       if (/^[A-Z]/.test(e.name)) for (const p of byClass.get(e.name) || []) { const i = (fnsOf.get(p) || []).findIndex((d) => /^(handle|perform|run|process|__invoke|execute)$/.test(d.name)); if (i >= 0) to.push([p, i]); }
-      else { to = [...(byName.get(e.name) || [])]; for (const g of files) { const i = (g.fns || []).findIndex((d) => d.name === e.name); if (i >= 0 && g.path !== f.path && /@(shared_task|app\.task|task)/.test(src(g.path))) to.push([g.path, i]); } }
+      else {
+        to = [...(byName.get(e.name) || [])];
+        // a task imported by name or alias: from .tasks import email_send as email_send_task
+        for (const imp of f.imports || []) {
+          const orig = imp.aliases?.[e.name] || ((imp.names || []).includes(e.name) ? e.name : imp.locals?.[e.name]);
+          if (!orig || !imp.files?.length) continue;
+          for (const q of imp.files) { const i = (fnsOf.get(q) || []).findIndex((d) => d.name === orig); if (i >= 0) to.push([q, i]); }
+        }
+        if (!to.length) for (const g of files) { const i = (g.fns || []).findIndex((d) => d.name === e.name); if (i >= 0 && g.path !== f.path && /@(shared_task|app\.task|task)/.test(src(g.path))) to.push([g.path, i]); } }
     }
     out.push([f.path, e.fn, kind, e.name, e.line, to.filter(([p, i]) => !(p === f.path && i === e.fn)).slice(0, 6)]);
   }

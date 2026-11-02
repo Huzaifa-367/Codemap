@@ -230,7 +230,9 @@ export function discover(root, { includeWorktrees = false, maxLooseFiles = 5000 
         continue;
       }
       if (e.isDirectory()) {
-        if (WALK_IGNORE_DIRS.has(e.name) || (e.name.startsWith('.') && e.name !== '.github')) {
+        // bin/ beside a Dart, Rust, Go or Node package holds source (Dart servers' bin/main.dart), not build output
+        const sourceBin = e.name === 'bin' && ['pubspec.yaml', 'Cargo.toml', 'go.mod', 'package.json'].some((m) => fs.existsSync(path.join(dir, m)));
+        if (!sourceBin && (WALK_IGNORE_DIRS.has(e.name) || (e.name.startsWith('.') && e.name !== '.github'))) {
           if (!['.git', 'node_modules', '__pycache__'].includes(e.name)) skipped.push({ path: rel(root, abs), reason: 'ignored directory' });
           continue;
         }

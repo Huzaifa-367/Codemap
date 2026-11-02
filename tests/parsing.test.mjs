@@ -145,3 +145,9 @@ test('chi: routes nested in r.Route take its prefix', () => {
 test('Fastify object routes', () => {
   assert.deepEqual(routes(`const fastify = require('fastify')();\nfastify.route({\n  method: ['GET', 'HEAD'],\n  url: '/orders/:id',\n  handler: async (req) => ({}),\n});\nfastify.route({ method: 'POST', url: '/orders', handler: create });\n`, 'javascript', 'server.js'), ['GET /orders/:id', 'HEAD /orders/:id', 'POST /orders']);
 });
+
+test('Django: nested inline include() blocks prefix the routes inside them, and an include is not itself an endpoint', () => {
+  const src = `urlpatterns = [\n    path(\n        "upload/",\n        include(\n            (\n                [\n                    path("standard/", StandardApi.as_view()),\n                    path(\n                        "direct/",\n                        include(([path("start/", StartApi.as_view())], "direct")),\n                    ),\n                ],\n                "upload",\n            )\n        ),\n    )\n]\n`;
+  const r = extract(src, 'python', 'files/urls.py').routes.map((x) => `${x.path} ${x.hc}`);
+  assert.deepEqual(r, ['/upload/standard/ StandardApi', '/upload/direct/start/ StartApi']);
+});

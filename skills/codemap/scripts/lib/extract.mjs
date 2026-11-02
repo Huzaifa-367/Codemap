@@ -48,7 +48,8 @@ function wayfinderUses(code, at) {
     for (const part of (named || '').split(',').map((s) => s.trim()).filter(Boolean)) { if (/^type\s/.test(part)) continue; const [orig, , alias] = part.split(/\s+/); locals.push([alias || orig, orig]); }
     const after = m.index + m[0].length;
     for (const [local, orig] of locals) {
-      const re = new RegExp(`(?<![\\w$.])${local.replace(/\$/g, '\\$')}((?:\\.[\\w$]+)*)\\s*\\(`, 'g');
+      // (a spread {...Ctl.update.form()} counts; a member of something else, other.Ctl(), does not)
+      const re = new RegExp(`(?:^|(?<=[^\\w$.]|\\.\\.\\.))${local.replace(/\$/g, '\\$')}((?:\\.[\\w$]+)*)\\s*\\(`, 'gm');
       re.lastIndex = after;
       let u;
       const seen = new Set();
@@ -464,10 +465,19 @@ function extractPy(src) {
   }
   // Django urls.py
   // Django: path('orders/', views.OrderView.as_view()) -> the class's get/post/… methods; path('x/', views.create_order) -> that function
-  for (const m of all(/\b(?:re_)?path\(\s*r?["']([^"']*)["']\s*,\s*(?!include)(?:([\w.]+?)(\.as_view\()|([\w.]+)(?=\s*[,)]))?/g, code)) {
+  // inline include([...]) blocks nest prefixes: path('upload/', include(([path('direct/', include(([path('start/', …)])))])))
+  const spans = [];
+  for (const m of all(/\b(?:re_)?path\(\s*r?["']([^"']*)["']\s*,\s*include\(\s*\(?\s*\[/g, code)) {
+    const open = code.indexOf('[', m.index + m[0].length - 1);
+    let d = 0, j = open;
+    for (; j < code.length; j++) { if (code[j] === '[') d++; else if (code[j] === ']' && --d === 0) break; }
+    spans.push({ open, close: j, prefix: m[1].replace(/^\^|\$$/g, '') });
+  }
+  const djPrefix = (i) => spans.filter((sp) => sp.open < i && sp.close > i).sort((a, b) => a.open - b.open).map((sp) => sp.prefix).join('');
+  for (const m of all(/\b(?:re_)?path\(\s*r?["']([^"']*)["']\s*,(?!\s*include\b)\s*(?:([\w.]+?)(\.as_view\()|([\w.]+)(?=\s*[,)]))?/g, code)) {
     const target = (m[2] || m[4] || '').split('.').pop();
     const handler = m[3] && /^[A-Z]/.test(target) ? { hc: target, handler: '*' } : target && /^[a-z_]/.test(target) ? { handler: target } : {};
-    routes.push({ method: 'ANY', path: '/' + m[1].replace(/^\^|\$$/g, ''), var: null, line: at(m.index), framework: 'django', ...handler });
+    routes.push({ method: 'ANY', path: '/' + (djPrefix(m.index) + m[1]).replace(/^\^|\$$/g, '').replace(/\/{2,}/g, '/'), var: null, line: at(m.index), framework: 'django', ...handler });
   }
 
   const mounts = [];
@@ -485,6 +495,8 @@ function extractPy(src) {
 
   const routeLine = /^\s*@\w+\.(route|get|post|put|patch|delete)\(/;
   const { calls, hosts } = extractCalls(code, at, { skip: routeLine });
+  // include('shop.api.urls') / include(('shop.api.urls', 'api')): that module's routes live under this prefix
+  for (const m of all(/\b(?:re_)?path\(\s*r?["']([^"']*)["']\s*,\s*include\(\s*\(?\s*["']([\w.]+)["']/g, code)) mounts.push({ prefix: '/' + m[1].replace(/^\^|\$$/g, ''), module: m[2], line: at(m.index) });
   return { imports, symbols, routes, mounts, calls, hosts, routers };
 }
 

@@ -207,3 +207,14 @@ test('a permission or route name with a hyphen (users.reset-password) is not a p
   assert.deepEqual(secrets(`const RESET_PASSWORD_ROUTE = 'password.reset-link';\n`, 'web/routes.js', 'javascript'), []);
   assert.equal(secrets(`<?php\nclass UserSeeder {\n    public const PASSWORD = 'Yard-${FAKE_PASSWORD}';\n}\n`, 'database/seeders/UserSeeder.php', 'php').length, 1);
 });
+
+test('a relative file path under a password-like name is not a password', () => {
+  assert.deepEqual(secrets(`<?php\nreturn [\n    'confirm_password' => 'resources/js/pages/auth/confirm-password.tsx',\n];\n`, 'chisel-paths.php', 'php'), []);
+});
+
+test('docker-compose connection addresses to other containers carry throwaway logins; a real host still counts', () => {
+  const compose = (url) => findIssues(`services:\n  worker:\n    environment:\n      - BROKER_URL=${url}\n`, { path: 'docker-compose.yml', category: 'config', lang: 'yaml' }).filter((x) => x.k === 'secret');
+  assert.deepEqual(compose('amqp://guest:guest@rabbitmq:5672//'), []);
+  assert.deepEqual(compose('postgres://app:S3cure-pass-91x@db:5432/app'), []);
+  assert.equal(compose('postgres://app:S3cure-pass-91x@prod.db.example-corp.io:5432/app').length, 1);
+});

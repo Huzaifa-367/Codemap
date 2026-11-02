@@ -74,15 +74,20 @@ export function findFacts(src, lang, fns = []) {
     const name = c[1], head = c[2];
     const rest = src.slice(c.index, c.index + 6000);
     let m;
-    if ((m = /function\s+rules\s*\([^)]*\)[^{]*\{[\s\S]*?return\s*\[/.exec(rest))) out.classes[name] = { checks: keysAt(rest, rest.indexOf('[', m.index + m[0].length - 1)).map(([n, v]) => v ? `${n}: ${ruleText(v)}` : n) };
-    else if ((m = /function\s+toArray\s*\([^)]*\)[^{]*\{[\s\S]*?return\s*\[/.exec(rest))) out.classes[name] = { returns: keysAt(rest, rest.indexOf('[', m.index + m[0].length - 1)).map(([n]) => n) };
+    if ((m = /function\s+rules\s*\([^)]*\)[^{]*\{[\s\S]*?return\s*\[/.exec(rest))) out.classes[name] = { line: src.slice(0, c.index).split('\n').length, checks: keysAt(rest, rest.indexOf('[', m.index + m[0].length - 1)).map(([n, v]) => v ? `${n}: ${ruleText(v)}` : n) };
+    else if ((m = /function\s+toArray\s*\([^)]*\)[^{]*\{[\s\S]*?return\s*\[/.exec(rest))) out.classes[name] = { line: src.slice(0, c.index).split('\n').length, returns: keysAt(rest, rest.indexOf('[', m.index + m[0].length - 1)).map(([n]) => n) };
     else if (/\b(BaseModel|Schema|Serializer|ModelSerializer)\b/.test(head) || /@(IsString|IsInt|IsNotEmpty|IsEmail|IsOptional|IsUUID|Length|Min|Max)\b/.test(rest.split(/\n\}/)[0])) {
       // pydantic / DRF / marshmallow fields, class-validator DTOs: `name: str`, `email = serializers.EmailField()`, `@IsEmail() email: string`
-      const block = rest.split(/\n(?:\}|\S)/)[0];
+      // the class body: up to the closing brace, or (Python) the next line indented no deeper than the class itself
+      const ind = (src.slice(src.lastIndexOf('\n', c.index) + 1, c.index).match(/^\s*/) || [''])[0].length;
+      const lines = rest.split('\n');
+      let n = 1;
+      for (; n < lines.length; n++) { const l = lines[n]; if (!l.trim()) continue; if (/^\s*\}/.test(l) && l.search(/\S/) <= ind) break; if (l.search(/\S/) <= ind) break; }
+      const block = lines.slice(0, n).join('\n');
       const fields = [...block.matchAll(/^\s*(?:@\w+\([^)]*\)\s*)*(?:readonly\s+|public\s+)?([a-z_]\w*)\s*[?!]?\s*(?::\s*([\w[\]|. ]+?)(?:\s*=.*)?|=\s*(?:serializers|fields|ma\.fields)\.(\w+)\([^)]*\))\s*;?\s*$/gm)].map((x) => `${x[1]}: ${(x[2] || x[3] || '').trim()}`);
       const decos = [...block.matchAll(/((?:@\w+\([^)]*\)\s*)+)(?:readonly\s+)?([a-z_]\w*)[?!]?\s*:/g)].map((x) => `${x[2]}: ${[...x[1].matchAll(/@(\w+)/g)].map((y) => y[1].replace(/^Is/, '').toLowerCase()).join(', ')}`);
       const list = decos.length ? decos : fields;
-      if (list.length) out.classes[name] = { checks: list.slice(0, 30) };
+      if (list.length) { const entry = { line: src.slice(0, c.index).split('\n').length, checks: list.slice(0, 30) }; out.classes[name] = out.classes[name] ? [].concat(out.classes[name], entry) : entry; }
     }
   }
   return out;

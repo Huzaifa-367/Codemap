@@ -59,8 +59,16 @@ export function traceReport(G, start, args = {}) {
     const { p, d } = fnAt(k);
     const x = { ...(factsOf.get(k) || {}) };
     const cls = G.classFacts || {};
-    if (x.checksWith && cls[x.checksWith]?.checks) x.checks = cls[x.checksWith].checks;
-    if (x.returnsWith && cls[x.returnsWith]?.returns) x.returns = cls[x.returnsWith].returns;
+    // several classes may share a name (DRF's nested InputSerializer per view): the one in this file defined
+    // nearest above the function, else the one in this file, else the only one
+    const pick = (name, what) => {
+      const list = [].concat(cls[name] || []).filter((c) => c[what]);
+      const here = list.filter((c) => c.file === p);
+      const above = here.filter((c) => (c.line || 0) <= d[1]).sort((a, b) => (b.line || 0) - (a.line || 0))[0];
+      return (above || here[0] || (list.length === 1 ? list[0] : null))?.[what];
+    };
+    if (x.checksWith) { const c = pick(x.checksWith, 'checks'); if (c) x.checks = c; }
+    if (x.returnsWith) { const r = pick(x.returnsWith, 'returns'); if (r) x.returns = r; }
     delete x.checksWith; delete x.returnsWith;
     const inSpan = (line) => line >= d[1] && line <= d[2];
     const uniq = (a) => [...new Set(a)];
@@ -93,8 +101,13 @@ export function traceReport(G, start, args = {}) {
     if (r.hc) {
       const cf = classFile(r);
       if (cf) {
-        if (r.h && r.h !== '*') { const i = fnsOf(cf).findIndex(([n]) => n === r.h); if (i >= 0) return [key(cf, i)]; }
-        else { const ks = fnsOf(cf).map(([n], i) => [n, i]).filter(([n]) => VERBS.test(n)).map(([, i]) => key(cf, i)); if (ks.length) return ks; }
+        // only the class's own methods: from its line to the next class in the file
+        const classes = (files.get(cf)?.s || []).filter((x) => /^(class|struct|record|object)$/.test(x[1] || '')).map((x) => x[2]).sort((a, b) => a - b);
+        const at = (files.get(cf)?.s || []).find((x) => x[0] === r.hc)?.[2];
+        const end = at ? (classes.find((l) => l > at) || Infinity) : Infinity;
+        const own = fnsOf(cf).map((d, i) => [d, i]).filter(([d]) => !at || (d[1] > at && d[1] < end));
+        if (r.h && r.h !== '*') { const hit = own.find(([d]) => d[0] === r.h) || fnsOf(cf).map((d, i) => [d, i]).find(([d]) => d[0] === r.h); if (hit) return [key(cf, hit[1])]; }
+        else { const ks = own.filter(([d]) => VERBS.test(d[0])).map(([, i]) => key(cf, i)); if (ks.length) return ks; }
       }
     }
     const i = handlerOf(r);

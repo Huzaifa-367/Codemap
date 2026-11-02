@@ -16,6 +16,12 @@ const joinPath =(...parts) => '/' + parts.map((p) => (p || '').replace(/^\/+|\/+
 function mountTarget(f, mount, byPath) {
   const imports = (f.imports || []).filter((i) => i.files?.length);
   if (mount.spec) { const imp = imports.find((i) => i.spec === mount.spec); return imp ? { file: imp.files[0], v: '*' } : null; }
+  // a module named by its dotted path (Django include('shop.api.urls')): the file at that path, nearest the mounting file
+  if (mount.module) {
+    const tail = mount.module.replace(/\./g, '/');
+    const hits = [...(byPath?.keys() || [])].filter((p) => p.endsWith(tail + '.py') || p.endsWith(tail + '/__init__.py')).filter((p) => p === tail + '.py' || p.endsWith('/' + tail + '.py') || p.endsWith('/' + tail + '/__init__.py') || p === tail + '/__init__.py');
+    return hits.length ? { file: hits.sort((a, b) => a.length - b.length)[0], v: '*' } : null;
+  }
   // a class whose router is mounted (Dart shelf: ..mount('/booking', BookingApi().router.call)): the imported file declaring it
   if (mount.cls) {
     const declares = (p) => byPath?.get(p)?.symbols?.some((x) => x.name === mount.cls);

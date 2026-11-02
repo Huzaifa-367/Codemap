@@ -195,3 +195,8 @@ test('Wayfinder imports reach routes by name or controller even when the generat
     assert.match(out, /__invoke\(\)\s+app\/Http\/Controllers\/PingController\.php/);
   } finally { cleanup(r); }
 });
+
+test('a Wayfinder action spread into a form ({...ProfileController.update.form()}) is a request to that method', () => {
+  const r = extract(`import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';\nexport default function P() {\n  return <Form {...ProfileController.update.form()}>x</Form>;\n}\n`, 'typescript', 'resources/js/pages/settings/profile.tsx');
+  assert.deepEqual(r.calls.filter((c) => c.wf).map((c) => c.wf), [{ cls: 'ProfileController', method: 'update' }]);
+});
