@@ -1,0 +1,24 @@
+name: Feature idea
+description: Something that would make the map more useful
+labels: [enhancement]
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: What were you trying to do?
+      description: Start with the problem, not the solution. What did you want to understand or find, and what got in the way?
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would help?
+      description: Your idea, if you have one.
+  - type: dropdown
+    id: who
+    attributes:
+      label: Who's it for?
+      options:
+        - People who built an app but don't read code
+        - Developers
+        - Both

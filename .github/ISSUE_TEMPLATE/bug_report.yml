@@ -1,0 +1,43 @@
+name: Bug report
+description: Something went wrong making, updating or using a map
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! Please don't paste private code, secrets, or screenshots of a map of a private project.
+        Security problems: use the Security tab's **Report a vulnerability** instead.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you asked Claude, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Output
+      description: Anything Claude or the scripts printed, especially lines starting with ✗ or !
+      render: text
+  - type: input
+    id: project
+    attributes:
+      label: Your project
+      description: Languages and frameworks, and whether it's one repo, a monorepo or several repos side by side
+      placeholder: e.g. Next.js frontend + Flask API, two repos
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where were you using Claude Code?
+      options:
+        - Desktop app (Code tab)
+        - CLI in a terminal
+        - IDE extension
+        - Other
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      description: Codemap version, Node version (`node --version`), and your OS
+      placeholder: Codemap 0.1.0, Node 22, Windows 11

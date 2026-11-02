@@ -1,0 +1,20 @@
+{
+  "name": "codemap",
+  "interface": {
+    "displayName": "Codemap"
+  },
+  "plugins": [
+    {
+      "name": "codemap",
+      "source": {
+        "source": "local",
+        "path": "./"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}

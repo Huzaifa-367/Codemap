@@ -1,0 +1,28 @@
+# Runs the test suite on every push and pull request, on Linux and Windows with every Node version
+# Codemap supports. macOS runs separately (macos.yml), since GitHub's macOS machines are often all
+# busy. No dependencies to install: Node's built-in runner.
+name: Tests
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Node ${{ matrix.node }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node: [18, 20, 22]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node }}
+      - run: node --test

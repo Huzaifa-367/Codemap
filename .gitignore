@@ -1,0 +1,12 @@
+# Local Claude Code settings and dev previews
+.claude/
+CLAUDE.local.md
+
+# A codemap made of this repo itself (root only: skills/codemap/ is the plugin)
+/codemap/
+
+# OS and editor clutter
+.DS_Store
+Thumbs.db
+*.log
+node_modules/

@@ -1,0 +1,10 @@
+{
+  "name": "codemap",
+  "private": true,
+  "description": "Codemap, a Claude Code plugin. No dependencies: this file only gives `npm test` a home.",
+  "license": "MIT",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "test": "node --test"
+  }
+}

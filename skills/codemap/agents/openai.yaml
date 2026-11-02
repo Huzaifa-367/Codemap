@@ -1,0 +1,4 @@
+interface:
+  display_name: "Codemap"
+  short_description: "Draw an interactive, plain-English map of this codebase"
+  default_prompt: "Use $codemap to draw a codemap of this codebase, or update the existing one, and open it."

@@ -1,0 +1,24 @@
+# The test suite on macOS, weekly and on demand (Actions → macOS → Run workflow). It's kept out of
+# the per-push Tests workflow because GitHub's macOS machines are often all busy, and a job that
+# never gets a machine would otherwise mark a push as failed.
+name: macOS
+
+on:
+  schedule:
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Node 22 on macos-latest
+    runs-on: macos-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - run: node --test
