@@ -1473,6 +1473,8 @@ function renderContext() {
     $('#context').innerHTML = `<div class="k"><span class="ico" style="--c:var(--on)">${icon(state.answer.icon || 'spark')}</span>${h(state.answer.kind || 'Answer')} · ${plural(state.answer.items.length, 'card')}</div><h1>${h(state.answer.title)}</h1><p>${h(state.answer.question)}</p>`;
     return;
   }
+  // the overview: the project's name and summary live in the details panel only, so the board starts clear
+  if (state.container === 'root') { $('#context').innerHTML = ''; return; }
   const i = info(state.container);
   const kind = state.container === 'root' ? 'Overview' : i.type === 'node' ? i.kind.charAt(0).toUpperCase() + i.kind.slice(1) : i.type === 'dir' ? 'Folder' : i.type === 'file' ? 'File' : i.type;
   const badge = state.container === 'root' ? '' : `<span class="ico" style="--c:${colorOf(i)}">${icon(iconKey(i))}</span>`;

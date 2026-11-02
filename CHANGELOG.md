@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- **A clearer overview.** The project's name and summary are no longer repeated over the top-left of the overview board; they stay in the details panel. Inner boards keep their title.
 - **Next.js endpoints, more exact.** Only a file named `route.ts` (or .js/.tsx/.jsx) under `app/` is an endpoint, so files like `_route.ts` no longer show up as one, and handlers re-exported as `export { handler as GET, handler as POST }` (the usual NextAuth setup) show their real methods instead of "ANY".
 
 ## 1.0.2 (2026-11-02)

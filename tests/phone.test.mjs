@@ -160,3 +160,7 @@ test('nothing new shows on a computer: the buttons added no new tooltips', () =>
   assert.doesNotMatch(html, /id="search-btn" title=/);
   assert.doesNotMatch(html, /id="flows-btn" title=/);
 });
+
+test('the overview leaves the project name and summary to the details panel', () => {
+  assert.match(html, /if \(state\.container === 'root'\) \{ \$\('#context'\)\.innerHTML = ''; return; \}/);
+});
