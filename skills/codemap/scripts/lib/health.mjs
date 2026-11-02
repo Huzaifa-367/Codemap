@@ -111,7 +111,7 @@ function valueLooksReal(v, name) {
   if (/^(none|null|nil|undefined|true|false|string|number|text|required|optional|bearer|basic|secret|token|password|test|dev|development|local|admin)$/i.test(v)) return false;
   if (/^[A-Z][A-Z0-9_]+$/.test(v)) return false;                 // the NAME of an env var
   if (/^env\([A-Za-z_][\w]*\)$/.test(v)) return false;           // Supabase config.toml reading one: "env(S3_SECRET_KEY)"
-  if (/^[a-z_]+(\.[a-z_]+)+$/i.test(v)) return false;            // dotted identifier / key path
+  if (/^[a-z_][a-z_-]*(\.[a-z_][a-z_-]*)+$/i.test(v)) return false; // dotted identifier / key path / permission or route name (users.reset-password)
   if (/^(\.{0,2}\/|~\/|https?:\/\/|[a-z]:\\)/i.test(v)) return false; // paths and URLs
   if (/\.(json|pem|key|txt|ya?ml|env|crt|p12)$/i.test(v)) return false; // a file name, not the key
   if (/^x-[\w-]+$/i.test(v) || /^(application|text)\//.test(v)) return false;

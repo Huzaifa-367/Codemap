@@ -36,6 +36,20 @@ export function traceReport(G, start, args = {}) {
   const tableUses = new Map();
   for (const t of G.tables || []) for (const [p, how, line] of t.usedBy || []) { if (!tableUses.has(p)) tableUses.set(p, []); tableUses.get(p).push({ table: t.name, how, line }); }
   const outsideOf = (p) => [...new Set((G.links || []).filter((l) => l.a === 'f:' + p && l.b.startsWith('n:') && nodes.get(l.b.slice(2))?.kind === 'external').map((l) => nodes.get(l.b.slice(2)).label))];
+  /** The controller class's file (Laravel [X::class, 'method']): imported by the route file, else the one file of that name. */
+  const classFile = (r) => {
+    const named = (p) => p.split('/').pop().replace(/\.[^.]+$/, '') === r.hc;
+    const imported = (G.links || []).find((l) => l.k === 'import' && l.a === 'f:' + r.f && l.b.startsWith('f:') && named(l.b.slice(2)));
+    if (imported) return imported.b.slice(2);
+    const same = G.files.filter((f) => named(f.p));
+    return same.length === 1 ? same[0].p : null;
+  };
+  /** The function that answers an endpoint, as a key: a controller method in another file, or one in the route's file. */
+  const handlerKey = (r) => {
+    if (r.hc && r.h) { const cf = classFile(r); const i = cf ? fnsOf(cf).findIndex(([n]) => n === r.h) : -1; if (i >= 0) return key(cf, i); }
+    const i = handlerOf(r);
+    return i >= 0 ? key(r.f, i) : null;
+  };
   /** The function that answers an endpoint: its named handler, or the route's own inline body. */
   const handlerOf = (r) => {
     const fns = fnsOf(r.f);
@@ -92,8 +106,8 @@ export function traceReport(G, start, args = {}) {
   function endpointNode(ri, depth) {
     const r = G.routes[ri];
     const node = { type: 'endpoint', name: `${r.m} ${r.p}`, title: r.name, file: r.f, line: r.l, part: partOf(r.f), children: [] };
-    const h = handlerOf(r);
-    if (h >= 0) node.children.push(fnNode(key(r.f, h), depth, 'handled by'));
+    const h = handlerKey(r);
+    if (h) node.children.push(fnNode(h, depth, 'handled by'));
     return node;
   }
   const STATE_HOLDER = /(view_?models?|viewmodel|blocs?|cubits?|controllers?|stores?|presenters?|notifiers?|providers?|state|interactors?)[^/]*\.(dart|kt|swift|ts|tsx|js|jsx)$|\/(view_?models?|blocs?|cubits?|stores?|presenters?|state)\//i;
@@ -114,14 +128,25 @@ export function traceReport(G, start, args = {}) {
     const span = (k) => fnAt(k).d;
     const leaves = (k) => (callsFrom.get(k) || []).some((c) => !inside(c.to))
       || [...(requestsIn.get(p) || []), ...(tableUses.get(p) || [])].some((r) => r.line >= span(k)[1] && r.line <= span(k)[2]);
+    // a request in a function's own body, or in a function it calls (a generated route helper, an API client)
+    const asks = (k, hops = 2) => (requestsIn.get(fnAt(k).p) || []).some((r) => r.line >= fnAt(k).d[1] && r.line <= fnAt(k).d[2])
+      || (hops > 0 && (callsFrom.get(k) || []).some((c) => c.to !== k && asks(c.to, hops - 1)));
     const entries = busy.filter((k) => !calledHere.has(k));
-    const ranked = [...entries.filter(leaves), ...entries.filter((k) => !leaves(k))];
+    const ranked = [...entries.filter((k) => asks(k)), ...entries.filter((k) => !asks(k) && leaves(k)), ...entries.filter((k) => !asks(k) && !leaves(k))];
+    // an Inertia page: first the route that renders it (the controller loads its data), then what the page does
+    const screen = depth === 0 && (G.screens || []).find((s) => s.file === p && s.fw === 'inertia');
+    const ri = screen ? G.routes.findIndex((r) => r.p === screen.url && (r.m === 'GET' || r.m === 'ANY')) : -1;
+    if (ri >= 0) { const e = endpointNode(ri, 1); e.via = 'gets its data from'; node.children.push(e); }
     const picked = new Set(ranked.slice(0, 6));
     const also = ranked.slice(6).map((k) => fnAt(k).d[0]);
     if (also.length) node.also = also;
-    for (const k of (entries.length ? entries : busy)) if (picked.has(k) && !seen.has(k)) node.children.push(fnNode(k, depth + 1));
-    // requests made outside any function (module-level)
-    for (const r of requestsIn.get(p) || []) if (fnCovering(p, r.line) < 0) node.children.push(endpointNode(r.ri, 1));
+    // functions that lead to a request first, then requests made outside any function (module-level, or in code
+    // not read as a function), then the rest of the functions; each request once
+    const order = entries.length ? entries : busy;
+    for (const k of order) if (picked.has(k) && !seen.has(k) && asks(k)) node.children.push(fnNode(k, depth + 1));
+    const shown = new Set(ri >= 0 ? [ri] : []);
+    for (const r of requestsIn.get(p) || []) if (fnCovering(p, r.line) < 0 && !shown.has(r.ri)) { shown.add(r.ri); node.children.push(endpointNode(r.ri, 1)); }
+    for (const k of order) if (picked.has(k) && !seen.has(k) && !asks(k)) node.children.push(fnNode(k, depth + 1));
     // a screen whose work happens in its state holder (view model, bloc, controller, store…): continue there
     if (depthOf(node) === 0) for (const l of G.links || []) {
       if (l.k !== 'import' || l.a !== 'f:' + p || !l.b.startsWith('f:')) continue;

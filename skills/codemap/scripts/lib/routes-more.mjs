@@ -29,14 +29,32 @@ export function laravelRoutes(code, at, filePath) {
     const chain = m[1] + (m[2] || '');
     const prefix = /prefix\(\s*['"]([^'"]*)['"]\s*\)/.exec(chain)?.[1] ?? /['"]prefix['"]\s*=>\s*['"]([^'"]*)['"]/.exec(chain)?.[1] ?? '';
     const open = m.index + m[0].length - 1;
-    groups.push({ open, close: closeOf(code, open, '{', '}'), prefix, auth: /middleware\([^)]*auth|['"]middleware['"]\s*=>[^,\]]*auth/.test(chain) });
+    const name = /(?:^|->|\b)name\(\s*['"]([^'"]*)['"]\s*\)/.exec(chain)?.[1] ?? /['"]as['"]\s*=>\s*['"]([^'"]*)['"]/.exec(chain)?.[1] ?? '';
+    groups.push({ open, close: closeOf(code, open, '{', '}'), prefix, name, auth: /middleware\([^)]*auth|['"]middleware['"]\s*=>[^,\]]*auth/.test(chain) });
   }
   const prefixAt = (i) => groups.filter((g) => g.open < i && g.close > i).sort((a, b) => a.open - b.open);
   const out = [];
-  const add = (method, p, i, extra = {}) => { const gs = prefixAt(i); out.push({ method, path: join(base, ...gs.map((g) => g.prefix), p), var: null, line: at(i), framework: 'laravel', ...(gs.some((g) => g.auth) ? { mw: ['auth'] } : {}), ...extra }); };
-  for (const m of code.matchAll(/Route::(get|post|put|patch|delete|options|any)\(\s*['"]([^'"]*)['"]/g)) add(m[1] === 'any' ? 'ANY' : m[1].toUpperCase(), m[2], m.index);
-  for (const m of code.matchAll(/Route::match\(\s*\[([^\]]*)\]\s*,\s*['"]([^'"]*)['"]/g)) for (const v of m[1].match(/[a-zA-Z]+/g) || []) add(v.toUpperCase(), m[2], m.index);
-  for (const m of code.matchAll(/Route::(apiResource|resource)\(\s*['"]([^'"]*)['"]/g)) for (const [v, sfx] of LARAVEL_RESOURCE) add(v, m[2] + sfx, m.index);
+  // route names (->name('settings.edit') after the group names, 'admin.'): Wayfinder's @/routes helpers are named after them
+  const add = (method, p, i, extra = {}) => {
+    const gs = prefixAt(i);
+    const own = extra.rname ?? /->name\(\s*['"]([^'"]+)['"]\s*\)/.exec(code.slice(i, code.indexOf(';', i) + 1))?.[1];
+    const rname = own ? gs.map((g) => g.name).join('') + own : undefined;
+    out.push({ method, path: join(base, ...gs.map((g) => g.prefix), p), var: null, line: at(i), framework: 'laravel', ...(gs.some((g) => g.auth) ? { mw: ['auth'] } : {}), ...extra, ...(rname ? { rname } : {}) });
+  };
+  // the controller that answers: [SettingsController::class, 'edit'], an invokable PingController::class, or a method
+  // name inside Route::controller(X::class)->group(…); hc is the class (its file is found through the imports)
+  const ctlGroups = [...code.matchAll(/Route::controller\(\s*\\?([\w\\]+)::class\s*\)[^;]*?group\(\s*(?:static\s+)?function\s*\([^)]*\)\s*\{/g)].map((m) => { const open = m.index + m[0].length - 1; return { open, close: closeOf(code, open, '{', '}'), hc: m[1].split('\\').pop() }; });
+  const handlerAt = (rest, i) => {
+    let m;
+    if ((m = /^\s*,\s*\[\s*\\?([\w\\]+)::class\s*,\s*['"](\w+)['"]\s*\]/.exec(rest))) return { hc: m[1].split('\\').pop(), handler: m[2] };
+    if ((m = /^\s*,\s*\\?([\w\\]+)::class\s*\)/.exec(rest))) return { hc: m[1].split('\\').pop(), handler: '__invoke' };
+    if ((m = /^\s*,\s*['"](\w+)['"]\s*\)/.exec(rest))) { const g = ctlGroups.filter((x) => x.open < i && x.close > i).pop(); if (g) return { hc: g.hc, handler: m[1] }; }
+    return {};
+  };
+  for (const m of code.matchAll(/Route::(get|post|put|patch|delete|options|any)\(\s*['"]([^'"]*)['"]/g)) add(m[1] === 'any' ? 'ANY' : m[1].toUpperCase(), m[2], m.index, handlerAt(code.slice(m.index + m[0].length, m.index + m[0].length + 200), m.index));
+  for (const m of code.matchAll(/Route::match\(\s*\[([^\]]*)\]\s*,\s*['"]([^'"]*)['"]/g)) for (const v of m[1].match(/[a-zA-Z]+/g) || []) add(v.toUpperCase(), m[2], m.index, handlerAt(code.slice(m.index + m[0].length, m.index + m[0].length + 200), m.index));
+  const RESOURCE_ACTIONS = ['index', 'store', 'show', 'update', 'update', 'destroy'];
+  for (const m of code.matchAll(/Route::(apiResource|resource)\(\s*['"]([^'"]*)['"](\s*,\s*\\?([\w\\]+)::class)?/g)) LARAVEL_RESOURCE.forEach(([v, sfx], k) => add(v, m[2] + sfx, m.index, { rname: `${m[2].replace(/\//g, '.')}.${RESOURCE_ACTIONS[k]}`, ...(m[4] ? { hc: m[4].split('\\').pop(), handler: RESOURCE_ACTIONS[k] } : {}) }));
   return out;
 }
 

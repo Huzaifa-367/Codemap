@@ -201,3 +201,9 @@ test('a hand-broken dismissal file warns and does not break the map', () => {
   assert.ok(readGraph(root).health.issues.length > 0);
   fs.rmSync(mapFile('health-dismissed.json'));
 });
+
+test('a permission or route name with a hyphen (users.reset-password) is not a password; a real one still is', () => {
+  assert.deepEqual(secrets(`<?php\nenum Permission: string {\n    case UsersResetPassword = 'users.reset-password';\n}\n`, 'app/Enums/Permission.php', 'php'), []);
+  assert.deepEqual(secrets(`const RESET_PASSWORD_ROUTE = 'password.reset-link';\n`, 'web/routes.js', 'javascript'), []);
+  assert.equal(secrets(`<?php\nclass UserSeeder {\n    public const PASSWORD = 'Yard-${FAKE_PASSWORD}';\n}\n`, 'database/seeders/UserSeeder.php', 'php').length, 1);
+});

@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- **Laravel apps, traced end to end.** Function-level flows now work for Laravel: an endpoint leads to its controller method (`[SettingsController::class, 'edit']`, invokable controllers, `Route::controller` groups, resources), and on into the services and models it calls (`$this->service->save()`, `Model::query()`).
+- **PHP files are connected.** `use App\Services\X;` statements (grouped and aliased too) now link files through composer's PSR-4 autoload, so a Laravel map shows which controllers use which services and models. Before, PHP files were linked only by `require`.
+- **Inertia pages are screens.** `Inertia::render('inspect/index')` and `Route::inertia()` make `resources/js/pages/inspect/index.tsx` a screen at its route's URL. Its step-by-step flow starts with what loads the page (the route, its controller, the services and models), then what the page sends.
+- **Laravel Wayfinder.** Calls to Wayfinder helpers (`import { update } from '@/routes/admin/settings'`, `@/actions/…/Controller`) are matched to their endpoints by route name or controller, even when the generated files are gitignored. Laravel route names (with group `name()` prefixes) are read for this.
+- **Fewer false alarms:** a permission or route name with a hyphen (`users.reset-password`) is no longer reported as a password.
 - **A clearer overview.** The project's name and summary are no longer repeated over the top-left of the overview board; they stay in the details panel. Inner boards keep their title.
 - **Next.js endpoints, more exact.** Only a file named `route.ts` (or .js/.tsx/.jsx) under `app/` is an endpoint, so files like `_route.ts` no longer show up as one, and handlers re-exported as `export { handler as GET, handler as POST }` (the usual NextAuth setup) show their real methods instead of "ANY".
 

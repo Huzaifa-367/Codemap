@@ -30,6 +30,7 @@ export function findScreens(src, file) {
   if (file.lang === 'dart') return dedupeHints(flutterScreens(src, file.consts));
   if (file.lang === 'kotlin' || file.lang === 'java') return dedupeHints(composeScreens(src, file.consts));
   if (file.lang === 'swift') return dedupeHints(swiftScreens(src));
+  if (file.lang === 'php') return dedupeHints(inertiaScreens(src));
   if (!JS_LANGS.has(file.lang)) return [];
   const p = file.path;
   const out = [];
@@ -40,10 +41,24 @@ export function findScreens(src, file) {
   }
   return dedupeHints(out);
 }
+/**
+ * Laravel + Inertia: Inertia::render('settings/edit') / inertia('settings/edit') in a controller, and
+ * Route::inertia('/about', 'about') in a route file. The page is resources/js/pages/settings/edit.tsx; the URL is
+ * the route's (filled in at build time from the route whose controller method makes the call, `line`).
+ */
+function inertiaScreens(src) {
+  const code = stripC(src);
+  const lineAt = (i) => code.slice(0, i).split('\n').length;
+  const out = [];
+  for (const m of code.matchAll(/\b(?:Inertia::render|inertia)\(\s*['"]([\w./-]+)['"]/g)) out.push({ fw: 'inertia', url: '', page: m[1], line: lineAt(m.index) });
+  for (const m of code.matchAll(/Route::inertia\(\s*['"]([^'"]*)['"]\s*,\s*['"]([\w./-]+)['"]/g)) out.push({ fw: 'inertia', url: '/' + m[1].replace(/^\/+/, ''), page: m[2], line: lineAt(m.index) });
+  return out;
+}
+
 /** One hint per url + target within a file. */
 function dedupeHints(out) {
   const seen = new Set();
-  return out.filter((s) => { const k = `${s.url}|${s.comp || ''}|${s.spec || ''}|${s.target || ''}`; if (seen.has(k)) return false; seen.add(k); return true; });
+  return out.filter((s) => { const k = `${s.url}|${s.comp || ''}|${s.spec || ''}|${s.target || ''}|${s.page || ''}`; if (seen.has(k)) return false; seen.add(k); return true; });
 }
 
 // ---------- mobile screens ----------
@@ -528,7 +543,23 @@ export function buildScreens({ graph, scan, root }) {
   };
   const routed = []; // router entries: { url, file, fw }
   const pageHints = [];
+  // Inertia: the page file under …/pages/ (or Pages/), and the URL of the route whose controller method renders it
+  const inertiaPage = (page) => { const want = '/pages/' + page.toLowerCase(); for (const [stem, p] of pathsByStem) if (('/' + stem).toLowerCase().endsWith(want) && /\.(tsx|jsx|vue|svelte|ts|js)$/.test(p)) return p; return null; };
+  const inertiaUrl = (from, line) => {
+    const fns = files.get(from)?.fn || [];
+    const fn = fns.filter(([, a, b]) => line >= a && line <= b).sort((x, y) => y[1] - x[1])[0];
+    if (!fn) return null;
+    const cls = from.split('/').pop().replace(/\.php$/, '');
+    const r = routes.find((x) => x.hc === cls && x.h === fn[0] && (x.m === 'GET' || x.m === 'ANY'));
+    return r ? r.p : null;
+  };
   for (const f of scanFiles) for (const h of f.screens || []) {
+    if (h?.fw === 'inertia') {
+      const file = inertiaPage(h.page);
+      const url = h.url || inertiaUrl(f.path, h.line);
+      if (file && url) routed.push({ url, file, fw: 'inertia' });
+      continue;
+    }
     if (!h || typeof h.url !== 'string') continue;
     if (h.comp || h.spec || h.target) { const file = resolveHint(f.path, h); if (file) routed.push({ url: h.url, file, fw: h.fw }); }
     else pageHints.push({ url: h.url, file: f.path, fw: h.fw, ...(h.self ? { self: true } : {}) });

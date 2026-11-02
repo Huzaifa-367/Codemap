@@ -178,7 +178,9 @@ export function linkCalls({ files, edges, read }) {
     const src = read(f.path);
     if (!src) continue;
     const fam = FAMILY[f.lang];
-    const lines = stripComments(src, fam === 'python' || fam === 'ruby').split('\n').map(stripStrings);
+    let lines = stripComments(src, fam === 'python' || fam === 'ruby').split('\n').map(stripStrings);
+    // PHP: $this->repo->save() and Cache::get() read like this.repo.save() and Cache.get()
+    if (fam === 'php') lines = lines.map((l) => l.replace(/\??->|::/g, '.').replace(/\$(?=[A-Za-z_])/g, ''));
     // imported bindings: local name -> { file, orig }
     const binds = new Map();
     for (const imp of f.imports || []) {

@@ -113,7 +113,7 @@ export function resolveRoutes(files) {
       }
       const defPrefix = (r.var && f.routers?.[r.var]) || '';
       const mw = mountMw(f.path, r.var);
-      for (const mp of outerPrefixes(f.path, r.var)) routes.push({ file: f.path, method: r.method, path: joinPath(mp, defPrefix, r.path), line: r.line, ...(r.handler ? { handler: r.handler } : {}), ...(r.doc ? { doc: r.doc } : {}), ...(mw.length ? { mountMw: mw } : {}) });
+      for (const mp of outerPrefixes(f.path, r.var)) routes.push({ file: f.path, method: r.method, path: joinPath(mp, defPrefix, r.path), line: r.line, ...(r.handler ? { handler: r.handler } : {}), ...(r.hc ? { hc: r.hc } : {}), ...(r.rname ? { rname: r.rname } : {}), ...(r.doc ? { doc: r.doc } : {}), ...(mw.length ? { mountMw: mw } : {}) });
     }
   }
   return dedupe(routes, (r) => `${r.file}|${r.method}|${r.path}`);
@@ -158,8 +158,18 @@ export function matchCalls(files, routes) {
   const pending = [];
   const learned = new Map(); // caller file or dir -> Map(prefix -> count)
   const learn = (key, prefix) => { if (!learned.has(key)) learned.set(key, new Map()); const m = learned.get(key); m.set(prefix, (m.get(prefix) || 0) + 1); };
+  // Wayfinder requests name their route (admin.settings.update) or controller method (Ctl@update), not a URL
+  const wfNorm = (s) => String(s).split('.').map((x) => x.toLowerCase().replace(/[^a-z0-9]/g, '')).join('.');
+  const byName = new Map();
+  for (const r of routes) if (r.rname) { const k = wfNorm(r.rname); if (!byName.has(k)) byName.set(k, []); byName.get(k).push(r); }
+  const wfOut = [];
   for (const f of files) {
     for (const call of f.calls || []) {
+      if (call.wf) {
+        const hits = call.wf.name != null ? byName.get(wfNorm(call.wf.name)) || [] : routes.filter((r) => r.hc === call.wf.cls && r.handler === call.wf.method);
+        for (const r of hits.slice(0, 3)) wfOut.push({ from: f.path, to: r.file, method: r.method, path: r.path, call: `${r.method} ${r.path}`, line: call.line, routeLine: r.line });
+        continue;
+      }
       const cs = routeSegments(call.path);
       let best = -Infinity, hits = [];
       for (const r of rs) {
@@ -192,6 +202,6 @@ export function matchCalls(files, routes) {
     if (new Set(keep.map((h) => h.r.file)).size > 3) continue;
     for (const { r } of keep) out.push({ from: f.path, to: r.file, method: r.method, path: r.path, call: call.path, line: call.line, routeLine: r.line });
   }
-  return dedupe(out, (e) => `${e.from}|${e.to}|${e.method}|${e.path}`);
+  return dedupe([...out, ...wfOut], (e) => `${e.from}|${e.to}|${e.method}|${e.path}`);
 }
 const dir = (p) => p.split('/').slice(0, -1).join('/');

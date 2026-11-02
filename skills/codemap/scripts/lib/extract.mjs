@@ -22,6 +22,49 @@ const stripHash = (src) => src.replace(/(^|\s)#[^\n]*/g, (m, pre) => pre + blank
 
 const all = (re, s) => [...s.matchAll(re)];
 
+/**
+ * Laravel Wayfinder from the page's side (its generated files are usually gitignored, so they aren't on the map):
+ *   import { update } from '@/routes/admin/settings'       update() / update.url()  -> the route named admin.settings.update
+ *   import settings from '@/routes/admin/settings'          settings.update()        -> the same
+ *   import Ctl from '@/actions/App/Http/Controllers/Ctl'    Ctl.update() / Ctl.url() -> Ctl@update / Ctl@__invoke
+ *   import { update } from '@/actions/App/Http/Controllers/Ctl'                       -> Ctl@update
+ * Each use is a request, matched to its route by name or controller (lib/routes.mjs), not by URL.
+ */
+const WF_TAIL = new Set(['url', 'form', 'definition', 'get', 'post', 'put', 'patch', 'delete', 'head', 'options']);
+function wayfinderUses(code, at) {
+  const out = [];
+  for (const m of code.matchAll(/^\s*import\s+(?:type\s+)?([\w$]+)?\s*,?\s*(?:\{([^}]*)\})?\s*from\s*['"]((?:[@~#]\/|(?:\.\.?\/)+)(?:[\w./-]*\/)?(routes|actions))(?:\/([\w./-]+))?['"]/gm)) {
+    const [, def, named, , kind, restRaw] = m;
+    const rest = (restRaw || '').replace(/\/index$/, '').split('/').filter(Boolean);
+    if (kind === 'actions' && !rest.length) continue;
+    const target = (members, imported) => {
+      const chain = [...(imported ? [imported] : []), ...members];
+      while (chain.length && WF_TAIL.has(chain[chain.length - 1])) chain.pop();
+      if (kind === 'routes') return chain.length || rest.length ? { name: [...rest, ...chain].join('.') } : null;
+      return { cls: rest[rest.length - 1], method: chain[0] || '__invoke' };
+    };
+    const locals = [];
+    if (def) locals.push([def, null]);
+    for (const part of (named || '').split(',').map((s) => s.trim()).filter(Boolean)) { if (/^type\s/.test(part)) continue; const [orig, , alias] = part.split(/\s+/); locals.push([alias || orig, orig]); }
+    const after = m.index + m[0].length;
+    for (const [local, orig] of locals) {
+      const re = new RegExp(`(?<![\\w$.])${local.replace(/\$/g, '\\$')}((?:\\.[\\w$]+)*)\\s*\\(`, 'g');
+      re.lastIndex = after;
+      let u;
+      const seen = new Set();
+      while ((u = re.exec(code))) {
+        const wf = target(u[1].split('.').filter(Boolean), orig);
+        if (!wf) continue;
+        const k = JSON.stringify(wf) + at(u.index);
+        if (seen.has(k)) continue;
+        seen.add(k);
+        out.push({ path: '', line: at(u.index), wf });
+      }
+    }
+  }
+  return out;
+}
+
 // ---------- HTTP call literals ----------
 
 const HTTP_CONTEXT = /\b(fetch|axios|ky|got|request|requests|httpx|aiohttp|session|client|http|https|api|Api|API|endpoint|Endpoint|url|Url|URL|BASE|base)\b|\.(get|post|put|patch|delete|head)\s*(<[^>]*>)?\s*\(|(?<![.\w$])(get|post|put|patch|delete)\s*\(\s*[rf]?["'`]\//;
@@ -244,6 +287,13 @@ function extractJs(src, filePath) {
   const { calls, hosts } = extractCalls(code, at, { skip: serverLine });
   const seenCall = new Set(calls.map((c) => `${c.line}|${c.path}`));
   for (const c of wrapperCalls(code, at)) if (!seenCall.has(`${c.line}|${c.path}`)) calls.push(c);
+  for (const c of wayfinderUses(code, at)) calls.push(c);
+  // Laravel Wayfinder's generated helpers (resources/js/routes, resources/js/actions): `update.definition = { methods:
+  // ["put"], url: '/settings' }` is a request to that endpoint, made where `export const update =` is defined
+  if (/\.definition\s*=\s*\{\s*methods\s*:/.test(code)) for (const m of code.matchAll(/(?:^|\n)([A-Za-z_$][\w$]*)\.definition\s*=\s*\{\s*methods\s*:\s*\[\s*["'](\w+)["'][^\]]*\]\s*,\s*url\s*:\s*['"`]([^'"`]+)['"`]/g)) {
+    const decl = new RegExp(`export\\s+const\\s+${m[1].replace(/\$/g, '\\$')}\\s*=`).exec(code);
+    calls.push({ path: m[3], method: m[2].toUpperCase(), line: at(decl ? decl.index : m.index + 1), wayfinder: true });
+  }
   const callables = /\bhttpsCallable\b/.test(code) ? callableCalls(code, at) : { calls: [], wrappers: [] };
   calls.push(...callables.calls);
   return { imports, symbols, routes, mounts, calls, hosts, ...(triggers.length ? { triggers } : {}), ...(callables.wrappers.length ? { callableWrappers: callables.wrappers } : {}) };
@@ -619,6 +669,12 @@ function extractSimple(src, lang, filePath = '') {
   if (lang === 'ruby') for (const m of all(/\brequire_relative\s*\(?\s*["']([^"']+)["']/g, code)) imports.push({ spec: './' + m[1].replace(/^\.\//, ''), names: [], line: at(m.index) });
   if (lang === 'c' || lang === 'cpp' || lang === 'objc') for (const m of all(/^\s*#\s*(?:include|import)\s+"([^"]+)"/gm, code)) imports.push({ spec: m[1], names: [], kind: 'include', line: at(m.index) });
   if (lang === 'php') for (const m of all(/\b(?:require|include)(?:_once)?\s*\(?\s*(?:__DIR__\s*\.\s*)?["']([^"']+)["']/g, code)) imports.push({ spec: m[1].startsWith('/') ? '.' + m[1] : m[1], names: [], line: at(m.index) });
+  // PHP namespace imports at the top level: use A\B\C;  use A\B\C as D;  use A\B\{C, D as E};  (not `use function`/`use const`, not traits)
+  if (lang === 'php') for (const m of all(/^use\s+(?!function\b|const\b)\\?([\w\\]+?)(?:\\\{([^}]*)\}|\s+as\s+(\w+))?\s*;/gm, code)) {
+    if (!m[2] && !m[1].includes('\\')) continue;
+    const parts = m[2] ? m[2].split(',').map((s) => s.trim()).filter(Boolean).map((s) => { const [n, , a] = s.split(/\s+/); return { spec: `${m[1]}\\${n}`, local: a || n.split('\\').pop() }; }) : [{ spec: m[1], local: m[3] || m[1].split('\\').pop() }];
+    for (const p of parts) imports.push({ spec: p.spec, names: [p.local], line: at(m.index) });
+  }
   if (lang === 'css') for (const m of all(/@(?:import|use|forward)\s+(?:url\()?["']([^"']+)["']/g, code)) imports.push({ spec: m[1].startsWith('.') ? m[1] : './' + m[1], names: [], line: at(m.index) });
   const symbols = [];
   if (lang === 'ruby') for (const m of all(/^\s*(class|module)\s+([A-Z][\w:]*)/gm, code)) symbols.push({ name: m[2], kind: m[1], line: at(m.index) });

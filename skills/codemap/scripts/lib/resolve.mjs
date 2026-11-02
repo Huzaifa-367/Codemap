@@ -345,6 +345,27 @@ export function createResolver(root, files) {
     return { unresolved: true };
   };
 
+  // ---- PHP: `use App\Services\X;` through composer.json autoload psr-4 (the nearest composer.json above the file) ----
+  const composers = dirsWith('composer.json').map((dir) => {
+    const cj = readJsonLoose(path.join(root, dir, 'composer.json')) || {};
+    const map = [];
+    for (const sec of [cj.autoload, cj['autoload-dev']]) for (const [ns, dirs] of Object.entries(sec?.['psr-4'] || {})) for (const d of [].concat(dirs)) map.push([ns, P.normalize(P.join(dir === '.' ? '' : dir, d || '.'))]);
+    if (!map.length) map.push(['App\\', P.join(dir === '.' ? '' : dir, 'app')]); // Laravel's default
+    return { dir, map: map.sort((a, b) => b[0].length - a[0].length) };
+  }).sort((a, b) => b.dir.length - a.dir.length);
+  const resolvePhp = (from, spec) => {
+    if (!spec.includes('\\')) return resolveRelative(from, spec, ['.php']);
+    const c = composers.find((x) => x.dir === '.' || from.startsWith(x.dir + '/'));
+    const name = spec.replace(/^\\/, '');
+    for (const [ns, dir] of c?.map || [['App\\', 'app']]) {
+      if (!name.startsWith(ns)) continue;
+      const file = P.join(dir, name.slice(ns.length).replace(/\\/g, '/') + '.php').replace(/^\.\//, '');
+      if (fileSet.has(file)) return { file };
+    }
+    // framework and vendor classes (Illuminate\…, Inertia\…) are not files in the repo
+    return { builtin: true };
+  };
+
   return function resolve(file, imp) {
     const lang = file.lang;
     switch (lang) {
@@ -356,7 +377,7 @@ export function createResolver(root, files) {
       case 'dart': return resolveDart(file.path, imp.spec);
       case 'swift': return resolveSwift(imp.spec);
       case 'ruby': return resolveRelative(file.path, imp.spec, ['.rb']);
-      case 'php': return resolveRelative(file.path, imp.spec, ['.php']);
+      case 'php': return resolvePhp(file.path, imp.spec);
       case 'css': return resolveRelative(file.path, imp.spec, ['.css', '.scss', '.sass', '.less']).file ? resolveRelative(file.path, imp.spec, ['.css', '.scss']) : resolveRelative(file.path, P.join(P.dirname(imp.spec), '_' + P.basename(imp.spec)), ['.scss', '.sass']);
       default: return resolveRelative(file.path, imp.spec, []);
     }
