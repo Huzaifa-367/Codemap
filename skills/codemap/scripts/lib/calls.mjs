@@ -30,7 +30,7 @@ const DEF = {
   js: [
     /^\s*(?:export\s+)?(?:default\s+)?(?:async\s+)?function\s*\*?\s*([A-Za-z_$][\w$]*)\s*[<(]/,
     /^\s*(?:export\s+)?(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*(?::[^=]+)?=\s*(?:async\s+)?(?:function\b|(?:<[^>]*>)?\([^)]*\)\s*(?::[^=]+)?=>|[A-Za-z_$][\w$]*\s*=>)/,
-    /^\s+(?:(?:public|private|protected|static|async|override|readonly|get|set)\s+)*(?!(?:if|for|while|switch|catch|function|return|constructor)\b)([A-Za-z_$][\w$]*)\s*(?:<[^>]*>)?\([^;]*\)\s*(?::\s*[^{=;]+)?\{\s*$/,
+    /^\s+(?:(?:public|private|protected|static|async|override|readonly|get|set)\s+)*(?!(?:if|for|while|switch|catch|function|return|constructor)\b)([A-Za-z_$][\w$]*)\s*(?:<[^>]*>)?\((?:[^;()]|\{[^{}]*\}|\([^()]*\))*\)\s*(?::\s*[^{=;]+)?\{\s*$/,
     /^\s+([A-Za-z_$][\w$]*)\s*:\s*(?:async\s+)?(?:function\b|\([^)]*\)\s*=>|[A-Za-z_$][\w$]*\s*=>)/,
     // an interface or abstract method: charge(amount: number): Promise<void>;
     /^\s+(?:abstract\s+)?(?!(?:if|for|while|switch|catch|return|await|new|throw)\b)([A-Za-z_$][\w$]*)\s*\??\s*(?:<[^>]*>)?\([^()]*\)\s*:\s*[^;{=]+;\s*$/,
@@ -128,8 +128,8 @@ function callsIn(text) {
   const out = [];
   for (const m of text.matchAll(/(?:(?<obj>[A-Za-z_$][\w$]*)\s*\??\.\s*)?(?<![\w$])(?<name>[A-Za-z_$][\w$]*)\s*(?:<[^<>()\n]*>)?\s*\(/g)) {
     const { obj, name } = m.groups;
-    if (KEYWORDS.has(name) || NOISE.has(name) || name.length < 2) continue;
-    out.push({ obj: obj || null, name, at: m.index });
+    if (KEYWORDS.has(name) || name.length < 2) continue;
+    out.push({ obj: obj || null, name, at: m.index, ...(NOISE.has(name) ? { noise: true } : {}) });
   }
   return out;
 }
@@ -246,6 +246,8 @@ export function linkCalls({ files, edges, read }) {
       }
       for (const c of callsIn(text)) {
         if (n >= 60) break;
+        // common names (create, send, get…) count only on an object we know: an import or a typed field
+        if (c.noise && !(c.obj && (binds.has(c.obj) || types.has(c.obj)))) continue;
         const line = d.line + text.slice(0, c.at).split('\n').length - 1;
         let to = null, loose = false;
         const self = !c.obj || c.obj === 'this' || c.obj === 'self';

@@ -75,20 +75,31 @@ export function traceReport(G, start, args = {}) {
   const tableUses = new Map();
   for (const t of G.tables || []) for (const [p, how, line] of t.usedBy || []) { if (!tableUses.has(p)) tableUses.set(p, []); tableUses.get(p).push({ table: t.name, how, line }); }
   const outsideOf = (p) => [...new Set((G.links || []).filter((l) => l.a === 'f:' + p && l.b.startsWith('n:') && nodes.get(l.b.slice(2))?.kind === 'external').map((l) => nodes.get(l.b.slice(2)).label))];
-  /** The controller class's file (Laravel [X::class, 'method']): imported by the route file, else the one file of that name. */
+  /** The handler class's file: one that declares the class (imported by the route file first), else one named after it. */
   const classFile = (r) => {
-    const named = (p) => p.split('/').pop().replace(/\.[^.]+$/, '') === r.hc;
-    const imported = (G.links || []).find((l) => l.k === 'import' && l.a === 'f:' + r.f && l.b.startsWith('f:') && named(l.b.slice(2)));
-    if (imported) return imported.b.slice(2);
-    const same = G.files.filter((f) => named(f.p));
-    return same.length === 1 ? same[0].p : null;
+    const imported = new Set((G.links || []).filter((l) => l.k === 'import' && l.a === 'f:' + r.f && l.b.startsWith('f:')).map((l) => l.b.slice(2)));
+    const declares = G.files.filter((f) => (f.s || []).some((x) => x[0] === r.hc && /^(class|struct|record|object)$/.test(x[1] || 'class')));
+    const named = G.files.filter((f) => f.p.split('/').pop().replace(/\.[^.]+$/, '') === r.hc);
+    for (const list of [declares.filter((f) => imported.has(f.p)), named.filter((f) => imported.has(f.p)), declares, named]) if (list.length === 1 || (list.length && list === declares)) return list[0].p;
+    return null;
   };
-  /** The function that answers an endpoint, as a key: a controller method in another file, or one in the route's file. */
-  const handlerKey = (r) => {
-    if (r.hc && r.h) { const cf = classFile(r); const i = cf ? fnsOf(cf).findIndex(([n]) => n === r.h) : -1; if (i >= 0) return key(cf, i); }
+  const VERBS = /^(get|post|put|patch|delete|head|list|create|retrieve|update|partial_update|destroy|index|store|show|edit)$/;
+  /** The functions that answer an endpoint, as keys: a controller / view-class method (or each HTTP-verb method when the
+   * route names only the class), a function in a file the route file imports, or one in the route's own file. */
+  const handlerKeys = (r) => {
+    if (r.hc) {
+      const cf = classFile(r);
+      if (cf) {
+        if (r.h && r.h !== '*') { const i = fnsOf(cf).findIndex(([n]) => n === r.h); if (i >= 0) return [key(cf, i)]; }
+        else { const ks = fnsOf(cf).map(([n], i) => [n, i]).filter(([n]) => VERBS.test(n)).map(([, i]) => key(cf, i)); if (ks.length) return ks; }
+      }
+    }
     const i = handlerOf(r);
-    return i >= 0 ? key(r.f, i) : null;
+    if (i >= 0) return [key(r.f, i)];
+    if (r.h && r.h !== '*') for (const l of G.links || []) if (l.k === 'import' && l.a === 'f:' + r.f && l.b.startsWith('f:')) { const j = fnsOf(l.b.slice(2)).findIndex(([n]) => n === r.h); if (j >= 0) return [key(l.b.slice(2), j)]; }
+    return [];
   };
+  const handlerKey = (r) => handlerKeys(r)[0] || null;
   /** The function that answers an endpoint: its named handler, or the route's own inline body. */
   const handlerOf = (r) => {
     const fns = fnsOf(r.f);
@@ -148,8 +159,7 @@ export function traceReport(G, start, args = {}) {
   function endpointNode(ri, depth) {
     const r = G.routes[ri];
     const node = { type: 'endpoint', name: `${r.m} ${r.p}`, title: r.name, file: r.f, line: r.l, part: partOf(r.f), children: [] };
-    const h = handlerKey(r);
-    if (h) node.children.push(fnNode(h, depth, 'handled by'));
+    for (const h of handlerKeys(r).slice(0, 4)) node.children.push(fnNode(h, depth, 'handled by'));
     return node;
   }
   const STATE_HOLDER = /(view_?models?|viewmodel|blocs?|cubits?|controllers?|stores?|presenters?|notifiers?|providers?|state|interactors?)[^/]*\.(dart|kt|swift|ts|tsx|js|jsx)$|\/(view_?models?|blocs?|cubits?|stores?|presenters?|state)\//i;
@@ -208,7 +218,7 @@ export function traceReport(G, start, args = {}) {
   const callersOf = new Map();
   for (const [kf, list] of callsFrom) for (const c of list) { if (!callersOf.has(c.to)) callersOf.set(c.to, []); callersOf.get(c.to).push(kf); }
   const routesOf = new Map();
-  (G.routes || []).forEach((r, ri) => { const h = handlerKey(r); if (h) { if (!routesOf.has(h)) routesOf.set(h, []); routesOf.get(h).push(ri); } });
+  (G.routes || []).forEach((r, ri) => { for (const h of handlerKeys(r)) { if (!routesOf.has(h)) routesOf.set(h, []); routesOf.get(h).push(ri); } });
   const requestersOf = new Map(); // route -> caller keys
   for (const [p, list] of requestsIn) for (const r of list) { const i = fnCovering(p, r.line); if (!requestersOf.has(r.ri)) requestersOf.set(r.ri, []); requestersOf.get(r.ri).push(i >= 0 ? key(p, i) : 'f:' + p); }
   const triggersOf = new Map(); // listener / job key -> [{ from, label }]
@@ -290,7 +300,7 @@ export function traceReport(G, start, args = {}) {
       : n.type === 'outside' ? `→ uses ${n.name}`
       : n.type === 'event' ? `→ fires event ${n.name}${n.children.length ? '' : ' (no listener found)'}`
       : n.type === 'job' ? `→ queues job ${n.name} (runs in the background)`
-      : n.type === 'mail' ? `→ sends email ${n.name}`
+      : n.type === 'mail' ? (/^an? /.test(n.name) ? `→ sends ${n.name}` : `→ sends email ${n.name}`)
       : n.type === 'notify' ? `→ sends notification ${n.name}`
     : n.type === 'table' ? `→ ${n.how === 'write' ? 'writes' : 'reads'} table ${n.name}`
       : n.type === 'file' ? `${n.via ? `${n.via} ` : ''}${n.name} [${n.part}]`

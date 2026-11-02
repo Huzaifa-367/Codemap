@@ -35,7 +35,8 @@ export function fallbackFileName(p) {
 }
 
 export function fallbackRouteName(r) {
-  if (r.handler && !/^(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS|ANY)$/.test(r.handler)) return humanize(r.handler);
+  if (r.handler && r.handler !== '*' && !/^(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS|ANY)$/.test(r.handler)) return humanize(r.handler);
+  if (r.hc && r.handler === '*') return humanize(r.hc.replace(/(View|ViewSet|Controller|Handler|Resource|Endpoint)$/, ''));
   const segs = r.path.split('/').filter((s) => s && !/[<{:[*]/.test(s));
   const verb = { GET: 'Get', POST: 'Create', PUT: 'Replace', PATCH: 'Update', DELETE: 'Delete' }[r.method] || r.method;
   return `${verb} ${humanize(segs.slice(-2).join(' ') || 'root').toLowerCase()}`;

@@ -80,7 +80,7 @@ for (const { path: p, repo } of fileList) {
     if (category === 'code' && src.length) {
       try { Object.assign(f, extract(src, lang, p)); } catch (e) { f.extractError = String(e.message || e); }
       // every function and method, exported or not, for the function-level map and traced flows
-      if (callableLang(lang)) try { const d = withRouteBodies(src, lang, f.routes, findDefs(src, lang)); if (d.length) f.fns = d; const t = findTypes(src, lang); if (t.length) f.types = t; if (d.length) { const fx = findEffects(src, lang, d); if (fx.length) f.effects = fx; const ft = findFacts(src, lang, d); if (ft.fns.length || Object.keys(ft.classes).length) f.facts = ft; } } catch {}
+      if (callableLang(lang)) try { const d = withRouteBodies(src, lang, f.routes, findDefs(src, lang)); if (d.length) f.fns = d; const t = findTypes(src, lang); if (t.length) f.types = t; if (d.length) { const fx = findEffects(src, lang, d); if (fx.length) f.effects = fx; } const ft = findFacts(src, lang, d); if (ft.fns.length || Object.keys(ft.classes).length) f.facts = ft; } catch {}
       // h: exact content. sig: the parts a description depends on (exports, routes, docstring),
       // so edits inside function bodies don't mark a file's description as stale.
       f.h = hash(src);

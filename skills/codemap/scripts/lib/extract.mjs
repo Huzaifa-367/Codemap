@@ -463,7 +463,12 @@ function extractPy(src) {
     for (const method of methods) routes.push({ method, path: m[3], var: m[1], line: at(m.index) });
   }
   // Django urls.py
-  for (const m of all(/\b(?:re_)?path\(\s*r?["']([^"']*)["']\s*,\s*(?!include)/g, code)) routes.push({ method: 'ANY', path: '/' + m[1].replace(/^\^|\$$/g, ''), var: null, line: at(m.index), framework: 'django' });
+  // Django: path('orders/', views.OrderView.as_view()) -> the class's get/post/… methods; path('x/', views.create_order) -> that function
+  for (const m of all(/\b(?:re_)?path\(\s*r?["']([^"']*)["']\s*,\s*(?!include)(?:([\w.]+?)(\.as_view\()|([\w.]+)(?=\s*[,)]))?/g, code)) {
+    const target = (m[2] || m[4] || '').split('.').pop();
+    const handler = m[3] && /^[A-Z]/.test(target) ? { hc: target, handler: '*' } : target && /^[a-z_]/.test(target) ? { handler: target } : {};
+    routes.push({ method: 'ANY', path: '/' + m[1].replace(/^\^|\$$/g, ''), var: null, line: at(m.index), framework: 'django', ...handler });
+  }
 
   const mounts = [];
   for (const m of all(/\b(register_blueprint|include_router|mount)\(\s*([A-Za-z_][\w.]*)/g, code)) {

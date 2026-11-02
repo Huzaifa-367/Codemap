@@ -144,7 +144,7 @@ function modelUses(src, file) {
   const out = [];
   const lineAt = (i) => src.slice(0, i).split('\n').length;
   const types = varTypes(src, file.lang);
-  for (const m of src.matchAll(/\$(\w+)\s*=\s*([A-Z]\w*)::/g)) if (!types.has(m[1])) types.set(m[1], m[2]);
+  for (const m of src.matchAll(/\$?(\w+)\s*=\s*(?:await\s+)?([A-Z]\w*)(?:::|\.objects\.|\.)\w+[!?]?\s*\(/g)) if (!types.has(m[1])) types.set(m[1], m[2]);
   for (const m of src.matchAll(/\b(\w+)\s*:\s*Repository<\s*([A-Z]\w*)\s*>/g)) types.set(m[1], m[2] + 'Repository');
   const add = (model, i, how) => out.push({ model, line: lineAt(i), how });
   for (const m of src.matchAll(STATIC_USE)) add(m[1], m.index, WRITE_RE.test(m[2]) ? 'write' : 'read');

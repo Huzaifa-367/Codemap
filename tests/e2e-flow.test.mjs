@@ -65,3 +65,24 @@ test('Flutter + Laravel: from a function in the middle, up to the screen that st
   assert.match(out, /STARTED FROM[\s\S]*Checkout screen[\s\S]*POST \/api\/orders/);
   assert.match(out, /writes table orders/);
 });
+
+// ---------- React website + Django REST API ----------
+import { reactDjango } from './e2e-fixtures.mjs';
+
+test('React + Django: from the checkout page to the end, with what happens at each step', () => {
+  const r = makeProject(reactDjango.files, { repos: reactDjango.repos, arch: reactDjango.arch });
+  try {
+    run('scan.mjs', r); run('build.mjs', r, '--no-claude-md');
+    const tree = JSON.parse(run('trace.mjs', r, '/checkout', '--json')).flows[0].tree;
+    const seq = names(tree);
+    const want = ['placeOrder', 'create', 'ANY /api/orders', 'post', 'place_order', '[table:cart]', '[table:order]', '[event:order_placed]', 'send_confirmation', '[mail:an email]', '[job:charge_payment]', 'charge_payment', '[outside:api.stripe.com]'];
+    let at = -1;
+    for (const w of want) { const i = seq.indexOf(w, at + 1); assert.ok(i > at, `${w} after position ${at} in:\n${seq.join(' > ')}`); at = i; }
+    const step = (name) => findStep(tree, (n) => n.name === name && n.type === 'function');
+    assert.deepEqual(step('create').facts?.sends, ['cart_id', 'notes']);
+    assert.deepEqual(step('post').facts?.checks, ['cart_id: UUIDField', 'notes: CharField']);
+    assert.deepEqual(step('post').facts?.returns, ['id', 'status']);
+    assert.deepEqual(step('charge_payment').facts?.writes, ['order']);
+    assert.match(run('trace.mjs', r, 'api/shop/services.py#place_order'), /STARTED FROM[\s\S]*Checkout[\s\S]*ANY \/api\/orders/);
+  } finally { cleanup(r); }
+});

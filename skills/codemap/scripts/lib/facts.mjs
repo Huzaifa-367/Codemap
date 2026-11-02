@@ -42,7 +42,10 @@ export function findFacts(src, lang, fns = []) {
     const f = { fn };
     // ---- sends: the body of a request made here ----
     if (HTTP_SEND.test(text)) {
-      const m = /(?:\b(?:data|body|json|form|params|payload)\s*[:=]\s*(?:JSON\.stringify\(\s*)?|\.(?:post|put|patch)\s*(?:<[^>]*>)?\s*\(\s*[^,()]+(?:\([^()]*\))?\s*,\s*(?:JSON\.stringify\(\s*)?)([{[])/.exec(text);
+      // the body handed to the request call first (post(url, {…})), then a data: / body: / json= option near it
+      const call = /\.(?:post|put|patch)\s*(?:<[^>]*>)?\s*\(\s*[^,()]+(?:\([^()]*\))?\s*,\s*(?:JSON\.stringify\(\s*)?([{[])/.exec(text);
+      const opt = [...text.matchAll(/\b(?:data|body|json|form|params|payload)\s*(?:=|:(?!\s*\{[^}]*;))\s*(?:JSON\.stringify\(\s*)?([{[])/g)].find((x) => HTTP_SEND.test(text.slice(Math.max(0, x.index - 300), x.index + 1)) || /json\s*=|data\s*:/.test(x[0]));
+      const m = call || opt;
       if (m) { const k = keysAt(text, m.index + m[0].length - 1).map(([n]) => n); if (k.length) f.sends = k.slice(0, 20); }
     }
     // ---- checks: validation written in the handler ----
@@ -55,9 +58,12 @@ export function findFacts(src, lang, fns = []) {
     const KIND = '(?:Request|Dto|DTO|Input|Form|Payload|Body|Command|Params|In|Create|Update|Schema)';
     const typed = new RegExp(`\\b([A-Z]\\w*${KIND})\\s+\\$?\\w+`).exec(sig) || new RegExp(`\\b\\w+\\s*\\??:\\s*([A-Z]\\w*${KIND})\\b`).exec(sig);
     if (typed && !f.checks) f.checksWith = typed[1];
+    // a serializer / form / schema built from the request: OrderSerializer(data=request.data), OrderForm(request.POST), schema.parse(req.body)
+    const built = /\b([A-Z]\w*(?:Serializer|Form|Schema|Validator|Request|Input|Dto))\s*\(\s*(?:data\s*=|request\.|req\.body|\$request)/.exec(text);
+    if (built && !f.checks) f.checksWith = built[1];
     // ---- returns: the response this handler sends back ----
     if ((m = /\breturn\s+(?:new\s+|)([A-Z]\w*(?:Resource|Collection|Response|Dto|DTO|Out|Serializer|View))\s*(?:::make|::collection)?\s*\(/.exec(text))) f.returnsWith = m[1];
-    else if ((m = /(?:res\.(?:status\(\d+\)\.)?json|response\(\)->json|Response\.json|NextResponse\.json|jsonify|JsonResponse|c\.JSON\(\s*[\w.]+\s*,|ctx\.body\s*=|return\s+Inertia::render\(\s*['"][^'"]+['"]\s*,|return\s+inertia\(\s*['"][^'"]+['"]\s*,)\s*\(?\s*([{[])/.exec(text))) {
+    else if ((m = /(?:res\.(?:status\(\d+\)\.)?(?:json|send)|response\(\)->json|\bResponse\(|Response\.json|NextResponse\.json|jsonify|JsonResponse|c\.JSON\(\s*[\w.]+\s*,|ctx\.body\s*=|return\s+Inertia::render\(\s*['"][^'"]+['"]\s*,|return\s+inertia\(\s*['"][^'"]+['"]\s*,)\s*\(?\s*([{[])/.exec(text))) {
       const k = keysAt(text, m.index + m[0].length - 1).map(([n]) => n);
       if (k.length) f.returns = k.slice(0, 20);
     }

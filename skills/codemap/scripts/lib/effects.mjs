@@ -16,12 +16,12 @@ const PATTERNS = [
   ['job', /\b(?:dispatch|dispatch_sync|dispatchSync|Bus::dispatch|Queue::push)\s*\(\s*new\s+\\?(?:[\w\\]*\\)?([A-Z]\w*)/g],
   ['job', /\b([A-Z]\w*)::(?:dispatch|dispatchSync|dispatchIf|dispatchUnless|dispatchAfterResponse|withChain)\s*\(/g],
   ['job', /\b([A-Z]\w*Job)\.(?:perform_later|perform_now|perform_async|perform_in|set\([^)]*\)\.perform_later)\b/g],
-  ['job', /\b([a-z_]\w*)\.(?:delay|apply_async|send)\s*\(/g, (n, src) => new RegExp(`@(?:shared_task|app\\.task|celery\\.task|task)\\b[^\\n]*\\n\\s*(?:async\\s+)?def\\s+${n}\\b`).test(src) ? n : null],
+  ['job', /\b([a-z_]\w*)\.(?:delay|apply_async)\s*\(/g],
   ['job', /\.(?:add|addBulk)\(\s*['"`]([\w.:\-]+)['"`]/g, (n, src) => /\bnew\s+Queue\(|\bQueue\(|bullmq|bull\b/.test(src) ? n : null],
   // ---- mail and notifications ----
   ['mail', /\bMail::(?:to|cc|bcc|send|queue)\b[^;]*?->(?:send|queue|later)\(\s*new\s+\\?(?:[\w\\]*\\)?([A-Z]\w*)/g],
   ['mail', /\b([A-Z]\w*Mailer)\.(?:with\([^)]*\)\.)?(\w+)(?:\([^)]*\))?\.deliver_(?:later|now)\b/g, (n, src, m) => `${n}.${m[2]}`],
-  ['mail', /\b(?:send_mail|EmailMessage|mail\.send|transporter\.sendMail|sendgrid\.send|resend\.emails\.send|mailer\.send|sendEmail)\s*\(/g, () => 'email'],
+  ['mail', /\b(?:send_mail|EmailMessage|mail\.send|transporter\.sendMail|sendgrid\.send|resend\.emails\.send|mailer\.send|sendEmail)\s*\(/g, () => 'an email'],
   ['notify', /->notify\(\s*new\s+\\?(?:[\w\\]*\\)?([A-Z]\w*)|Notification::send\([^;]*?new\s+\\?(?:[\w\\]*\\)?([A-Z]\w*)/g],
   ['notify', /\b(?:messaging\(\)\.send|admin\.messaging\(\)\.send|FirebaseMessaging\.instance|sendPushNotification|sendNotification)\s*\(/g, () => 'push notification'],
 ];
