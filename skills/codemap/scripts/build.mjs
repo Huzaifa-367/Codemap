@@ -455,6 +455,8 @@ const graph = {
   // function -> function calls: [fromFile, fromFn, toFile, toFn, line, loose?] (fn = index into that file's fn list)
   calls: (scan.calls || []).filter((c) => includedSet.has(c[0]) && includedSet.has(c[2])),
   // events fired, jobs queued, mail sent, outside services: [file, fn, kind, name, line, [[handlerFile, handlerFn]…]]
+  facts: (scan.facts || []).filter((x) => includedSet.has(x[0])),
+  classFacts: scan.classFacts || {},
   effects: (scan.effects || []).filter((e) => includedSet.has(e[0])).map(([p, fi, kind, name, line, to]) => [p, fi, kind, name, line, (to || []).filter(([q]) => includedSet.has(q))]),
   flows: outFlows,
   tour: outTour,

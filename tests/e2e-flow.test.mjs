@@ -46,7 +46,7 @@ test('Flutter + Laravel: from the checkout screen to the end, in order, across b
   for (const w of want) { const i = seq.indexOf(w, at + 1); assert.ok(i > at, `${w} after position ${at} in:\n${seq.join(' > ')}`); at = i; }
 });
 
-test('Flutter + Laravel: each step says what happens there', { todo: 'Flows 2' }, () => {
+test('Flutter + Laravel: each step says what happens there', () => {
   const tree = JSON.parse(run('trace.mjs', root, '/checkout', '--json')).flows[0].tree;
   const step = (name) => findStep(tree, (n) => n.name === name && n.type === 'function');
   assert.deepEqual(step('createOrder').facts?.sends, ['cart_id', 'notes']);

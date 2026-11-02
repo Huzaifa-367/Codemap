@@ -7,6 +7,23 @@
  * state holder, and web requests to the handlers that answer them. args: { depth, app, json, mermaid, save }.
  * Returns { out, trees } | { error } | { save, out } (save: a Flows entry to add to custom-flows.json).
  */
+/** A step's facts in plain words: "sends cart_id, notes · checks cart_id (required, uuid) · writes orders". */
+export function factsText(x) {
+  const list = (a, n = 6) => a.slice(0, n).join(', ') + (a.length > n ? ', …' : '');
+  const parts = [];
+  if (x.sends?.length) parts.push(`sends ${list(x.sends)}`);
+  if (x.checks) parts.push(`checks ${list(x.checks.map((c) => c.replace(/^([^:]+):\s*(.+)$/, '$1 ($2)')), 4)}`);
+  if (x.reads) parts.push(`reads ${list(x.reads)}`);
+  if (x.writes) parts.push(`writes ${list(x.writes)}`);
+  if (x.fires) parts.push(`fires ${list(x.fires)}`);
+  if (x.queues) parts.push(`queues ${list(x.queues)}`);
+  if (x.emails) parts.push(`emails ${list(x.emails)}`);
+  if (x.notifies) parts.push(`notifies ${list(x.notifies)}`);
+  if (x.calls) parts.push(`calls ${list(x.calls)}`);
+  if (x.returns) parts.push(`returns ${list(x.returns)}`);
+  return parts.join(' · ');
+}
+
 export function traceReport(G, start, args = {}) {
   const maxDepth = Math.max(1, Math.min(14, Number(args.depth) || 8));
 
@@ -32,6 +49,25 @@ export function traceReport(G, start, args = {}) {
     const p = l.a.slice(2);
     for (const [ri, line] of l.calls || []) if (ri != null && G.routes[ri]) { if (!requestsIn.has(p)) requestsIn.set(p, []); requestsIn.get(p).push({ line, ri }); }
   }
+  // what happens inside each function: fields sent, checked, returned (graph.facts; rules and responses held by a
+  // form request / DTO / resource class come from graph.classFacts), plus the tables and effects found in its body
+  const factsOf = new Map((G.facts || []).map(([p, fi, x]) => [key(p, fi), x]));
+  const stepFacts = (k) => {
+    const { p, d } = fnAt(k);
+    const x = { ...(factsOf.get(k) || {}) };
+    const cls = G.classFacts || {};
+    if (x.checksWith && cls[x.checksWith]?.checks) x.checks = cls[x.checksWith].checks;
+    if (x.returnsWith && cls[x.returnsWith]?.returns) x.returns = cls[x.returnsWith].returns;
+    delete x.checksWith; delete x.returnsWith;
+    const inSpan = (line) => line >= d[1] && line <= d[2];
+    const uniq = (a) => [...new Set(a)];
+    const reads = uniq((tableUses.get(p) || []).filter((u) => inSpan(u.line) && u.how !== 'write').map((u) => u.table));
+    const writes = uniq((tableUses.get(p) || []).filter((u) => inSpan(u.line) && u.how === 'write').map((u) => u.table));
+    if (reads.length) x.reads = reads;
+    if (writes.length) x.writes = writes;
+    for (const [kind, word] of [['event', 'fires'], ['job', 'queues'], ['mail', 'emails'], ['notify', 'notifies'], ['outside', 'calls']]) { const v = uniq((effectsOf.get(k) || []).filter((e) => e.kind === kind).map((e) => e.name)); if (v.length) x[word] = v; }
+    return Object.keys(x).length ? x : null;
+  };
   // what each function sets off: events, jobs, mail, notifications, outside services (graph.effects)
   const effectsOf = new Map();
   for (const [p, fi, kind, name, line, to] of G.effects || []) { const k = key(p, fi); if (!effectsOf.has(k)) effectsOf.set(k, []); effectsOf.get(k).push({ kind, name, line, to: to || [] }); }
@@ -94,6 +130,8 @@ export function traceReport(G, start, args = {}) {
   function fnNode(k, depth, via) {
     const { p, i, d } = fnAt(k);
     const node = { type: 'function', name: d[0], file: p, line: d[1], part: partOf(p), ...(via ? { via } : {}), children: [] };
+    const facts = stepFacts(k);
+    if (facts) node.facts = facts;
     if (seen.has(k)) { node.repeat = true; return node; }
     seen.add(k);
     if (depth >= maxDepth || --budget <= 0) { node.more = true; return node; }
@@ -220,6 +258,8 @@ export function traceReport(G, start, args = {}) {
       : n.type === 'file' ? `${n.via ? `${n.via} ` : ''}${n.name} [${n.part}]`
       : `${n.via === 'calls (by name)' ? '~ ' : n.via === 'listened to by' ? 'listener: ' : n.via === 'run by' ? 'job: ' : ''}${/ \//.test(n.name) ? `handler of ${n.name}` : `${n.name}()`}${n.repeat ? ' (shown above)' : ''}${n.more ? ' …' : ''}`;
     L.push(`${pre}${what}${['endpoint', 'outside', 'table', 'event', 'job', 'mail', 'notify'].includes(n.type) ? '' : where}`);
+    // (tables, events, jobs and outside calls show as their own steps below; this line adds what data moves)
+    if (n.facts && !n.repeat) { const t = factsText({ sends: n.facts.sends, checks: n.facts.checks, returns: n.facts.returns }); if (t) L.push(`${pre}    ↳ ${t}`); }
     n.children.forEach((c) => line(c, pre + '  '));
     if (n.also) L.push(`${pre}  (also starts here: ${n.also.slice(0, 12).map((x) => `${x}()`).join(', ')}${n.also.length > 12 ? ', …' : ''}; trace ${n.file}#name to follow one)`);
   };

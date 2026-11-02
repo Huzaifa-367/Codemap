@@ -17,6 +17,7 @@ import { resolveRoutes, matchCalls } from './lib/routes.mjs';
 import { detectApps, appLabel } from './lib/apps.mjs';
 import { findDefs, linkCalls, callableLang, withRouteBodies, findTypes } from './lib/calls.mjs';
 import { findEffects, linkEffects } from './lib/effects.mjs';
+import { findFacts } from './lib/facts.mjs';
 import { findTables, findTableUses } from './lib/data.mjs';
 
 const args = parseArgs(process.argv.slice(2));
@@ -79,7 +80,7 @@ for (const { path: p, repo } of fileList) {
     if (category === 'code' && src.length) {
       try { Object.assign(f, extract(src, lang, p)); } catch (e) { f.extractError = String(e.message || e); }
       // every function and method, exported or not, for the function-level map and traced flows
-      if (callableLang(lang)) try { const d = withRouteBodies(src, lang, f.routes, findDefs(src, lang)); if (d.length) f.fns = d; const t = findTypes(src, lang); if (t.length) f.types = t; if (d.length) { const fx = findEffects(src, lang, d); if (fx.length) f.effects = fx; } } catch {}
+      if (callableLang(lang)) try { const d = withRouteBodies(src, lang, f.routes, findDefs(src, lang)); if (d.length) f.fns = d; const t = findTypes(src, lang); if (t.length) f.types = t; if (d.length) { const fx = findEffects(src, lang, d); if (fx.length) f.effects = fx; const ft = findFacts(src, lang, d); if (ft.fns.length || Object.keys(ft.classes).length) f.facts = ft; } } catch {}
       // h: exact content. sig: the parts a description depends on (exports, routes, docstring),
       // so edits inside function bodies don't mark a file's description as stale.
       f.h = hash(src);
@@ -282,6 +283,9 @@ const scan = {
   })),
   calls: fnCalls,
   effects: fnEffects,
+  // what happens inside functions: fields sent, checked, returned ([file, fn, facts]) and the classes that hold rules or responses
+  facts: files.flatMap((f) => (f.facts?.fns || []).map(({ fn, ...x }) => [f.path, fn, x])),
+  classFacts: Object.assign({}, ...files.map((f) => f.facts?.classes || {})),
   edges: [...edgeMap.values()].map(({ from, to, names, count, dynamic }) => ({ from, to, ...(names.length ? { names } : {}), ...(count > 1 ? { count } : {}), ...(dynamic ? { dynamic } : {}) })),
   externals: [...externals.values()].map((e) => ({ id: `${e.eco}:${e.name}`, eco: e.eco, name: e.name, imports: e.count, files: e.files.size })),
   extEdges: dedupeExt(extEdges),
