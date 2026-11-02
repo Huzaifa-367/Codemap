@@ -1,13 +1,13 @@
-# Codemap 1.0.0: SHA-256 of every file the plugin runs from.
+# Codemap 1.0.1: SHA-256 of every file the plugin runs from.
 # Check an installed copy: clone this release, then run node tools/checksums.mjs --check <installed folder>.
 78869bfd5139f503e6bf067b113776b2631de9473cc9382093194c0f83acb1a2  .agents/plugins/marketplace.json
 fdce61be9c420fd16b8cbbff629baa37e8d1096094b3e90bc5ecc0fe1ffc3a78  .claude-plugin/icon.png
 c71c07aafce66cdcc0a96e1bee9a7f21cf5ab8bb1da3c34b3ee793bef1473abb  .claude-plugin/marketplace.json
-5893e7458186d4c0e9a9271f291f4afdb3b2c5d50523f6340ce7bc7fee32bc4b  .claude-plugin/plugin.json
+e406dc77fe613c0b76901a636a0b398f4f02cdd58df567bc4cd1a90f98c607e7  .claude-plugin/plugin.json
 7bdb74d57875b25ca9dcd367f79f92b9089f5f4b873bffec898cc6c3f0a84a68  .codex-plugin/icon.png
-a465af4ab0f04ed9d103dc38c4e81bdc4e271a4eeef6b1fe83241e325a0eabfe  .codex-plugin/plugin.json
+69d2be2b084869ffd43c265d35b20cf60ef8aeebd214dc28a59a20570b73f463  .codex-plugin/plugin.json
 4266f75f9b8726304cee633385b00a563ef48a18a1fdc6064031c71856fde9f0  package.json
-b8ba9274c2c7d1e59d674062ff3376587d5e29b5fd7550503cd6b32a99a7fba7  skills/codemap/SKILL.md
+1780b5e824444992bc8e7a65ca91d0eb3849f5e80e9352128ddfdb1447f991a6  skills/codemap/SKILL.md
 60e8535748ee665ef2d352c7efcc9839f5be0f3a9e9ff156a6f6a40ad0fdcb0e  skills/codemap/agents/openai.yaml
 91485d6e067e25f742939ee7903d97096e560bfebdb32b71b428294ef2c781d9  skills/codemap/assets/favicon.png
 70719d152be206e750f7fd9a3a5418217a84023492a9cfd573b5f6a893d2ce22  skills/codemap/assets/graph-query.js
@@ -31,7 +31,7 @@ b1e5f313c41d1813c5830e9329b92cb5c69601ad562698f2b5c3a867a310bd9e  skills/codemap
 2ce577dc5fbd6d3c286f23cb9183e7f195033befc625b82a9b94339a07542b75  skills/codemap/assets/ui/25-recent.js
 70fb3b8d61abc89220e31c4f89d56007989aa195657f3bc72be1d3e73b3d1f51  skills/codemap/assets/ui/30-screens.js
 6a7ff01f93e28cb6a5225be2ed00d1dde0f86cccedc8d3b6ed7b80a85051c8eb  skills/codemap/assets/ui/40-tour.js
-bc8c15a68a505479929043e3ed3ad11f885b70fed8bb738f6b6b72ec92b535d5  skills/codemap/assets/ui/45-follow.js
+b416acd7e29b5546d185cea0996977de008bad787d690d52fa3d64f4e4d15f5b  skills/codemap/assets/ui/45-follow.js
 4d6b16f056df5e45f31a2215f0c7c6343c699ed0ec4dd0e3cf08c53538fe4bf3  skills/codemap/assets/ui/48-fresh.js
 01be5fdb748a0223d1a87cbf2d0d6864ecf21d372aab21264d3d6f3f550b25eb  skills/codemap/assets/ui/50-cloud.js
 f185896f3a816cb88e421e82dd0505f89a2084d20f7a3625afae1272f0713950  skills/codemap/assets/ui/55-lenses.js
@@ -44,12 +44,12 @@ b0745abd7f23cd91690a1587e377edbe19fd7233c783300290936720546216d4  skills/codemap
 403581b69dac5cff4079205e01c6b467e56af449ecbd7247693ddb1baafa005b  skills/codemap/assets/vendor/fonts/jetbrains-mono-LICENSE.txt
 79bfdab9ba467e26eea4122e6f2567e188dd8a09a8c730d501fc487c4ab99c6e  skills/codemap/assets/vendor/fonts/jetbrains-mono-latin-ext-wght-normal.woff2
 18be452724bfdc236c074ca94a249a7f41a86752c7d04ab258ce9ed5651f6a7e  skills/codemap/assets/vendor/fonts/jetbrains-mono-latin-wght-normal.woff2
-6be7775901bf88e9620cb9061f979528154a149db13a2db54e8246a3328486a0  skills/codemap/assets/viewer.html
+a538df6ddafc007eb7c95afa1165a59022fbc49e266c74d1e541ec2ae01f18ce  skills/codemap/assets/viewer.html
 b964f0dfd8f4ddd558da3dc9fe37f698fda7468b67ec18a4232090b3c7b9e747  skills/codemap/references/blueprint.md
 0cad611c139c9ddaeb4d0c425cc51a7705d0338363eef1e001313bd6a3ed3226  skills/codemap/references/choosing-boundaries.md
 f54078116d131e78703f0f975625828259de0d8042455b06dc84396dd4ced567  skills/codemap/references/schema.md
 08ea56984f91cb348b751e59267562177814035373c4a89255c12e4511bfc784  skills/codemap/references/writing-descriptions.md
-425c9b9277879ed7dcb8aa84805fecc247f1a0ff7d26a87270678829fa1f2e92  skills/codemap/scripts/build.mjs
+22cc24bef20de3b27080f5af469147f97d0d00703d4a630ac7591b9eef2f0509  skills/codemap/scripts/build.mjs
 4a3596b66cb7d0bf7055ceb8fbb191a3c64328a6f1bbf8057e7b4ca8b23817c3  skills/codemap/scripts/describe.mjs
 3b71a38db1745e236f3c2e8bb2f080e11c2bedf219bfb1d6a1f92a1150b6864d  skills/codemap/scripts/impact.mjs
 53e9692386b85cb49b008d8b049d59ecc266250d2e9b9e51e171566c5a23d3e7  skills/codemap/scripts/lib/agent.mjs
@@ -60,7 +60,7 @@ eebc0cb6414f1b03034f7f017012cc57622638559f4d3a27f39cf0fba4956f46  skills/codemap
 51d8fb3b9c8187c1694c623befe4b177c9f18c8f26f3474db29107cb7bb03937  skills/codemap/scripts/lib/common.mjs
 0f96e152bb7576826977829a8e04704810ac205d82c14cd56dda794c045e8acf  skills/codemap/scripts/lib/data.mjs
 122c68b978dcc1384f83afff2d8020a54d083222d976e8b48fbacd939fcb0627  skills/codemap/scripts/lib/extract.mjs
-b270bf7e6c2e77ac3bacf3a4b3489d8c84a58602a714e701b55603af9f917038  skills/codemap/scripts/lib/flows.mjs
+312dee792e287046832e14f6de67d131bb4af0029f4d7f4bb65a9ba9cec57cd1  skills/codemap/scripts/lib/flows.mjs
 4fd58b1bca2bfd476141c313d557bf41e6b705ac74d7c8d240325844af13aeab  skills/codemap/scripts/lib/health.mjs
 77f1a13ecc58e0a71c799862a28cec68fda1b407deb1f3452174fe996a21e874  skills/codemap/scripts/lib/names.mjs
 cd7b6d1157b4788258c49e114cf6192b1ca54dd8968e0caf19b004029e2bf392  skills/codemap/scripts/lib/resolve.mjs

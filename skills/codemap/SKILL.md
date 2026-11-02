@@ -145,6 +145,9 @@ When you hand work to subagents, give each the `context` output for its piece in
 
 ## How does something work, step by step? (trace)
 
+Every build also adds a few flows traced function by function (from the main screens and the most-called endpoints) under **Flows → Step by step: …**; they open as a board of function cards with an arrow for each call. Point the user there when they ask to see a flow at function level.
+
+
 When the user asks how something works end to end ("what happens when someone pays?", "walk me through the booking screen", "which functions does POST /orders reach?"), trace it instead of reading files:
 
 `node ${CLAUDE_SKILL_DIR}/scripts/trace.mjs <root> "<start>"`, where start is a screen URL (`/booking/:id`), an endpoint (`POST /api/orders`), a file, `file#function`, or a few words. It follows calls between functions, a screen's view model / bloc / controller, the web requests a function makes to the endpoint that answers them (in another repo or app), that handler and what it calls, down to the outside services. `--mermaid` gives a sequence diagram, `--json` the tree, and `--save "<title>"` adds it to the map's Flows (rebuild to show it). It costs no tokens; read only the files the trace points at when you need more detail. Steps marked `~` were matched by name, so say "likely" for those.

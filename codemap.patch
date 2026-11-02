@@ -1,7 +1,7 @@
 From 74fa7a11a0706bc3ec60defc3252eefa7ee86425 Mon Sep 17 00:00:00 2001
 From: floorplan-fork <dev@local>
 Date: Sun, 1 Nov 2026 20:07:36 +0000
-Subject: [PATCH 01/36] docs: agent notes and fork roadmap
+Subject: [PATCH 01/37] docs: agent notes and fork roadmap
 
 ---
  AGENTS.md       | 25 +++++++++++++++++++++++++
@@ -87,7 +87,7 @@ index 0000000..82f95be
 From a5fe39131b29a5061c7199c19c0b4b3111ff7a49 Mon Sep 17 00:00:00 2001
 From: floorplan-fork <dev@local>
 Date: Sun, 1 Nov 2026 20:12:51 +0000
-Subject: [PATCH 02/36] feat: mobile apps (Flutter, Android, iOS), app
+Subject: [PATCH 02/37] feat: mobile apps (Flutter, Android, iOS), app
  detection, mobile Health; fix mw regex, Go 1.22 routes, boolean flags
 
 ---
@@ -881,7 +881,7 @@ index c2eced4..b9be898 100644
 From 13d3c210b2465022705dac85b09ec6ec29410369 Mon Sep 17 00:00:00 2001
 From: floorplan-fork <dev@local>
 Date: Sun, 1 Nov 2026 20:22:18 +0000
-Subject: [PATCH 03/36] feat: Dart servers (shelf_router, dart_frog), route
+Subject: [PATCH 03/37] feat: Dart servers (shelf_router, dart_frog), route
  constants across files, server folders; Swift module fixes; tests and docs
 
 ---
@@ -1767,7 +1767,7 @@ index 0b60a90..6ac01a9 100644
 From 86ba27e64cfb38cba5b3ac20b01e9ef61875900a Mon Sep 17 00:00:00 2001
 From: floorplan-fork <dev@local>
 Date: Sun, 1 Nov 2026 20:34:13 +0000
-Subject: [PATCH 04/36] feat: deterministic change impact (impact.mjs); routers
+Subject: [PATCH 04/37] feat: deterministic change impact (impact.mjs); routers
  under any name; competitive study and roadmap
 
 ---
@@ -2231,7 +2231,7 @@ index bd8fb87..41941e6 100644
 From 558999c58e6511aba5c514de57d18c511487179d Mon Sep 17 00:00:00 2001
 From: floorplan-fork <dev@local>
 Date: Sun, 1 Nov 2026 20:49:42 +0000
-Subject: [PATCH 05/36] =?UTF-8?q?feat:=20function-level=20call=20graph=20a?=
+Subject: [PATCH 05/37] =?UTF-8?q?feat:=20function-level=20call=20graph=20a?=
  =?UTF-8?q?nd=20trace.mjs=20(screen=20=E2=86=92=20functions=20=E2=86=92=20?=
  =?UTF-8?q?request=20=E2=86=92=20handler=20=E2=86=92=20data),=20zero=20tok?=
  =?UTF-8?q?ens?=
@@ -2975,7 +2975,7 @@ index 0000000..da9916e
 From f759c818f00127265d13f5338f77a239ea93eee0 Mon Sep 17 00:00:00 2001
 From: floorplan-fork <dev@local>
 Date: Sun, 1 Nov 2026 20:49:52 +0000
-Subject: [PATCH 06/36] fix: mermaid for flows that start at an endpoint
+Subject: [PATCH 06/37] fix: mermaid for flows that start at an endpoint
 
 ---
  skills/floorplan/scripts/trace.mjs | 7 ++++++-
@@ -3006,7 +3006,7 @@ index 20aac09..c58d1e3 100644
 From 98eda19878f32cc0cee74081132be49481427e6b Mon Sep 17 00:00:00 2001
 From: floorplan-fork <dev@local>
 Date: Sun, 1 Nov 2026 20:56:48 +0000
-Subject: [PATCH 07/36] =?UTF-8?q?feat:=20agent=20layer=20=E2=80=94=20query?=
+Subject: [PATCH 07/37] =?UTF-8?q?feat:=20agent=20layer=20=E2=80=94=20query?=
  =?UTF-8?q?.mjs=20context/fn/map,=20agent=20protocol=20in=20CLAUDE.local.m?=
  =?UTF-8?q?d=20and=20SKILL.md;=20research=20doc?=
 MIME-Version: 1.0
@@ -3441,7 +3441,7 @@ index da9916e..aebfe37 100644
 From 548ba5bc5463a1a4d0e5e603aa4059cd10f162d4 Mon Sep 17 00:00:00 2001
 From: floorplan-fork <dev@local>
 Date: Sun, 1 Nov 2026 20:59:49 +0000
-Subject: [PATCH 08/36] refactor: flows core (trace, impact) shared by scripts,
+Subject: [PATCH 08/37] refactor: flows core (trace, impact) shared by scripts,
  query.mjs and viewer; query.mjs trace/impact
 
 ---
@@ -4215,7 +4215,7 @@ index aebfe37..746cfc6 100644
 From a8e13ae7cc7a34bc74fcffeb491ceef6a2f62d4a Mon Sep 17 00:00:00 2001
 From: floorplan-fork <dev@local>
 Date: Sun, 1 Nov 2026 21:01:58 +0000
-Subject: [PATCH 09/36] feat: Follow panel (reach up/down, functions, trace
+Subject: [PATCH 09/37] feat: Follow panel (reach up/down, functions, trace
  boards) in the map; build --json receipts; Ask masks secrets and treats code
  as data
 
@@ -4442,7 +4442,7 @@ index 746cfc6..436b22c 100644
 From 88034c5d20df3b5e00d71ec353abe6d05a8613eb Mon Sep 17 00:00:00 2001
 From: floorplan-fork <dev@local>
 Date: Sun, 1 Nov 2026 21:03:35 +0000
-Subject: [PATCH 10/36] feat: repos kept elsewhere join through links; context
+Subject: [PATCH 10/37] feat: repos kept elsewhere join through links; context
  --brief for subagents
 
 ---
@@ -4548,7 +4548,7 @@ index 436b22c..71ba911 100644
 From d67defb27374cdae6ac9063af68d03f50c592b4a Mon Sep 17 00:00:00 2001
 From: floorplan-fork <dev@local>
 Date: Sun, 1 Nov 2026 21:04:54 +0000
-Subject: [PATCH 11/36] feat: NestJS controllers, Spring bare/array/method
+Subject: [PATCH 11/37] feat: NestJS controllers, Spring bare/array/method
  mappings, Gin/Echo route groups; Nest guards in Health
 
 ---
@@ -4662,7 +4662,7 @@ index 3efb6c2..fa70fd3 100644
 From 863c03befac4c3b202fa5bd6241e6a28c0387d8b Mon Sep 17 00:00:00 2001
 From: floorplan-fork <dev@local>
 Date: Sun, 1 Nov 2026 21:05:44 +0000
-Subject: [PATCH 12/36] =?UTF-8?q?release:=200.7.0=20=E2=80=94=20every=20le?=
+Subject: [PATCH 12/37] =?UTF-8?q?release:=200.7.0=20=E2=80=94=20every=20le?=
  =?UTF-8?q?vel,=20every=20app,=20built=20for=20agents?=
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -4884,7 +4884,7 @@ index ba16ef2..1618ebc 100644
 From b0af456867aacc4578d1dba982d758a22dd360d5 Mon Sep 17 00:00:00 2001
 From: floorplan-fork <dev@local>
 Date: Sun, 1 Nov 2026 21:09:47 +0000
-Subject: [PATCH 13/36] feat: Laravel, Rails, ASP.NET (attributes + minimal
+Subject: [PATCH 13/37] feat: Laravel, Rails, ASP.NET (attributes + minimal
  APIs), chi nested routes; Ask agent can't open secret files
 
 ---
@@ -5141,7 +5141,7 @@ index fa70fd3..13a4a2d 100644
 From cda9f150c5658e17f4e1c754035b0440c9aa8d49 Mon Sep 17 00:00:00 2001
 From: floorplan-fork <dev@local>
 Date: Sun, 1 Nov 2026 21:11:16 +0000
-Subject: [PATCH 14/36] =?UTF-8?q?feat:=20data=20model=20=E2=80=94=20tables?=
+Subject: [PATCH 14/37] =?UTF-8?q?feat:=20data=20model=20=E2=80=94=20tables?=
  =?UTF-8?q?=20from=20SQL=20migrations=20and=20Prisma,=20table=20uses=20(Su?=
  =?UTF-8?q?pabase,=20Prisma,=20SQL),=20traces=20end=20at=20tables,=20query?=
  =?UTF-8?q?.mjs=20erd?=
@@ -5426,7 +5426,7 @@ index 71ba911..4e80992 100644
 From 384d24bee08361429f5ed4f56ddc7fc891f69890 Mon Sep 17 00:00:00 2001
 From: floorplan-fork <dev@local>
 Date: Sun, 1 Nov 2026 21:12:22 +0000
-Subject: [PATCH 15/36] feat: map-is-behind notice (/api/freshness); maps
+Subject: [PATCH 15/37] feat: map-is-behind notice (/api/freshness); maps
  written in the user's language
 
 ---
@@ -5587,7 +5587,7 @@ index 0c85ac8..746a4ee 100644
 From b1c5b074b7248fb8111224bf49db52d3bdb46298 Mon Sep 17 00:00:00 2001
 From: floorplan-fork <dev@local>
 Date: Sun, 1 Nov 2026 21:13:09 +0000
-Subject: [PATCH 16/36] tools: bench-context (recall and reading saved on real
+Subject: [PATCH 16/37] tools: bench-context (recall and reading saved on real
  maps); rank files named by the task higher
 
 ---
@@ -5698,7 +5698,7 @@ index 0000000..b70e7dc
 From 16812babdea54ebdc9db6ab3a16c5195ed36320a Mon Sep 17 00:00:00 2001
 From: floorplan-fork <dev@local>
 Date: Sun, 1 Nov 2026 21:14:12 +0000
-Subject: [PATCH 17/36] feat: Functions map in the Follow panel (callers |
+Subject: [PATCH 17/37] feat: Functions map in the Follow panel (callers |
  functions | callees, with every call); tested headless
 
 ---
@@ -5811,7 +5811,7 @@ index 4e80992..9a7ff45 100644
 From 0a1dc95cc09b660d031c8bf302fe23e1a6078d4b Mon Sep 17 00:00:00 2001
 From: floorplan-fork <dev@local>
 Date: Sun, 1 Nov 2026 21:15:16 +0000
-Subject: [PATCH 18/36] feat: Cursor and Copilot manifests, guide for Gemini
+Subject: [PATCH 18/37] feat: Cursor and Copilot manifests, guide for Gemini
  CLI, OpenCode, Cline, Kiro, Trae
 
 ---
@@ -5947,7 +5947,7 @@ index ef3cf79..5892a64 100644
 From d8feee6523bb597959145522d8eb4fa3ee7239fa Mon Sep 17 00:00:00 2001
 From: floorplan-fork <dev@local>
 Date: Sun, 1 Nov 2026 21:17:25 +0000
-Subject: [PATCH 19/36] feat: layers and trust boundaries, map snapshots with
+Subject: [PATCH 19/37] feat: layers and trust boundaries, map snapshots with
  query.mjs delta, Layers/Domains/Save (page, SVG) in the map
 
 ---
@@ -6254,7 +6254,7 @@ index 9a7ff45..2d89a42 100644
 From 06a179a6649af2ece8e2e0532654204ab648778f Mon Sep 17 00:00:00 2001
 From: floorplan-fork <dev@local>
 Date: Sun, 1 Nov 2026 21:18:15 +0000
-Subject: [PATCH 20/36] feat: calls through an interface or base class reach
+Subject: [PATCH 20/37] feat: calls through an interface or base class reach
  every implementation; abstract methods are functions
 
 ---
@@ -6385,7 +6385,7 @@ index 2d89a42..f92044b 100644
 From 9f0b2c231c5e8bf64e15a8ab0d4e74f81888bd55 Mon Sep 17 00:00:00 2001
 From: floorplan-fork <dev@local>
 Date: Sun, 1 Nov 2026 21:19:12 +0000
-Subject: [PATCH 21/36] =?UTF-8?q?release:=200.8.0=20=E2=80=94=20data=20mod?=
+Subject: [PATCH 21/37] =?UTF-8?q?release:=200.8.0=20=E2=80=94=20data=20mod?=
  =?UTF-8?q?el,=20functions=20map,=20interface=20calls,=20lenses,=20delta,?=
  =?UTF-8?q?=20freshness,=20Laravel/Rails/ASP.NET/chi,=20more=20agents?=
 MIME-Version: 1.0
@@ -6739,7 +6739,7 @@ index 93ebb14..9e9cc98 100644
 From 924bc8a59049048875802098382b7f336b249e73 Mon Sep 17 00:00:00 2001
 From: floorplan-fork <dev@local>
 Date: Sun, 1 Nov 2026 21:25:33 +0000
-Subject: [PATCH 22/36] feat: Fastify object routes; Kotlin Multiplatform iOS
+Subject: [PATCH 22/37] feat: Fastify object routes; Kotlin Multiplatform iOS
  code linked to the shared Kotlin types it uses
 
 ---
@@ -6836,7 +6836,7 @@ index 13a4a2d..e9d5d42 100644
 From fcb62b09711c2e51f8adb6738ad48454550a17d3 Mon Sep 17 00:00:00 2001
 From: floorplan-fork <dev@local>
 Date: Sun, 1 Nov 2026 21:25:47 +0000
-Subject: [PATCH 23/36] =?UTF-8?q?feat:=20Save=20a=20board=20as=20a=201200?=
+Subject: [PATCH 23/37] =?UTF-8?q?feat:=20Save=20a=20board=20as=20a=201200?=
  =?UTF-8?q?=C3=97630=20PNG=20share=20card?=
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -6947,7 +6947,7 @@ index f92044b..a86b646 100644
 From 43af383e56dc9d42f1943919c7c091f7b30a110c Mon Sep 17 00:00:00 2001
 From: floorplan-fork <dev@local>
 Date: Sun, 1 Nov 2026 21:26:48 +0000
-Subject: [PATCH 24/36] feat: the map's own buttons and labels in the map's
+Subject: [PATCH 24/37] feat: the map's own buttons and labels in the map's
  language (harvested list, one-time translation, swapped in the page)
 
 ---
@@ -7077,7 +7077,7 @@ index a86b646..acf6b25 100644
 From f21f9735fe8a54fde13a3863a0e77206c9968303 Mon Sep 17 00:00:00 2001
 From: floorplan-fork <dev@local>
 Date: Sun, 1 Nov 2026 21:27:54 +0000
-Subject: [PATCH 25/36] =?UTF-8?q?tools:=20bench-agent=20=E2=80=94=20the=20?=
+Subject: [PATCH 25/37] =?UTF-8?q?tools:=20bench-agent=20=E2=80=94=20the=20?=
  =?UTF-8?q?same=20questions=20with=20and=20without=20the=20map=20(tokens,?=
  =?UTF-8?q?=20tool=20calls,=20cost,=20time,=20right=20file)?=
 MIME-Version: 1.0
@@ -7215,7 +7215,7 @@ index 0000000..eaf8a4a
 From 0120d731f15f8d201670e88362c3d86af8c4014f Mon Sep 17 00:00:00 2001
 From: floorplan-fork <dev@local>
 Date: Sun, 1 Nov 2026 21:30:50 +0000
-Subject: [PATCH 26/36] feat: every function is a card on the map (technical
+Subject: [PATCH 26/37] feat: every function is a card on the map (technical
  detail) with call arrows inside the file, from callers and to callees;
  'Functions on the map' in Follow
 
@@ -7354,7 +7354,7 @@ index 4992267..5d3d3e5 100644
 From fe03c6bd362c297e615461d823e4ec11cb3d5256 Mon Sep 17 00:00:00 2001
 From: floorplan-fork <dev@local>
 Date: Sun, 1 Nov 2026 21:32:23 +0000
-Subject: [PATCH 27/36] fix: trace boards show each card once, with every role
+Subject: [PATCH 27/37] fix: trace boards show each card once, with every role
  it plays
 
 ---
@@ -7384,7 +7384,7 @@ index 7aa8497..06bb209 100644
 From fef659946d73c791e539ca31919821e8ad4b40da Mon Sep 17 00:00:00 2001
 From: floorplan-fork <dev@local>
 Date: Sun, 1 Nov 2026 21:33:29 +0000
-Subject: [PATCH 28/36] fix: translated labels also update when text changes in
+Subject: [PATCH 28/37] fix: translated labels also update when text changes in
  place; labels picked in code are in the list
 
 ---
@@ -7434,7 +7434,7 @@ index adb06ea..c4114ab 100644
 From 4a9121072fd969ae97d434336482d9472c493231 Mon Sep 17 00:00:00 2001
 From: floorplan-fork <dev@local>
 Date: Sun, 1 Nov 2026 21:34:59 +0000
-Subject: [PATCH 29/36] tools: visual-check (optional, Playwright) walks the
+Subject: [PATCH 29/37] tools: visual-check (optional, Playwright) walks the
  map's new panels in a real browser
 
 ---
@@ -7480,7 +7480,7 @@ index 0000000..6689e15
 From d50c3998cc7fc6ec4b6678edbd29f9f19b314180 Mon Sep 17 00:00:00 2001
 From: floorplan-fork <dev@local>
 Date: Mon, 2 Nov 2026 04:43:03 +0000
-Subject: [PATCH 30/36] fix: endpoints two services share keep separate
+Subject: [PATCH 30/37] fix: endpoints two services share keep separate
  descriptions ("METHOD /path @ file"); empty skeleton entries never hide
  written ones
 
@@ -7724,7 +7724,7 @@ index 5d3d3e5..e68dbdc 100644
 From 1c88e04cf9f6e4b3fcd4075bfc24637aa6a8b5e6 Mon Sep 17 00:00:00 2001
 From: floorplan-fork <dev@local>
 Date: Mon, 2 Nov 2026 04:44:26 +0000
-Subject: [PATCH 31/36] feat: imports through Vite/webpack aliases, the @/ and
+Subject: [PATCH 31/37] feat: imports through Vite/webpack aliases, the @/ and
  ~/ convention, tsconfig extends lists and packages, package.json #imports and
  exports maps
 
@@ -7915,7 +7915,7 @@ index e68dbdc..de2acbf 100644
 From 3161c62a493b6612e50a483175be98f1afaae69b Mon Sep 17 00:00:00 2001
 From: floorplan-fork <dev@local>
 Date: Mon, 2 Nov 2026 04:45:30 +0000
-Subject: [PATCH 32/36] =?UTF-8?q?release:=200.9.0=20=E2=80=94=20every=20fu?=
+Subject: [PATCH 32/37] =?UTF-8?q?release:=200.9.0=20=E2=80=94=20every=20fu?=
  =?UTF-8?q?nction=20on=20the=20map,=20translated=20buttons,=20share=20card?=
  =?UTF-8?q?s,=20aliases,=20shared=20endpoints,=20Fastify,=20KMP?=
 MIME-Version: 1.0
@@ -8207,7 +8207,7 @@ index 9e9cc98..8ae5361 100644
 From 72ddd7631b2750edaceb1601af3d78a033535736 Mon Sep 17 00:00:00 2001
 From: floorplan-fork <dev@local>
 Date: Mon, 2 Nov 2026 04:50:05 +0000
-Subject: [PATCH 33/36] feat: built-in map translations for 9 languages;
+Subject: [PATCH 33/37] feat: built-in map translations for 9 languages;
  cleaner list of the map's words; column brackets never overlap
 
 ---
@@ -9454,7 +9454,7 @@ index de2acbf..a5cbc59 100644
 From 895a19fe5e72c17b15bfbdf0eba451ae46f1594b Mon Sep 17 00:00:00 2001
 From: floorplan-fork <dev@local>
 Date: Mon, 2 Nov 2026 04:51:14 +0000
-Subject: [PATCH 34/36] =?UTF-8?q?release:=200.9.1=20=E2=80=94=20built-in?=
+Subject: [PATCH 34/37] =?UTF-8?q?release:=200.9.1=20=E2=80=94=20built-in?=
  =?UTF-8?q?=20translations=20for=209=20languages,=20README=20comparison,?=
  =?UTF-8?q?=20layout=20fix?=
 MIME-Version: 1.0
@@ -9666,7 +9666,7 @@ index a5cbc59..cc11b6d 100644
 From 8fd31a956a3a27617692f09fcd8aa591ded018f6 Mon Sep 17 00:00:00 2001
 From: floorplan-fork <dev@local>
 Date: Mon, 2 Nov 2026 04:52:24 +0000
-Subject: [PATCH 35/36] feat: right-to-left pages for Arabic, Urdu, Persian and
+Subject: [PATCH 35/37] feat: right-to-left pages for Arabic, Urdu, Persian and
  Hebrew maps
 
 ---
@@ -9781,7 +9781,7 @@ index cc11b6d..7c2b491 100644
 From ad4cb4dce4645aa703a4e302d64b72acad3d1b72 Mon Sep 17 00:00:00 2001
 From: floorplan-fork <dev@local>
 Date: Mon, 2 Nov 2026 05:31:16 +0000
-Subject: [PATCH 36/36] =?UTF-8?q?release:=201.0.0=20=E2=80=94=20Floorplan?=
+Subject: [PATCH 36/37] =?UTF-8?q?release:=201.0.0=20=E2=80=94=20Floorplan?=
  =?UTF-8?q?=20is=20now=20Codemap=20(plugin,=20skill,=20map=20folder,=20set?=
  =?UTF-8?q?tings),=20old=20maps=20and=20notes=20migrate,=20no=20upstream?=
  =?UTF-8?q?=20waitlist,=20owner=20placeholders=20+=20tools/set-owner.mjs?=
@@ -15382,6 +15382,431 @@ index 6689e15..e9be0fe 100644
    await p.click('text=Functions map'); await p.waitForTimeout(800);
    const modal = await p.evaluate(() => ({ boxes: document.querySelectorAll('#modal rect').length, arrows: document.querySelectorAll('#modal path').length }));
    await p.screenshot({ path: '/tmp/fnmap.png' });
+-- 
+2.43.0
+
+
+From 3f6515c687c70ab7a82e82c3afc422d64a0b5365 Mon Sep 17 00:00:00 2001
+From: floorplan-fork <dev@local>
+Date: Mon, 2 Nov 2026 06:56:34 +0000
+Subject: [PATCH 37/37] =?UTF-8?q?feat:=20function-level=20flows=20on=20eve?=
+ =?UTF-8?q?ry=20map=20(Flows=20=E2=86=92=20Step=20by=20step)=20and=20trace?=
+ =?UTF-8?q?=20boards=20with=20only=20the=20calls=20followed;=201.0.1?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .claude-plugin/plugin.json            |  2 +-
+ .codex-plugin/plugin.json             |  2 +-
+ .copilot-plugin/plugin.json           |  2 +-
+ .cursor-plugin/plugin.json            |  2 +-
+ CHANGELOG.md                          |  5 ++++
+ CHECKSUMS.txt                         | 16 +++++------
+ README.md                             |  3 ++-
+ skills/codemap/SKILL.md               |  3 +++
+ skills/codemap/assets/ui/45-follow.js | 13 +++------
+ skills/codemap/assets/viewer.html     | 39 ++++++++++++++++++++-------
+ skills/codemap/scripts/build.mjs      | 29 ++++++++++++++++++++
+ skills/codemap/scripts/lib/flows.mjs  | 36 +++++++++++++++++++++++++
+ tests/trace.test.mjs                  | 16 ++++++++++-
+ 13 files changed, 134 insertions(+), 34 deletions(-)
+
+diff --git a/.claude-plugin/plugin.json b/.claude-plugin/plugin.json
+index d5224d9..b3a4470 100644
+--- a/.claude-plugin/plugin.json
++++ b/.claude-plugin/plugin.json
+@@ -1,6 +1,6 @@
+ {
+   "name": "codemap",
+-  "version": "1.0.0",
++  "version": "1.0.1",
+   "description": "See how your app actually fits together: an interactive map of your codebase where every part, file and web request has a plain-English name and description, with a health check, screens, guided flows, questions answered on the map, and highlights of what was just worked on.",
+   "author": {
+     "name": "YOUR_NAME",
+diff --git a/.codex-plugin/plugin.json b/.codex-plugin/plugin.json
+index 1601f1f..4ca3606 100644
+--- a/.codex-plugin/plugin.json
++++ b/.codex-plugin/plugin.json
+@@ -1,6 +1,6 @@
+ {
+   "name": "codemap",
+-  "version": "1.0.0",
++  "version": "1.0.1",
+   "description": "See how your app actually fits together: an interactive map of your codebase where every part, file and web request has a plain-English name and description, with a health check, screens, guided flows, questions answered on the map, and highlights of what was just worked on.",
+   "author": {
+     "name": "YOUR_NAME",
+diff --git a/.copilot-plugin/plugin.json b/.copilot-plugin/plugin.json
+index fc82d5b..8234077 100644
+--- a/.copilot-plugin/plugin.json
++++ b/.copilot-plugin/plugin.json
+@@ -1,7 +1,7 @@
+ {
+   "name": "codemap",
+   "description": "See how your app actually fits together: an interactive map of your codebase where every part, file and web request has a plain-English name and description, with a health check, screens, guided flows, questions answered on the map, and highlights of what was just worked on.",
+-  "version": "1.0.0",
++  "version": "1.0.1",
+   "author": {
+     "name": "YOUR_NAME",
+     "url": "https://github.com/Huzaifa-367"
+diff --git a/.cursor-plugin/plugin.json b/.cursor-plugin/plugin.json
+index bcafe6f..2695a92 100644
+--- a/.cursor-plugin/plugin.json
++++ b/.cursor-plugin/plugin.json
+@@ -2,7 +2,7 @@
+   "name": "codemap",
+   "displayName": "Codemap",
+   "description": "See how your app actually fits together: an interactive map of your codebase where every part, file and web request has a plain-English name and description, with a health check, screens, guided flows, questions answered on the map, and highlights of what was just worked on.",
+-  "version": "1.0.0",
++  "version": "1.0.1",
+   "author": {
+     "name": "YOUR_NAME",
+     "url": "https://github.com/Huzaifa-367"
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 612327f..c11318f 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -1,5 +1,10 @@
+ # Changelog
+ 
++## 1.0.1 (2026-11-02)
++
++- **Function-level flows you can see straight away.** Every map now comes with flows traced function by function (no tokens): from the main screens and the endpoints other code calls most, through each function, the request and the server's handler, down to the data. Open **Flows → Step by step: …** and the flow appears as a board of function cards with an arrow for every call and request it followed; the side panel walks through it in order.
++- **Trace the flow** (from any file or endpoint's **Follow it**) draws the same function-level board, with only the calls the trace followed, so it reads left to right instead of as a web.
++
+ ## 1.0.0 (2026-11-02)
+ 
+ **Floorplan is now Codemap.**
+diff --git a/CHECKSUMS.txt b/CHECKSUMS.txt
+index 5fc2388..3d34a00 100644
+--- a/CHECKSUMS.txt
++++ b/CHECKSUMS.txt
+@@ -1,13 +1,13 @@
+-# Codemap 1.0.0: SHA-256 of every file the plugin runs from.
++# Codemap 1.0.1: SHA-256 of every file the plugin runs from.
+ # Check an installed copy: clone this release, then run node tools/checksums.mjs --check <installed folder>.
+ 78869bfd5139f503e6bf067b113776b2631de9473cc9382093194c0f83acb1a2  .agents/plugins/marketplace.json
+ fdce61be9c420fd16b8cbbff629baa37e8d1096094b3e90bc5ecc0fe1ffc3a78  .claude-plugin/icon.png
+ c71c07aafce66cdcc0a96e1bee9a7f21cf5ab8bb1da3c34b3ee793bef1473abb  .claude-plugin/marketplace.json
+-5893e7458186d4c0e9a9271f291f4afdb3b2c5d50523f6340ce7bc7fee32bc4b  .claude-plugin/plugin.json
++e406dc77fe613c0b76901a636a0b398f4f02cdd58df567bc4cd1a90f98c607e7  .claude-plugin/plugin.json
+ 7bdb74d57875b25ca9dcd367f79f92b9089f5f4b873bffec898cc6c3f0a84a68  .codex-plugin/icon.png
+-a465af4ab0f04ed9d103dc38c4e81bdc4e271a4eeef6b1fe83241e325a0eabfe  .codex-plugin/plugin.json
++69d2be2b084869ffd43c265d35b20cf60ef8aeebd214dc28a59a20570b73f463  .codex-plugin/plugin.json
+ 4266f75f9b8726304cee633385b00a563ef48a18a1fdc6064031c71856fde9f0  package.json
+-b8ba9274c2c7d1e59d674062ff3376587d5e29b5fd7550503cd6b32a99a7fba7  skills/codemap/SKILL.md
++1780b5e824444992bc8e7a65ca91d0eb3849f5e80e9352128ddfdb1447f991a6  skills/codemap/SKILL.md
+ 60e8535748ee665ef2d352c7efcc9839f5be0f3a9e9ff156a6f6a40ad0fdcb0e  skills/codemap/agents/openai.yaml
+ 91485d6e067e25f742939ee7903d97096e560bfebdb32b71b428294ef2c781d9  skills/codemap/assets/favicon.png
+ 70719d152be206e750f7fd9a3a5418217a84023492a9cfd573b5f6a893d2ce22  skills/codemap/assets/graph-query.js
+@@ -31,7 +31,7 @@ b1e5f313c41d1813c5830e9329b92cb5c69601ad562698f2b5c3a867a310bd9e  skills/codemap
+ 2ce577dc5fbd6d3c286f23cb9183e7f195033befc625b82a9b94339a07542b75  skills/codemap/assets/ui/25-recent.js
+ 70fb3b8d61abc89220e31c4f89d56007989aa195657f3bc72be1d3e73b3d1f51  skills/codemap/assets/ui/30-screens.js
+ 6a7ff01f93e28cb6a5225be2ed00d1dde0f86cccedc8d3b6ed7b80a85051c8eb  skills/codemap/assets/ui/40-tour.js
+-bc8c15a68a505479929043e3ed3ad11f885b70fed8bb738f6b6b72ec92b535d5  skills/codemap/assets/ui/45-follow.js
++b416acd7e29b5546d185cea0996977de008bad787d690d52fa3d64f4e4d15f5b  skills/codemap/assets/ui/45-follow.js
+ 4d6b16f056df5e45f31a2215f0c7c6343c699ed0ec4dd0e3cf08c53538fe4bf3  skills/codemap/assets/ui/48-fresh.js
+ 01be5fdb748a0223d1a87cbf2d0d6864ecf21d372aab21264d3d6f3f550b25eb  skills/codemap/assets/ui/50-cloud.js
+ f185896f3a816cb88e421e82dd0505f89a2084d20f7a3625afae1272f0713950  skills/codemap/assets/ui/55-lenses.js
+@@ -44,12 +44,12 @@ b0745abd7f23cd91690a1587e377edbe19fd7233c783300290936720546216d4  skills/codemap
+ 403581b69dac5cff4079205e01c6b467e56af449ecbd7247693ddb1baafa005b  skills/codemap/assets/vendor/fonts/jetbrains-mono-LICENSE.txt
+ 79bfdab9ba467e26eea4122e6f2567e188dd8a09a8c730d501fc487c4ab99c6e  skills/codemap/assets/vendor/fonts/jetbrains-mono-latin-ext-wght-normal.woff2
+ 18be452724bfdc236c074ca94a249a7f41a86752c7d04ab258ce9ed5651f6a7e  skills/codemap/assets/vendor/fonts/jetbrains-mono-latin-wght-normal.woff2
+-6be7775901bf88e9620cb9061f979528154a149db13a2db54e8246a3328486a0  skills/codemap/assets/viewer.html
++a538df6ddafc007eb7c95afa1165a59022fbc49e266c74d1e541ec2ae01f18ce  skills/codemap/assets/viewer.html
+ b964f0dfd8f4ddd558da3dc9fe37f698fda7468b67ec18a4232090b3c7b9e747  skills/codemap/references/blueprint.md
+ 0cad611c139c9ddaeb4d0c425cc51a7705d0338363eef1e001313bd6a3ed3226  skills/codemap/references/choosing-boundaries.md
+ f54078116d131e78703f0f975625828259de0d8042455b06dc84396dd4ced567  skills/codemap/references/schema.md
+ 08ea56984f91cb348b751e59267562177814035373c4a89255c12e4511bfc784  skills/codemap/references/writing-descriptions.md
+-425c9b9277879ed7dcb8aa84805fecc247f1a0ff7d26a87270678829fa1f2e92  skills/codemap/scripts/build.mjs
++22cc24bef20de3b27080f5af469147f97d0d00703d4a630ac7591b9eef2f0509  skills/codemap/scripts/build.mjs
+ 4a3596b66cb7d0bf7055ceb8fbb191a3c64328a6f1bbf8057e7b4ca8b23817c3  skills/codemap/scripts/describe.mjs
+ 3b71a38db1745e236f3c2e8bb2f080e11c2bedf219bfb1d6a1f92a1150b6864d  skills/codemap/scripts/impact.mjs
+ 53e9692386b85cb49b008d8b049d59ecc266250d2e9b9e51e171566c5a23d3e7  skills/codemap/scripts/lib/agent.mjs
+@@ -60,7 +60,7 @@ eebc0cb6414f1b03034f7f017012cc57622638559f4d3a27f39cf0fba4956f46  skills/codemap
+ 51d8fb3b9c8187c1694c623befe4b177c9f18c8f26f3474db29107cb7bb03937  skills/codemap/scripts/lib/common.mjs
+ 0f96e152bb7576826977829a8e04704810ac205d82c14cd56dda794c045e8acf  skills/codemap/scripts/lib/data.mjs
+ 122c68b978dcc1384f83afff2d8020a54d083222d976e8b48fbacd939fcb0627  skills/codemap/scripts/lib/extract.mjs
+-b270bf7e6c2e77ac3bacf3a4b3489d8c84a58602a714e701b55603af9f917038  skills/codemap/scripts/lib/flows.mjs
++312dee792e287046832e14f6de67d131bb4af0029f4d7f4bb65a9ba9cec57cd1  skills/codemap/scripts/lib/flows.mjs
+ 4fd58b1bca2bfd476141c313d557bf41e6b705ac74d7c8d240325844af13aeab  skills/codemap/scripts/lib/health.mjs
+ 77f1a13ecc58e0a71c799862a28cec68fda1b407deb1f3452174fe996a21e874  skills/codemap/scripts/lib/names.mjs
+ cd7b6d1157b4788258c49e114cf6192b1ca54dd8968e0caf19b004029e2bf392  skills/codemap/scripts/lib/resolve.mjs
+diff --git a/README.md b/README.md
+index 7c6448e..c54170b 100644
+--- a/README.md
++++ b/README.md
+@@ -16,7 +16,7 @@ Claude or Codex reads your codebase and draws an interactive map of it. Every pa
+ [![Claude Code plugin](https://img.shields.io/badge/Claude%20Code-plugin-D97757?style=flat-square)](https://code.claude.com/docs/en/overview)
+ [![Codex plugin](https://img.shields.io/badge/Codex-plugin-111?style=flat-square)](docs/codex.md)
+ [![Tests](https://img.shields.io/github/actions/workflow/status/Huzaifa-367/codemap/test.yml?branch=main&style=flat-square&label=tests)](https://github.com/Huzaifa-367/codemap/actions/workflows/test.yml)
+-[![Version](https://img.shields.io/badge/version-1.0.0-111?style=flat-square)](CHANGELOG.md)
++[![Version](https://img.shields.io/badge/version-1.0.1-111?style=flat-square)](CHANGELOG.md)
+ [![License: MIT](https://img.shields.io/badge/license-MIT-111?style=flat-square)](LICENSE)
+ [![Node 18+](https://img.shields.io/badge/node-%E2%89%A518-111?style=flat-square)](https://nodejs.org)
+ [![Zero dependencies](https://img.shields.io/badge/dependencies-0-111?style=flat-square)](#how-it-works)
+@@ -50,6 +50,7 @@ Codemap gives you the diagram nobody drew. Ask Claude Code or Codex for a codema
+ - **Health for mobile apps** (unencrypted connections, debuggable builds, emulator addresses) on top of the existing checks.
+ - **The data model:** tables from SQL migrations and Prisma, which code reads or writes each one (Supabase, Prisma, SQL), flows that end at the table, and an ERD (`query.mjs erd`).
+ - **More lenses:** Layers (screens, API, logic, data…), business Domains, the **Functions map** of any file, a notice when the map is behind the code, what changed since the last map (`query.mjs delta`), and Save the board as a page or the view as an image.
++- **Function-level flows on every map:** Flows → *Step by step: …* opens a board of function cards from a screen to the server's handler and the data, with an arrow for each call, traced with no tokens.
+ - **Every function on the map:** in technical detail a file opens into its functions, with arrows for every call inside it and in and out of it.
+ - **More frameworks and agents:** NestJS, Spring, Gin/Echo/chi, Laravel, Rails, ASP.NET; Cursor, Copilot, Gemini CLI, OpenCode, Cline, Kiro and Trae ([guide](docs/other-agents.md)). Maps, and the map's own buttons, can be in your language.
+ 
+diff --git a/skills/codemap/SKILL.md b/skills/codemap/SKILL.md
+index 738f434..5ff4312 100644
+--- a/skills/codemap/SKILL.md
++++ b/skills/codemap/SKILL.md
+@@ -145,6 +145,9 @@ When you hand work to subagents, give each the `context` output for its piece in
+ 
+ ## How does something work, step by step? (trace)
+ 
++Every build also adds a few flows traced function by function (from the main screens and the most-called endpoints) under **Flows → Step by step: …**; they open as a board of function cards with an arrow for each call. Point the user there when they ask to see a flow at function level.
++
++
+ When the user asks how something works end to end ("what happens when someone pays?", "walk me through the booking screen", "which functions does POST /orders reach?"), trace it instead of reading files:
+ 
+ `node ${CLAUDE_SKILL_DIR}/scripts/trace.mjs <root> "<start>"`, where start is a screen URL (`/booking/:id`), an endpoint (`POST /api/orders`), a file, `file#function`, or a few words. It follows calls between functions, a screen's view model / bloc / controller, the web requests a function makes to the endpoint that answers them (in another repo or app), that handler and what it calls, down to the outside services. `--mermaid` gives a sequence diagram, `--json` the tree, and `--save "<title>"` adds it to the map's Flows (rebuild to show it). It costs no tokens; read only the files the trace points at when you need more detail. Steps marked `~` were matched by name, so say "likely" for those.
+diff --git a/skills/codemap/assets/ui/45-follow.js b/skills/codemap/assets/ui/45-follow.js
+index 0056ebd..c275846 100644
+--- a/skills/codemap/assets/ui/45-follow.js
++++ b/skills/codemap/assets/ui/45-follow.js
+@@ -37,20 +37,13 @@
+     if (typeof traceReport !== 'function') return;
+     const r = traceReport(G, start, { depth: 8 });
+     if (r.error || !r.trees?.length) { SC.toast?.('Nothing to follow from here: no calls or requests found.'); return; }
+-    const steps = [];
+-    const add = (id, note) => { if (!id || !SC.exists(id)) return; const last = steps[steps.length - 1]; if (last && last.id === id) { last.note += ` · ${note}`; return; } steps.push({ id, note }); };
+-    const walk = (n) => {
+-      if (n.type === 'file') add('f:' + n.file, `${n.via ? `${n.via} ` : ''}${n.name}`);
+-      if (n.type === 'function') add('f:' + n.file, `${/ \//.test(n.name) ? `handles ${n.name}` : `${n.name}()`}${n.via === 'calls (by name)' ? ' (likely)' : ''}`);
+-      if (n.type === 'endpoint') { const i = routeIndex.get(`${n.name}|${n.file}`); add(i != null ? 'r:' + i : 'f:' + n.file, `${n.name}: the request reaches the server`); }
+-      n.children.forEach(walk);
+-    };
+-    r.trees.forEach((t) => walk(t.tree));
++    const { steps: st, edges } = traceToCards(G, r.trees);
++    const steps = st.map((x) => ({ id: x.ref, note: x.note })).filter((x) => SC.exists(x.id));
+     if (steps.length < 2) { SC.toast?.('Nothing to follow from here: no calls or requests found.'); return; }
+     // each card once on the board (with every role it plays), the walkthrough in order
+     const byId = new Map();
+     for (const st of steps) { const x = byId.get(st.id); if (x) { if (!x.note.includes(st.note)) x.note += ` · ${st.note}`; } else byId.set(st.id, { ...st }); }
+-    SC.showBoard({ title, question: `Followed from ${start} through function calls and web requests`, items: [...byId.values()].slice(0, 24), steps: steps.slice(0, 40), kind: 'Flow', icon: 'flow' });
++    SC.showBoard({ title, question: `Followed from ${start} through function calls and web requests`, items: [...byId.values()].slice(0, 24), steps: steps.slice(0, 40), edges, kind: 'Flow', icon: 'flow' });
+   }
+ 
+   /** A file's functions drawn as boxes, with the functions in other files that call them (left) and that they
+diff --git a/skills/codemap/assets/viewer.html b/skills/codemap/assets/viewer.html
+index ef7888d..f11ee7a 100644
+--- a/skills/codemap/assets/viewer.html
++++ b/skills/codemap/assets/viewer.html
+@@ -806,9 +806,22 @@ function enclosingSymbol(f, line) {
+ }
+ 
+ /** An answer's ad-hoc board: just the cards Claude picked, and every connection among them. */
++/** The card id of a file's function (G.calls index into f.fn) among its symbols, or null. */
++function fnSymbol(p, fi) {
++  const g = files.get(p), d = g?.fn?.[fi];
++  if (!g || !d) return null;
++  let i = (g.s || []).findIndex((s) => s[0] === d[0] && Math.abs(s[2] - d[1]) <= 3);
++  if (i < 0) i = (g.s || []).findIndex((s) => s[0] === d[0]);
++  return i < 0 ? null : `s:${p}#${i}`;
++}
+ function buildAnswerView() {
+   const visible = state.answer.items.map((x) => x.id);
+   const vis = new Set(visible);
++  if (state.answer.edges) {
++    const agg = new Map();
++    for (const [a, b, k = 'call'] of state.answer.edges) { const key = `${a}>${b}`; if (!agg.has(key)) agg.set(key, { id: 'e' + agg.size, a, b, k, w: 1, links: [{ a: a.startsWith('s:') || a.startsWith('r:') ? 'f:' + (a.startsWith('r:') ? G.routes[+a.slice(2)].f : a.slice(2).split('#')[0]) : a, b: b.startsWith('s:') || b.startsWith('r:') ? 'f:' + (b.startsWith('r:') ? G.routes[+b.slice(2)].f : b.slice(2).split('#')[0]) : b, k, w: 1 }] }); }
++    return { container: 'q:answer', visible, connectors: [], edges: [...agg.values()], hidden: 0 };
++  }
+   const up = (x) => { for (const y of chain(x)) if (vis.has(y)) return y; return null; };
+   // a file that isn't on the board but some of its endpoints/exports are: route to those instead
+   const down = (x, names) => {
+@@ -844,6 +857,11 @@ function buildAnswerView() {
+     }
+     for (const s of srcs) for (const d of dsts) if (s !== d && !chain(d).includes(s) && !chain(s).includes(d)) add(s, d, l, l.calls?.length ? l.calls.length : l.w);
+   }
++  // function -> function calls between cards on the board (a traced flow, function by function)
++  if (state.kinds.call !== false) for (const c of G.calls || []) {
++    const a = fnSymbol(c[0], c[1]), b = fnSymbol(c[2], c[3]);
++    if (a && b && a !== b && vis.has(a) && vis.has(b)) add(a, b, { a: 'f:' + c[0], b: 'f:' + c[2], k: 'call', w: 1, ...(c[5] ? { inferred: true } : {}) }, 1);
++  }
+   // show containment (a file and its endpoint both on the board) as a faint line
+   const containsLink = { k: 'contains', w: 1, a: '', b: '' };
+   for (const v of visible) { const p = chain(v).slice(1).find((y) => vis.has(y)); if (p) add(p, v, containsLink, 1); }
+@@ -899,13 +917,7 @@ function buildView(container) {
+   // inside a file: calls between its functions, and calls coming in from or going out to other files
+   if (isFile && state.kinds.call !== false) {
+     const fp = container.slice(2), f = files.get(fp);
+-    const symOf = (p, fi) => {
+-      const g = files.get(p), d = g?.fn?.[fi];
+-      if (!g || !d) return null;
+-      let i = (g.s || []).findIndex((s) => s[0] === d[0] && Math.abs(s[2] - d[1]) <= 3);
+-      if (i < 0) i = (g.s || []).findIndex((s) => s[0] === d[0]);
+-      return i < 0 ? null : `s:${p}#${i}`;
+-    };
++    const symOf = fnSymbol;
+     for (const c of G.calls || []) {
+       const [ap, ai, bp, bi] = c;
+       if (ap !== fp && bp !== fp) continue;
+@@ -1874,7 +1886,12 @@ $('#flows-btn').onclick = (ev) => { ev.stopPropagation(); legendEl.classList.rem
+ $('#filters-btn').onclick = (ev) => { ev.stopPropagation(); fm.classList.remove('open'); legendEl.classList.toggle('open'); };
+ legendEl.addEventListener('click', (ev) => ev.stopPropagation());
+ window.addEventListener('click', () => { fm.classList.remove('open'); legendEl.classList.remove('open'); });
+-function startFlow(id) { const f = G.flows.find((x) => x.id === id); if (!f) return; state.flow = { f, i: 0 }; flowStep(); }
++function startFlow(id) {
++  const f = G.flows.find((x) => x.id === id); if (!f) return;
++  // a flow traced function by function opens as a board: its functions as cards, with the calls it followed
++  if (f.traced) { showBoard({ title: f.title, question: f.description, items: f.steps.map((s) => ({ id: s.ref, note: s.note })), steps: f.steps.map((s) => ({ id: s.ref, note: s.note })), edges: f.edges || [], kind: 'Flow', icon: 'flow' }); return; }
++  state.flow = { f, i: 0 }; flowStep();
++}
+ function stopFlow() { state.flow = null; document.body.classList.remove('in-flow'); $('#flowbar').hidden = true; vp.querySelectorAll('.flowfx').forEach((x) => x.remove()); select(null); }
+ function lcaContainer(a, b) {
+   const cb = new Set(chain(b));
+@@ -2338,9 +2355,11 @@ function showModal({ title = '', html = '', actions = [] } = {}) {
+ }
+ let toastTimer = null;
+ function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('on'), 2200); }
+-function showBoard({ title, question = '', answer = '', items = [], steps = [], kind = '', icon: ic = '' }) {
++function showBoard({ title, question = '', answer = '', items = [], steps = [], kind = '', icon: ic = '', edges = null }) {
+   const clean = (arr) => (arr || []).map((x) => typeof x === 'string' ? { id: x, note: '' } : x).filter((x) => x && Q.exists(String(x.id))).map((x) => ({ id: String(x.id), note: String(x.note || '') }));
+   const a = { title: title || 'Board', question, answer, items: clean(items).slice(0, 24), steps: clean(steps), followups: [], ...(kind ? { kind } : {}), ...(ic ? { icon: ic } : {}) };
++  // a board can bring its own arrows (a traced flow: exactly the calls and requests it followed)
++  if (Array.isArray(edges)) { const on = new Set(a.items.map((x) => x.id)); a.edges = edges.filter(([x, y]) => on.has(x) && on.has(y) && x !== y); }
+   if (!a.items.length) { toast('Nothing on the map matches that.'); return; }
+   state.answer = a; askState.last = a;
+   go('q:answer', { force: true });
+@@ -2393,7 +2412,7 @@ window.Codemap = Object.freeze({
+   addPanelSection(where, fn) { (ext.sections[where] ||= []).push(fn); },
+   showPanel(html, bind) { custom.panel = { html, bind }; setPanel(true); renderPanel(); },
+   closePanel() { custom.panel = null; renderPanel(); },
+-  modal: showModal, toast, copy: (text) => copy(text),
++  modal: showModal, toast, copy: (text) => copy(text), fnSymbol,
+   icons: P,
+   technical, setTechnical,
+   store,
+diff --git a/skills/codemap/scripts/build.mjs b/skills/codemap/scripts/build.mjs
+index 04d977c..feae7d8 100644
+--- a/skills/codemap/scripts/build.mjs
++++ b/skills/codemap/scripts/build.mjs
+@@ -9,6 +9,7 @@ import path from 'node:path';
+ import { fileURLToPath } from 'node:url';
+ import { compileGlob, parseArgs, fmtNum, mapDir, keepOutOfGit } from './lib/common.mjs';
+ import { fallbackFileName, fallbackRouteName, routeKey, routeKeyer } from './lib/names.mjs';
++import { traceReport, traceToCards } from './lib/flows.mjs';
+ import { buildHealth, withDismissed, dismissalFor } from './lib/health.mjs';
+ import { buildPlanHealth } from './lib/blueprint.mjs';
+ import { buildScreens } from './lib/screens.mjs';
+@@ -454,6 +455,34 @@ const graph = {
+ // a blueprint has no code to check, so its Health is a design review of the plan (computed after screens)
+ if (!scan.blueprint) try { graph.health = buildHealth({ graph, scan, arch, root }); } catch (e) { warn(`health check failed: ${e.message}`); graph.health = { issues: [] }; }
+ try { graph.screens = buildScreens({ graph, scan, arch, root }); } catch (e) { warn(`screen detection failed: ${e.message}`); graph.screens = []; }
++// flows traced function by function, for free: from the main screens and the endpoints other code calls most,
++// through every function call and request down to the data. They show under Flows next to the ones the agent wrote.
++try {
++  const gFiles = new Map(graph.files.map((f) => [f.p, f]));
++  const toRef = (ref) => {
++    if (ref.startsWith('route:')) { const i = routeLookup.get(ref.slice(6)); return i == null ? null : `r:${i}`; }
++    if (ref.startsWith('sym:')) { const p = ref.slice(4, ref.lastIndexOf('#')), nm = ref.slice(ref.lastIndexOf('#') + 1); const i = (gFiles.get(p)?.s || []).findIndex((s) => s[0] === nm); return i >= 0 ? `s:${p}#${i}` : (gFiles.has(p) ? `f:${p}` : null); }
++    if (ref.startsWith('f:')) return gFiles.has(ref.slice(2)) ? ref : null;
++    return null;
++  };
++  const callers = (i) => graph.links.filter((l) => (l.calls || []).some(([x]) => x === i)).length;
++  const starts = [
++    ...[...new Map((graph.screens || []).map((s) => [s.url + '|' + s.app, s])).values()].slice(0, 5).map((s) => ({ start: s.url, app: byId.get(s.app)?.label, title: `Step by step: ${s.name}` })),
++    ...graph.routes.map((r, i) => ({ r, n: callers(i) })).filter((x) => x.n).sort((a, b) => b.n - a.n).slice(0, 3).map(({ r }) => ({ start: `${r.m} ${r.p}`, title: `Step by step: ${r.name || `${r.m} ${r.p}`}` })),
++  ];
++  let traced = 0;
++  for (const st of starts) {
++    if (graph.flows.some((f) => f.title === st.title)) continue;
++    const r = traceReport(graph, st.start, { depth: 8, ...(st.app ? { app: st.app } : {}) });
++    if (!r.trees?.length) continue;
++    const { steps, edges } = traceToCards(graph, r.trees);
++    if (steps.length < 4) continue;
++    const keep = steps.slice(0, 24), on = new Set(keep.map((x) => x.ref));
++    graph.flows.push({ id: 'traced-' + st.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60), title: st.title, description: `Followed from ${st.start} through each function call and request, worked out from the code's structure.`, domain: 'Traced step by step', steps: keep, edges: edges.filter(([a, b]) => on.has(a) && on.has(b)), traced: true });
++    traced++;
++  }
++  if (traced) report.push(`TRACED FLOWS  ${traced} flow${traced === 1 ? '' : 's'} followed function by function (under Flows)`);
++} catch (e) { warn(`tracing flows failed: ${e.message}`); }
+ if (scan.blueprint) try { graph.health = buildPlanHealth({ graph, scan }); } catch (e) { warn(`design review failed: ${e.message}`); graph.health = { issues: [] }; }
+ // issues people marked "not a problem" on the map (saved by serve.mjs) stay listed, set apart, and leave the counts
+ const dismissedFile = path.join(outDir, 'health-dismissed.json');
+diff --git a/skills/codemap/scripts/lib/flows.mjs b/skills/codemap/scripts/lib/flows.mjs
+index 3b3dbd1..73fa5f1 100644
+--- a/skills/codemap/scripts/lib/flows.mjs
++++ b/skills/codemap/scripts/lib/flows.mjs
+@@ -348,3 +348,39 @@ export function layersReport(G) {
+   const ORDER = ['screen', 'ui', 'api', 'middleware', 'logic', 'data', 'shared', 'config', 'test', 'other'];
+   return { out: ORDER.filter((k) => by.has(k)).map((k) => `${k} (${by.get(k).length}): ${by.get(k).slice(0, 8).map((f) => f.p).join(', ')}${by.get(k).length > 8 ? ' …' : ''}`).join('\n'), layers: Object.fromEntries([...by].map(([k, v]) => [k, v.map((f) => f.p)])) };
+ }
++
++/**
++ * A traced flow as map cards: each function's own card (s:), each endpoint (r:), files where needed, in the
++ * order they're reached, and the arrows the trace followed (parent -> child). Shared by the build (traced flows
++ * under Flows) and the map (Follow it -> Trace the flow).
++ */
++export function traceToCards(G, trees) {
++  const files = new Map(G.files.map((f) => [f.p, f]));
++  const routeAt = new Map((G.routes || []).map((r, i) => [`${r.m} ${r.p}|${r.f}`, i]));
++  const symId = (p, name, line) => {
++    const f = files.get(p);
++    if (!f) return null;
++    let i = (f.s || []).findIndex((s) => s[0] === name && Math.abs((s[2] || 0) - line) <= 3);
++    if (i < 0) i = (f.s || []).findIndex((s) => s[0] === name);
++    return i >= 0 ? `s:${p}#${i}` : `f:${p}`;
++  };
++  const cardOf = (n) => n.type === 'endpoint' ? (routeAt.has(`${n.name}|${n.file}`) ? `r:${routeAt.get(`${n.name}|${n.file}`)}` : `f:${n.file}`)
++    : n.type === 'function' ? (/ \//.test(n.name) ? (() => { const i = (G.routes || []).findIndex((r) => r.f === n.file && r.l === n.line); return i >= 0 ? `r:${i}` : `f:${n.file}`; })() : symId(n.file, n.name, n.line))
++    : n.file ? `f:${n.file}` : null;
++  const name = (p) => files.get(p)?.name || p;
++  const steps = [], edges = [], seenEdge = new Set();
++  const walk = (n, parent) => {
++    let id = null, note = '';
++    if (n.type === 'file') { id = cardOf(n); note = `${n.via ? `${n.via} ` : ''}${n.name}`; }
++    if (n.type === 'function') { id = cardOf(n); note = `${/ \//.test(n.name) ? `answers ${n.name}` : `${n.name}()`} · ${name(n.file)}${n.via === 'calls (by name)' ? ' (likely)' : ''}`; }
++    if (n.type === 'endpoint') { id = cardOf(n); note = `${n.name}: the request reaches the server`; }
++    if (id) {
++      const last = steps[steps.length - 1];
++      if (last && last.ref === id) { if (!last.note.includes(note)) last.note += ` · ${note}`; } else if (!steps.some((s) => s.ref === id)) steps.push({ ref: id, note });
++      if (parent && parent !== id && !seenEdge.has(parent + '>' + id)) { seenEdge.add(parent + '>' + id); edges.push([parent, id, n.type === 'endpoint' ? 'http' : 'call']); }
++    }
++    n.children.forEach((c) => walk(c, id || parent));
++  };
++  trees.forEach((t) => walk(t.tree, null));
++  return { steps, edges };
++}
+diff --git a/tests/trace.test.mjs b/tests/trace.test.mjs
+index ae60b41..8c668d8 100644
+--- a/tests/trace.test.mjs
++++ b/tests/trace.test.mjs
+@@ -226,7 +226,7 @@ test('lenses: layers, a delta against the previous map, and a board saved as a o
+   const URL_ = { createObjectURL: () => 'blob:x', revokeObjectURL() {} };
+   class Blob_ { constructor(parts) { saved = parts.join(''); } }
+   new Function('window', 'document', 'URL', 'Blob', 'setTimeout', fs.readFileSync(path.join(REPO_DIR, 'skills/codemap/assets/ui/55-lenses.js'), 'utf8'))(win, doc, URL_, Blob_, () => {});
+-  assert.deepEqual(buttons.map((b) => b.label), ['Layers', 'Save']);
++  assert.deepEqual(buttons.map((b) => b.label), ['Layers', 'Domains', 'Save']); // Domains: the traced flows have one
+   win.CodemapLenses.savePage();
+   assert.match(saved, /<h1>Paying<\/h1>/);
+   assert.match(saved, /<code>api\/service\.js<\/code>/);
+@@ -402,3 +402,17 @@ test('a map made before the rename (floorplan/) moves to codemap/, and its old C
+     assert.match(md, /^# mine/);
+   } finally { cleanup(r); }
+ });
++
++test('flows traced function by function come with every map: function cards, the calls between them, down to the endpoint', () => {
++  const g = readGraph(root);
++  const t = g.flows.find((f) => f.traced && /Cart page|cart/i.test(f.title));
++  assert.ok(t, g.flows.map((f) => f.title).join(', '));
++  const refs = t.steps.map((s) => s.ref);
++  assert.ok(refs.some((r) => /^s:web\/lib\/api\.ts#/.test(r)), refs.join(' '));
++  assert.ok(refs.some((r) => r.startsWith('r:')));
++  assert.ok(refs.some((r) => /^s:api\/service\.js#/.test(r)));
++  assert.ok(t.edges.some(([a, b, k]) => k === 'http' && b.startsWith('r:')));
++  assert.ok(t.edges.every(([a, b]) => refs.includes(a) && refs.includes(b)));
++  const html = fs.readFileSync(path.join(root, 'codemap', 'index.html'), 'utf8');
++  assert.match(html, /if \(f\.traced\) \{ showBoard\(/);
++});
 -- 
 2.43.0
 

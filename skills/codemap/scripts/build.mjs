@@ -9,6 +9,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { compileGlob, parseArgs, fmtNum, mapDir, keepOutOfGit } from './lib/common.mjs';
 import { fallbackFileName, fallbackRouteName, routeKey, routeKeyer } from './lib/names.mjs';
+import { traceReport, traceToCards } from './lib/flows.mjs';
 import { buildHealth, withDismissed, dismissalFor } from './lib/health.mjs';
 import { buildPlanHealth } from './lib/blueprint.mjs';
 import { buildScreens } from './lib/screens.mjs';
@@ -454,6 +455,34 @@ const graph = {
 // a blueprint has no code to check, so its Health is a design review of the plan (computed after screens)
 if (!scan.blueprint) try { graph.health = buildHealth({ graph, scan, arch, root }); } catch (e) { warn(`health check failed: ${e.message}`); graph.health = { issues: [] }; }
 try { graph.screens = buildScreens({ graph, scan, arch, root }); } catch (e) { warn(`screen detection failed: ${e.message}`); graph.screens = []; }
+// flows traced function by function, for free: from the main screens and the endpoints other code calls most,
+// through every function call and request down to the data. They show under Flows next to the ones the agent wrote.
+try {
+  const gFiles = new Map(graph.files.map((f) => [f.p, f]));
+  const toRef = (ref) => {
+    if (ref.startsWith('route:')) { const i = routeLookup.get(ref.slice(6)); return i == null ? null : `r:${i}`; }
+    if (ref.startsWith('sym:')) { const p = ref.slice(4, ref.lastIndexOf('#')), nm = ref.slice(ref.lastIndexOf('#') + 1); const i = (gFiles.get(p)?.s || []).findIndex((s) => s[0] === nm); return i >= 0 ? `s:${p}#${i}` : (gFiles.has(p) ? `f:${p}` : null); }
+    if (ref.startsWith('f:')) return gFiles.has(ref.slice(2)) ? ref : null;
+    return null;
+  };
+  const callers = (i) => graph.links.filter((l) => (l.calls || []).some(([x]) => x === i)).length;
+  const starts = [
+    ...[...new Map((graph.screens || []).map((s) => [s.url + '|' + s.app, s])).values()].slice(0, 5).map((s) => ({ start: s.url, app: byId.get(s.app)?.label, title: `Step by step: ${s.name}` })),
+    ...graph.routes.map((r, i) => ({ r, n: callers(i) })).filter((x) => x.n).sort((a, b) => b.n - a.n).slice(0, 3).map(({ r }) => ({ start: `${r.m} ${r.p}`, title: `Step by step: ${r.name || `${r.m} ${r.p}`}` })),
+  ];
+  let traced = 0;
+  for (const st of starts) {
+    if (graph.flows.some((f) => f.title === st.title)) continue;
+    const r = traceReport(graph, st.start, { depth: 8, ...(st.app ? { app: st.app } : {}) });
+    if (!r.trees?.length) continue;
+    const { steps, edges } = traceToCards(graph, r.trees);
+    if (steps.length < 4) continue;
+    const keep = steps.slice(0, 24), on = new Set(keep.map((x) => x.ref));
+    graph.flows.push({ id: 'traced-' + st.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60), title: st.title, description: `Followed from ${st.start} through each function call and request, worked out from the code's structure.`, domain: 'Traced step by step', steps: keep, edges: edges.filter(([a, b]) => on.has(a) && on.has(b)), traced: true });
+    traced++;
+  }
+  if (traced) report.push(`TRACED FLOWS  ${traced} flow${traced === 1 ? '' : 's'} followed function by function (under Flows)`);
+} catch (e) { warn(`tracing flows failed: ${e.message}`); }
 if (scan.blueprint) try { graph.health = buildPlanHealth({ graph, scan }); } catch (e) { warn(`design review failed: ${e.message}`); graph.health = { issues: [] }; }
 // issues people marked "not a problem" on the map (saved by serve.mjs) stay listed, set apart, and leave the counts
 const dismissedFile = path.join(outDir, 'health-dismissed.json');

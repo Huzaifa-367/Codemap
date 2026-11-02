@@ -37,20 +37,13 @@
     if (typeof traceReport !== 'function') return;
     const r = traceReport(G, start, { depth: 8 });
     if (r.error || !r.trees?.length) { SC.toast?.('Nothing to follow from here: no calls or requests found.'); return; }
-    const steps = [];
-    const add = (id, note) => { if (!id || !SC.exists(id)) return; const last = steps[steps.length - 1]; if (last && last.id === id) { last.note += ` · ${note}`; return; } steps.push({ id, note }); };
-    const walk = (n) => {
-      if (n.type === 'file') add('f:' + n.file, `${n.via ? `${n.via} ` : ''}${n.name}`);
-      if (n.type === 'function') add('f:' + n.file, `${/ \//.test(n.name) ? `handles ${n.name}` : `${n.name}()`}${n.via === 'calls (by name)' ? ' (likely)' : ''}`);
-      if (n.type === 'endpoint') { const i = routeIndex.get(`${n.name}|${n.file}`); add(i != null ? 'r:' + i : 'f:' + n.file, `${n.name}: the request reaches the server`); }
-      n.children.forEach(walk);
-    };
-    r.trees.forEach((t) => walk(t.tree));
+    const { steps: st, edges } = traceToCards(G, r.trees);
+    const steps = st.map((x) => ({ id: x.ref, note: x.note })).filter((x) => SC.exists(x.id));
     if (steps.length < 2) { SC.toast?.('Nothing to follow from here: no calls or requests found.'); return; }
     // each card once on the board (with every role it plays), the walkthrough in order
     const byId = new Map();
     for (const st of steps) { const x = byId.get(st.id); if (x) { if (!x.note.includes(st.note)) x.note += ` · ${st.note}`; } else byId.set(st.id, { ...st }); }
-    SC.showBoard({ title, question: `Followed from ${start} through function calls and web requests`, items: [...byId.values()].slice(0, 24), steps: steps.slice(0, 40), kind: 'Flow', icon: 'flow' });
+    SC.showBoard({ title, question: `Followed from ${start} through function calls and web requests`, items: [...byId.values()].slice(0, 24), steps: steps.slice(0, 40), edges, kind: 'Flow', icon: 'flow' });
   }
 
   /** A file's functions drawn as boxes, with the functions in other files that call them (left) and that they

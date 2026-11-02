@@ -348,3 +348,39 @@ export function layersReport(G) {
   const ORDER = ['screen', 'ui', 'api', 'middleware', 'logic', 'data', 'shared', 'config', 'test', 'other'];
   return { out: ORDER.filter((k) => by.has(k)).map((k) => `${k} (${by.get(k).length}): ${by.get(k).slice(0, 8).map((f) => f.p).join(', ')}${by.get(k).length > 8 ? ' …' : ''}`).join('\n'), layers: Object.fromEntries([...by].map(([k, v]) => [k, v.map((f) => f.p)])) };
 }
+
+/**
+ * A traced flow as map cards: each function's own card (s:), each endpoint (r:), files where needed, in the
+ * order they're reached, and the arrows the trace followed (parent -> child). Shared by the build (traced flows
+ * under Flows) and the map (Follow it -> Trace the flow).
+ */
+export function traceToCards(G, trees) {
+  const files = new Map(G.files.map((f) => [f.p, f]));
+  const routeAt = new Map((G.routes || []).map((r, i) => [`${r.m} ${r.p}|${r.f}`, i]));
+  const symId = (p, name, line) => {
+    const f = files.get(p);
+    if (!f) return null;
+    let i = (f.s || []).findIndex((s) => s[0] === name && Math.abs((s[2] || 0) - line) <= 3);
+    if (i < 0) i = (f.s || []).findIndex((s) => s[0] === name);
+    return i >= 0 ? `s:${p}#${i}` : `f:${p}`;
+  };
+  const cardOf = (n) => n.type === 'endpoint' ? (routeAt.has(`${n.name}|${n.file}`) ? `r:${routeAt.get(`${n.name}|${n.file}`)}` : `f:${n.file}`)
+    : n.type === 'function' ? (/ \//.test(n.name) ? (() => { const i = (G.routes || []).findIndex((r) => r.f === n.file && r.l === n.line); return i >= 0 ? `r:${i}` : `f:${n.file}`; })() : symId(n.file, n.name, n.line))
+    : n.file ? `f:${n.file}` : null;
+  const name = (p) => files.get(p)?.name || p;
+  const steps = [], edges = [], seenEdge = new Set();
+  const walk = (n, parent) => {
+    let id = null, note = '';
+    if (n.type === 'file') { id = cardOf(n); note = `${n.via ? `${n.via} ` : ''}${n.name}`; }
+    if (n.type === 'function') { id = cardOf(n); note = `${/ \//.test(n.name) ? `answers ${n.name}` : `${n.name}()`} · ${name(n.file)}${n.via === 'calls (by name)' ? ' (likely)' : ''}`; }
+    if (n.type === 'endpoint') { id = cardOf(n); note = `${n.name}: the request reaches the server`; }
+    if (id) {
+      const last = steps[steps.length - 1];
+      if (last && last.ref === id) { if (!last.note.includes(note)) last.note += ` · ${note}`; } else if (!steps.some((s) => s.ref === id)) steps.push({ ref: id, note });
+      if (parent && parent !== id && !seenEdge.has(parent + '>' + id)) { seenEdge.add(parent + '>' + id); edges.push([parent, id, n.type === 'endpoint' ? 'http' : 'call']); }
+    }
+    n.children.forEach((c) => walk(c, id || parent));
+  };
+  trees.forEach((t) => walk(t.tree, null));
+  return { steps, edges };
+}

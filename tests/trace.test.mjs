@@ -226,7 +226,7 @@ test('lenses: layers, a delta against the previous map, and a board saved as a o
   const URL_ = { createObjectURL: () => 'blob:x', revokeObjectURL() {} };
   class Blob_ { constructor(parts) { saved = parts.join(''); } }
   new Function('window', 'document', 'URL', 'Blob', 'setTimeout', fs.readFileSync(path.join(REPO_DIR, 'skills/codemap/assets/ui/55-lenses.js'), 'utf8'))(win, doc, URL_, Blob_, () => {});
-  assert.deepEqual(buttons.map((b) => b.label), ['Layers', 'Save']);
+  assert.deepEqual(buttons.map((b) => b.label), ['Layers', 'Domains', 'Save']); // Domains: the traced flows have one
   win.CodemapLenses.savePage();
   assert.match(saved, /<h1>Paying<\/h1>/);
   assert.match(saved, /<code>api\/service\.js<\/code>/);
@@ -401,4 +401,18 @@ test('a map made before the rename (floorplan/) moves to codemap/, and its old C
     assert.doesNotMatch(md, /floorplan:start|old note/);
     assert.match(md, /^# mine/);
   } finally { cleanup(r); }
+});
+
+test('flows traced function by function come with every map: function cards, the calls between them, down to the endpoint', () => {
+  const g = readGraph(root);
+  const t = g.flows.find((f) => f.traced && /Cart page|cart/i.test(f.title));
+  assert.ok(t, g.flows.map((f) => f.title).join(', '));
+  const refs = t.steps.map((s) => s.ref);
+  assert.ok(refs.some((r) => /^s:web\/lib\/api\.ts#/.test(r)), refs.join(' '));
+  assert.ok(refs.some((r) => r.startsWith('r:')));
+  assert.ok(refs.some((r) => /^s:api\/service\.js#/.test(r)));
+  assert.ok(t.edges.some(([a, b, k]) => k === 'http' && b.startsWith('r:')));
+  assert.ok(t.edges.every(([a, b]) => refs.includes(a) && refs.includes(b)));
+  const html = fs.readFileSync(path.join(root, 'codemap', 'index.html'), 'utf8');
+  assert.match(html, /if \(f\.traced\) \{ showBoard\(/);
 });

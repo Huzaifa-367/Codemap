@@ -16,7 +16,7 @@ Claude or Codex reads your codebase and draws an interactive map of it. Every pa
 [![Claude Code plugin](https://img.shields.io/badge/Claude%20Code-plugin-D97757?style=flat-square)](https://code.claude.com/docs/en/overview)
 [![Codex plugin](https://img.shields.io/badge/Codex-plugin-111?style=flat-square)](docs/codex.md)
 [![Tests](https://img.shields.io/github/actions/workflow/status/Huzaifa-367/codemap/test.yml?branch=main&style=flat-square&label=tests)](https://github.com/Huzaifa-367/codemap/actions/workflows/test.yml)
-[![Version](https://img.shields.io/badge/version-1.0.0-111?style=flat-square)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.0.1-111?style=flat-square)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-111?style=flat-square)](LICENSE)
 [![Node 18+](https://img.shields.io/badge/node-%E2%89%A518-111?style=flat-square)](https://nodejs.org)
 [![Zero dependencies](https://img.shields.io/badge/dependencies-0-111?style=flat-square)](#how-it-works)
@@ -50,6 +50,7 @@ Codemap gives you the diagram nobody drew. Ask Claude Code or Codex for a codema
 - **Health for mobile apps** (unencrypted connections, debuggable builds, emulator addresses) on top of the existing checks.
 - **The data model:** tables from SQL migrations and Prisma, which code reads or writes each one (Supabase, Prisma, SQL), flows that end at the table, and an ERD (`query.mjs erd`).
 - **More lenses:** Layers (screens, API, logic, data…), business Domains, the **Functions map** of any file, a notice when the map is behind the code, what changed since the last map (`query.mjs delta`), and Save the board as a page or the view as an image.
+- **Function-level flows on every map:** Flows → *Step by step: …* opens a board of function cards from a screen to the server's handler and the data, with an arrow for each call, traced with no tokens.
 - **Every function on the map:** in technical detail a file opens into its functions, with arrows for every call inside it and in and out of it.
 - **More frameworks and agents:** NestJS, Spring, Gin/Echo/chi, Laravel, Rails, ASP.NET; Cursor, Copilot, Gemini CLI, OpenCode, Cline, Kiro and Trae ([guide](docs/other-agents.md)). Maps, and the map's own buttons, can be in your language.
 

@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.1 (2026-11-02)
+
+- **Function-level flows you can see straight away.** Every map now comes with flows traced function by function (no tokens): from the main screens and the endpoints other code calls most, through each function, the request and the server's handler, down to the data. Open **Flows → Step by step: …** and the flow appears as a board of function cards with an arrow for every call and request it followed; the side panel walks through it in order.
+- **Trace the flow** (from any file or endpoint's **Follow it**) draws the same function-level board, with only the calls the trace followed, so it reads left to right instead of as a web.
+
 ## 1.0.0 (2026-11-02)
 
 **Floorplan is now Codemap.**
