@@ -436,9 +436,16 @@ const graph = {
   // the data model: tables from migrations / Prisma (later definitions win) and the code that reads or writes them
   tables: (() => {
     const t = new Map();
-    for (const f of [...scan.files].sort((a, b) => a.path.localeCompare(b.path))) for (const x of f.tables || []) t.set(x.name, { name: x.name, ...(x.model ? { model: x.model } : {}), file: f.path, line: x.line, columns: x.columns, refs: x.refs, usedBy: [] });
+    // model classes (Eloquent, Django, @Entity…) name the table they use; they add to a migration's table, never replace it
+    const models = new Map();
+    for (const f of [...scan.files].sort((a, b) => a.path.localeCompare(b.path))) for (const x of f.tables || []) {
+      if (x.model) models.set(x.model, x.name);
+      if (x.modelOnly) { if (t.has(x.name)) { t.get(x.name).model ||= x.model; continue; } t.set(x.name, { name: x.name, model: x.model, file: f.path, line: x.line, columns: [], refs: [], usedBy: [], fromModel: true }); continue; }
+      t.set(x.name, { name: x.name, ...(x.model || t.get(x.name)?.model ? { model: x.model || t.get(x.name).model } : {}), file: f.path, line: x.line, columns: x.columns, refs: x.refs, usedBy: [] });
+    }
     const modelToTable = new Map([...t.values()].filter((x) => x.model).map((x) => [x.model.toLowerCase(), x.name]));
     for (const f of included) for (const u of fileByPath.get(f.path)?.tableUses || []) {
+      if (u.model) { const name = models.get(u.model); if (name && t.has(name)) t.get(name).usedBy.push([f.path, u.how, u.line]); continue; } // only known models
       const name = t.has(u.table) ? u.table : modelToTable.get(u.table) || (t.has(u.table + 's') ? u.table + 's' : u.table);
       if (!t.has(name)) t.set(name, { name, inferred: true, columns: [], refs: [], usedBy: [] });
       t.get(name).usedBy.push([f.path, u.how, u.line]);

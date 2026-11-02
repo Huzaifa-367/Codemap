@@ -29,7 +29,7 @@ test('Flutter + Laravel: the app\'s request is matched to the API route in the o
   assert.ok(http.includes('f:mobile/lib/data/order_repository.dart -> f:server/routes/api.php POST /api/orders'), http.join('\n'));
 });
 
-test('Flutter + Laravel: tables come from Laravel migrations, and the code that reads and writes them is known', { todo: 'Flows 2' }, () => {
+test('Flutter + Laravel: tables come from Laravel migrations, and the code that reads and writes them is known', () => {
   const t = Object.fromEntries((g.tables || []).map((x) => [x.name, x]));
   assert.ok(t.orders && t.carts, JSON.stringify(Object.keys(t)));
   const uses = (name) => (t[name].usedBy || []).map(([p, how]) => `${p} ${how}`);
