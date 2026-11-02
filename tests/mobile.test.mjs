@@ -328,3 +328,11 @@ test('Kotlin Multiplatform: the iOS app is linked to the shared Kotlin code it u
     assert.ok(s.apps.some((a) => a.platform === 'kmp'));
   } finally { cleanup(r); }
 });
+
+test('a TanStack route named only in a comment is not a screen; a real one still is', () => {
+  const f = { path: 'src/lib/screens.ts', category: 'code', lang: 'typescript' };
+  assert.deepEqual(findScreens(`// TanStack Router file routes: createFileRoute('/products/$id')\nexport const x = 1;\n`, f), []);
+  assert.deepEqual(findScreens(`/*\n * createFileRoute('/a')\n */\nexport const y = 2;\n`, f), []);
+  const real = findScreens(`export const Route = createFileRoute('/products/$id')({ component: P });\n`, { ...f, path: 'src/routes/products.$id.tsx' });
+  assert.deepEqual(real.map((s) => s.url), ['/products/:id']);
+});

@@ -241,7 +241,9 @@ function fileBasedScreen(p, src) {
     return url && { fw: 'sveltekit', url };
   }
   // TanStack Router file routes: createFileRoute('/products/$id')
-  if ((m = /\bcreateFileRoute\(\s*["'`]([^"'`]*)["'`]\s*\)/.exec(src)) && !/__root/.test(p)) {
+  // (code only: a route named in a comment, e.g. a doc example, isn't a screen)
+  const code = src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
+  if ((m = /\bcreateFileRoute\(\s*["'`]([^"'`]*)["'`]\s*\)/.exec(code)) && !/__root/.test(p)) {
     const url = normalizeUrl(m[1].replace(/\/_[^/]+/g, '').replace(/\$([A-Za-z_]\w*)/g, ':$1').replace(/\/\$$/, '/*'));
     return url && { fw: 'tanstack', url };
   }

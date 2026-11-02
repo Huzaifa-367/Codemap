@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- **Fewer made-up screens.** A TanStack route that only appears in a comment (for example a doc example) is no longer shown as a screen.
 - **Function cards say where they live.** On boards, each function card is wider and shows its file and line (for example `service.js · L2`).
 - **Tracing a whole file is easier to read.** It starts at the functions where the file's work begins (the ones nothing else in the file calls, those that reach other files, requests or tables first), at most six, and names the rest so you can trace them one at a time (`file#name`).
 - **Save → The whole board as an image (PNG).** Every card at full size and full detail, whatever the zoom. The SVG export now keeps the map's font and theme when opened on its own.
