@@ -32,7 +32,7 @@ const MAP_HINT = 'This project has a code map. Start with `node codemap/query.mj
 function runOnce(prompt, withMap) {
   return new Promise((resolve) => {
     const args = ['-p', '--output-format', 'stream-json', '--verbose', '--tools', 'Read,Grep,Glob,Bash',
-      ...(withMap ? ['--append-system-prompt', MAP_HINT] : ['--disallowedTools', 'Read(codemap/**)', 'Bash(node codemap/query.mjs:*)']),
+      ...(withMap ? [] : ['--disallowedTools', 'Read(codemap/**)', 'Bash(node codemap/query.mjs:*)']),
       '--allowedTools', ...READ_ONLY, ...(withMap ? ['Bash(node codemap/query.mjs:*)'] : [])];
     if (model) args.push('--model', model);
     const t0 = Date.now();
@@ -55,7 +55,7 @@ function runOnce(prompt, withMap) {
       if (!result) return resolve({ error: 'no result' });
       const u = result.usage || {};
       const answer = typeof result.result === 'string' ? result.result : JSON.stringify(result.structured_output || '');
-      resolve({ tools, tokens: (u.input_tokens || 0) + (u.cache_creation_input_tokens || 0) + (u.cache_read_input_tokens || 0) + (u.output_tokens || 0), cost: result.total_cost_usd || 0, ms: result.duration_ms || Date.now() - t0, answer });
+      resolve({ tools, cacheWrite: u.cache_creation_input_tokens || 0, cacheRead: u.cache_read_input_tokens || 0, tokens: (u.input_tokens || 0) + (u.cache_creation_input_tokens || 0) + (u.cache_read_input_tokens || 0) + (u.output_tokens || 0), cost: result.total_cost_usd || 0, ms: result.duration_ms || Date.now() - t0, answer });
     });
     child.stdin.end(prompt);
   });
@@ -64,7 +64,9 @@ function runOnce(prompt, withMap) {
 const rows = [];
 for (const t of picked) {
   const base = await runOnce(ASK(t.q), false);
-  const map = await runOnce(ASK(t.q), true);
+  // the hint goes with the question, the way CLAUDE.local.md reaches a session (as context, not in the system prompt,
+  // which would change the cached prefix and make every run pay to write the cache again)
+  const map = await runOnce(`${MAP_HINT}\n\n${ASK(t.q)}`, true);
   const ok = (r) => !r.error && r.answer.includes(t.want);
   rows.push({ task: t.q, want: t.want, without: { ...base, correct: ok(base), answer: undefined }, with: { ...map, correct: ok(map), answer: undefined } });
   if (!argv.includes('--json')) console.log(`${ok(base) ? '✓' : '✗'}/${ok(map) ? '✓' : '✗'}  ${base.tokens ?? '?'} → ${map.tokens ?? '?'} tokens, ${base.tools ?? '?'} → ${map.tools ?? '?'} tool calls  ${t.q}`);
@@ -76,6 +78,7 @@ const summary = {
   tokens: { without: sum('without', 'tokens'), with: sum('with', 'tokens') },
   toolCalls: { without: sum('without', 'tools'), with: sum('with', 'tools') },
   costUsd: { without: +sum('without', 'cost').toFixed(4), with: +sum('with', 'cost').toFixed(4) },
+  cacheWriteTokens: { without: sum('without', 'cacheWrite'), with: sum('with', 'cacheWrite') },
   seconds: { without: Math.round(sum('without', 'ms') / 1000), with: Math.round(sum('with', 'ms') / 1000) },
 };
 fs.mkdirSync(path.join(root, 'codemap', '.cache'), { recursive: true });

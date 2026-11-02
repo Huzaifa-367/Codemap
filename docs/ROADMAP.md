@@ -81,7 +81,7 @@ Decision: stay regex-only (no tree-sitter) unless measured accuracy on real repo
 - [x] Agent-run benchmark harness (`tools/bench-agent.mjs`). Real numbers need runs on your own account.
 
 ## What could come next
-- Publish real `bench-agent` numbers on public repos.
+- [x] First real `bench-agent` numbers (Codemap itself, docs/AGENT-EFFICIENCY.md). Next: public repos.
 - [x] (0.9.1) Built-in translations of the most visible words for 9 languages.
 - [x] (0.9.1) Right-to-left pages for Arabic, Urdu, Persian and Hebrew maps.
 - [x] (Unreleased) Function cards wider, with their file and line; traces from a whole file start at its entry

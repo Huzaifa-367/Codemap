@@ -59,6 +59,22 @@ For real agent runs, `node tools/bench-agent.mjs <root> --tasks 8` asks Claude C
 usual way and starting from the map, and reports tokens, tool calls, cost, time and whether it named the right file.
 It uses your own Claude account.
 
+### First real run (2026-11-02, Claude Sonnet, Codemap's own repo, 8 "which file…" questions)
+
+| | without the map | with the map |
+|---|---|---|
+| right file named | 7 / 8 | **8 / 8** |
+| tokens (incl. cache) | 3,125,080 | **1,739,961** (44% fewer) |
+| tool calls | 23 | **9** (61% fewer) |
+| cost | $2.09 | **$1.69** (19% less) |
+| time | 94 s | **79 s** |
+
+Small sample, one codebase; questions come from the map's own descriptions, so they favour finding a file by what it
+does. Most with-map runs needed one call (`query.mjs context`). Lesson from the first try: passing the hint with
+`--append-system-prompt` changed the cached system prompt, so every with-map run paid to write the cache again and
+cost went *up* ($2.67 → $3.10) despite 42% fewer tokens. The hint now goes with the question, the way
+`CLAUDE.local.md` reaches a real session, and the bench records cache-write tokens.
+
 ## Codex note
 Codex reads `AGENTS.md`; an `AGENTS.override.md` in the same folder **replaces** it rather than adding to it, so Codemap
 never writes either (it would hide the team's instructions). In Codex the skill's own description and SKILL.md carry the
@@ -66,5 +82,5 @@ never writes either (it would hide the team's instructions). In Codex the skill'
 
 ## Next
 - `query.mjs context --for-subagent`: a ready brief (task + ranges + constraints) to paste into a subagent.
-- Measure end-to-end: the same tasks with and without the map (tokens, turns, success) on public repos.
+- Measure end-to-end on public repos too (first run on Codemap itself is above).
 - Port trace/impact into the self-contained `codemap/` helpers so later sessions can call them without the skill path.

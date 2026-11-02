@@ -318,8 +318,8 @@ test('bench-agent: runs each question without and with the map (plumbing checked
   const runs = fs.readFileSync(log, 'utf8').trim().split('\n').map((l) => JSON.parse(l));
   assert.equal(runs.length, 4);
   assert.ok(runs[0].args.includes('Read(codemap/**)') && !runs[0].args.includes('--append-system-prompt'));
-  assert.ok(runs[1].args.includes('--append-system-prompt') && runs[1].args.includes('Bash(node codemap/query.mjs:*)'));
-  assert.match(runs[1].input, /Which file/);
+  assert.ok(!runs[1].args.includes('--append-system-prompt') && runs[1].args.includes('Bash(node codemap/query.mjs:*)'));
+  assert.match(runs[1].input, /codemap\/query\.mjs context[\s\S]*Which file/); // the hint travels with the question, so both runs share the cached system prompt
 });
 
 test('every function is a card in technical detail, and the build marks the ones that are not exported', () => {
