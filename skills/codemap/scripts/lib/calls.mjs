@@ -107,11 +107,15 @@ function endOf(lines, i, fam) {
     return Math.min(lines.length, i + 40);
   }
   // brace languages: from the first { on or after the line to its match; an expression body (=>) ends at the statement
-  let depth = 0, opened = false;
+  // (braces inside the parameter list before the body opens, Dart's {String? notes} or TS's ({ a, b }), don't count)
+  let depth = 0, opened = false, parens = 0;
   for (let j = i; j < lines.length && j < i + 2000; j++) {
     const l = lines[j];
     for (let k = 0; k < l.length; k++) {
-      if (l[k] === '{') { depth++; opened = true; } else if (l[k] === '}') { depth--; if (opened && depth <= 0) return j + 1; }
+      if (!opened && l[k] === '(') parens++;
+      else if (!opened && l[k] === ')') parens = Math.max(0, parens - 1);
+      else if (!opened && parens > 0) continue;
+      else if (l[k] === '{') { depth++; opened = true; } else if (l[k] === '}') { depth--; if (opened && depth <= 0) return j + 1; }
     }
     if (!opened && j > i && (/;\s*$/.test(lines[j]) || (j - i > 6))) return j + 1;
     if (!opened && /=>\s*[^{\s]/.test(l) && /[;,)]\s*$/.test(l)) return j + 1;
@@ -153,6 +157,27 @@ export function findTypes(src, lang) {
   return out.slice(0, 50);
 }
 
+/**
+ * Variables and fields whose type is written down: name -> Type. Covers the common shapes in every typed language:
+ *   Dart/Java/C#  final OrderRepository _orders;  OrderRepository orders,
+ *   TS/Kotlin/Swift/Python/Rust  orders: OrderRepository   private readonly orders: OrderService
+ *   PHP  private OrderService $orders   Go  orders *OrderRepository
+ *   any  orders = OrderRepository(…) / new OrderRepository(…)
+ */
+const NOT_TYPE = /^(String|Int|Integer|Long|Double|Float|Bool|Boolean|Object|Map|List|Set|Array|Future|Promise|Stream|Optional|Void|Any|Self|This|Type|Some|Never|Record|Partial|Readonly|Widget|BuildContext|Key|Request|Response|Number|Date|DateTime|Duration)$/;
+export function varTypes(src, lang) {
+  const fam = FAMILY[lang];
+  const out = new Map();
+  const put = (name, type) => { if (name && type && !NOT_TYPE.test(type) && !out.has(name)) out.set(name, type); };
+  const code = src.replace(/\/\/[^\n]*|#[^\n{[]*$/gm, '');
+  if (fam === 'php') for (const m of code.matchAll(/\b\??\\?(?:[\w\\]*\\)?([A-Z]\w*)\s+(?:&\s*)?\$(\w+)/g)) put(m[2], m[1]);
+  if (fam === 'go') for (const m of code.matchAll(/\b([a-z_]\w*)\s+\*?(?:\w+\.)?([A-Z]\w*)\b/g)) put(m[1], m[2]);
+  if (['js', 'kotlin', 'swift', 'python', 'rust'].includes(fam)) for (const m of code.matchAll(/\b(_?[A-Za-z]\w*)\s*\??\s*:\s*(?:[\w.]*\.)?([A-Z]\w*)/g)) put(m[1], m[2]);
+  if (['dart', 'java'].includes(fam)) for (const m of code.matchAll(/\b([A-Z]\w*)(?:<[^<>;(){}]*>)?\??\s+(_?[a-z]\w*)\s*[;=,)]/g)) put(m[2], m[1]);
+  for (const m of code.matchAll(/\b(?:this\.|self\.|\$this->|\$)?(_?[a-z]\w*)\s*=\s*(?:new\s+|await\s+)?(?:[\w.]*\.)?([A-Z]\w*)\s*(?:<[^<>]*>)?\s*\(/g)) put(m[1], m[2]);
+  return out;
+}
+
 export function linkCalls({ files, edges, read }) {
   // interface -> implementations: a call that lands on an abstract method also reaches the same method in every
   // class that extends or implements the type that file declares (marked loose, up to four)
@@ -172,12 +197,26 @@ export function linkCalls({ files, edges, read }) {
   // (test doubles are never where production calls land)
   const TESTY = /(^|\/)(tests?|testing|__tests__|spec|fakes?|mocks?|stubs?|fixtures?)\/|(_test|\.test|\.spec|Tests?)\.\w+$/i;
   const norm = (s) => String(s).replace(/^_+|^m(?=[A-Z])/, '').replace(/[^A-Za-z0-9]/g, '').toLowerCase();
+  // classes by name, for calls on typed fields and variables (orders.place() where `orders: OrderService`)
+  const classIn = new Map();
+  for (const f of files) for (const s of f.symbols || []) if (/^(class|interface|protocol|abstract|struct|object|enum|trait|mixin|record|type)$/.test(s.kind) && /^[A-Z]/.test(s.name)) { if (!classIn.has(s.name)) classIn.set(s.name, []); classIn.get(s.name).push(f.path); }
+  /** The method `name` on class `T`, from this file's point of view: the file it imports, else one in its repo. Also
+   * every implementation when T is an interface or abstract class with the method only declared. */
+  const onType = (f, T, name) => {
+    const all = (classIn.get(T) || []).filter((p) => TESTY.test(f.path) || !TESTY.test(p));
+    const lk = linked.get(f.path) || new Set();
+    const ordered = [...all.filter((p) => lk.has(p)), ...all.filter((p) => !lk.has(p) && byPath.get(p)?.repo === f.repo), ...all.filter((p) => !lk.has(p) && byPath.get(p)?.repo !== f.repo)];
+    for (const p of ordered) { const i = fnIndex(byPath.get(p), name); if (i >= 0) return [[p, i]]; }
+    const impls = [...(implsOf.get(T) || [])].filter((p) => !TESTY.test(p)).map((p) => [p, fnIndex(byPath.get(p), name)]).filter(([, i]) => i >= 0);
+    return impls.slice(0, 4);
+  };
   const calls = [];
   for (const f of files) {
     if (!f.fns?.length) continue;
     const src = read(f.path);
     if (!src) continue;
     const fam = FAMILY[f.lang];
+    const types = varTypes(src, f.lang);
     let lines = stripComments(src, fam === 'python' || fam === 'ruby').split('\n').map(stripStrings);
     // PHP: $this->repo->save() and Cache::get() read like this.repo.save() and Cache.get()
     if (fam === 'php') lines = lines.map((l) => l.replace(/\??->|::/g, '.').replace(/\$(?=[A-Za-z_])/g, ''));
@@ -212,6 +251,12 @@ export function linkCalls({ files, edges, read }) {
           if (i >= 0) to = [b.file, i];
         }
         if (!to && c.obj && binds.has(c.obj)) { const b = binds.get(c.obj); const i = fnIndex(byPath.get(b.file), c.name); if (i >= 0) to = [b.file, i]; }
+        // a call on a field or variable whose type is written down: the method on that class (or its implementations)
+        if (!to && c.obj && !self && types.has(c.obj)) {
+          const hits = onType(f, types.get(c.obj), c.name);
+          if (hits.length === 1) to = hits[0];
+          else if (hits.length) { for (const h of hits) { const k = `${di}|${h[0]}|${h[1]}`; if (!seen.has(k)) { seen.add(k); n++; calls.push([f.path, di, h[0], h[1], line, 1]); } } continue; }
+        }
         if (!to && c.name.length >= 3) {
           const hits = near.filter((t) => TESTY.test(f.path) || !TESTY.test(t.path)).map((t) => [t.path, fnIndex(t, c.name)]).filter(([, i]) => i >= 0);
           if (hits.length === 1) { to = hits[0]; loose = true; }
@@ -243,6 +288,13 @@ export function linkCalls({ files, edges, read }) {
           seen.add(kk);
           calls.push([f.path, di, impl, ii, line, 1]);
         }
+      }
+      // a class looked up by type, then called: context.read<CheckoutCubit>().placeOrder(), getIt<Api>().load(),
+      // Provider.of<Cart>(context).add(), get<Repo>().save(), app(OrderService::class)->place()
+      for (const m of text.matchAll(/<\s*([A-Z]\w*)\s*(?:<[^<>]*>)?\s*>\s*\(\s*[^()]*\)\s*\.\s*([a-z_]\w*)\s*\(|\b(?:app|resolve|inject|get|make)\(\s*([A-Z]\w*)(?:\.class|::class|\.self)?\s*\)\s*\.\s*([a-z_]\w*)\s*\(/g)) {
+        const hits = onType(f, m[1] || m[3], m[2] || m[4]);
+        const line = d.line + text.slice(0, m.index).split('\n').length - 1;
+        for (const h of hits) { const k = `${di}|${h[0]}|${h[1]}`; if (seen.has(k)) continue; seen.add(k); calls.push([f.path, di, h[0], h[1], line, ...(hits.length > 1 ? [1] : [])]); }
       }
       // a function of this file handed over as a callback (Command1(_load), onPressed: _submit, .map(toRow))
       for (const m of text.matchAll(/(?<![\w$.])([A-Za-z_$][\w$]*)(?=\s*[,)\]}])/g)) {

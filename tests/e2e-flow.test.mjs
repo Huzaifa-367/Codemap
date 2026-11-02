@@ -17,7 +17,7 @@ after(() => cleanup(root));
 const names = (n, out = []) => { out.push(n.type === 'function' ? n.name : n.type === 'endpoint' ? n.name : `[${n.type}:${n.name}]`); (n.children || []).forEach((c) => names(c, out)); return out; };
 const findStep = (n, pred) => { if (pred(n)) return n; for (const c of n.children || []) { const x = findStep(c, pred); if (x) return x; } return null; };
 
-test('Flutter + Laravel: a call through a typed field reaches the class it names', { todo: 'Flows 2' }, () => {
+test('Flutter + Laravel: a call through a typed field reaches the class it names', () => {
   const calls = g.calls.map(([fp, fi, tp, ti]) => `${g.files.find((f) => f.p === fp).fn[fi][0]} -> ${g.files.find((f) => f.p === tp).fn[ti][0]}`);
   assert.ok(calls.includes('placeOrder -> createOrder'), calls.join('\n'));
   assert.ok(calls.includes('store -> place'), calls.join('\n'));
